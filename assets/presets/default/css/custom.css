@@ -1,0 +1,351 @@
+/* Write your css codes here */
+
+
+/* ================================================
+   HILLTOP HERO SLIDER
+   ================================================ */
+
+/* Header - always white */
+.header-main-area { position: relative !important; z-index: 999 !important; }
+.header-main-area .header {
+    position: relative !important;
+    background: #ffffff !important;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.08) !important;
+}
+
+/* Slider wrapper - full width, fixed height */
+.hilltop-hero-wrap {
+    position: relative;
+    width: 100vw;
+    margin-left: calc(-50vw + 50%);
+    height: 650px;
+    overflow: hidden;
+    background: #111;
+}
+
+/* Slick container */
+.hilltop-slides,
+.hilltop-slides .slick-list,
+.hilltop-slides .slick-track { height: 650px !important; }
+
+/* Each slide */
+.hilltop-slide {
+    height: 650px !important;
+    background-size: cover !important;
+    background-position: center center !important;
+    background-repeat: no-repeat !important;
+    position: relative !important;
+}
+.hilltop-slide-overlay {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(to bottom, rgba(0,0,0,0.45) 0%, rgba(0,0,0,0.2) 50%, rgba(0,0,0,0.55) 100%);
+}
+
+/* Content overlay - sits above slider, never moves */
+.hilltop-hero-content {
+    position: absolute;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    z-index: 10;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-end;
+    padding: 0 20px 60px;
+    pointer-events: none;
+}
+.hilltop-hero-text {
+    text-align: center;
+    margin-bottom: 24px;
+    pointer-events: none;
+}
+.hilltop-hero-text h6 {
+    color: #fff;
+    font-size: 20px;
+    font-weight: 900;
+    margin-bottom: 8px;
+    text-shadow: 0 1px 4px rgba(0,0,0,0.7);
+    font-family: inherit;
+}
+.hilltop-hero-text h1 {
+    color: #fff;
+    font-size: clamp(1.8rem, 4vw, 3.5rem);
+    font-weight: 700;
+    margin-bottom: 10px;
+    text-shadow: 0 2px 10px rgba(0,0,0,0.7);
+    line-height: 1.2;
+}
+.hilltop-hero-text p {
+    color: rgba(255,255,255,0.92);
+    font-size: 16px;
+    max-width: 560px;
+    margin: 0 auto;
+    text-shadow: 0 1px 4px rgba(0,0,0,0.6);
+}
+
+/* Search bar */
+.hilltop-hero-search { width: 100%; max-width: 860px; pointer-events: all; }
+.hilltop-search-inner {
+    background: rgba(255,255,255,0.97);
+    border-radius: 50px;
+    padding: 8px 8px 8px 16px;
+    display: flex;
+    align-items: center;
+    box-shadow: 0 8px 32px rgba(0,0,0,0.3);
+    flex-wrap: nowrap;
+}
+.hs-field {
+    display: flex;
+    align-items: center;
+    flex: 1;
+    min-width: 0;
+    padding: 4px 10px;
+}
+.hs-field + .hs-field { border-left: 1px solid #e0e0e0; }
+.hs-field i { color: #999; font-size: 13px; margin-right: 7px; flex-shrink: 0; }
+.hs-field input,
+.hs-field select {
+    border: none !important;
+    outline: none !important;
+    background: transparent !important;
+    width: 100%;
+    font-size: 14px;
+    padding: 6px 0;
+    color: #333;
+    cursor: pointer;
+}
+.hs-btn {
+    background: var(--base-color, #0d6efd);
+    color: #fff !important;
+    border: none;
+    border-radius: 50px;
+    padding: 10px 22px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    white-space: nowrap;
+    flex-shrink: 0;
+    margin-left: 6px;
+}
+.hs-btn:hover { opacity: 0.9; }
+
+/* Arrows */
+.hilltop-arr {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    z-index: 15;
+    background: rgba(255,255,255,0.15);
+    border: 2px solid rgba(255,255,255,0.4);
+    border-radius: 50%;
+    width: 46px; height: 46px;
+    color: #fff;
+    font-size: 26px;
+    line-height: 42px;
+    text-align: center;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+.hilltop-arr:hover { background: rgba(255,255,255,0.35); }
+.hilltop-arr-prev { left: 16px; }
+.hilltop-arr-next { right: 16px; }
+
+/* Hide original hero text/search, keep mosaic */
+.hero .hero-content--wrap .col-lg-8,
+.hero .hero-content--wrap .col-lg-11,
+.hero .hero--element__wrap { display: none !important; }
+.hero { padding-top: 0 !important; }
+.hero .hero-content--wrap { padding-top: 30px !important; }
+
+/* Responsive */
+@media (max-width: 767px) {
+    .hilltop-hero-wrap,
+    .hilltop-slides,
+    .hilltop-slides .slick-list,
+    .hilltop-slides .slick-track,
+    .hilltop-slide { height: 500px !important; }
+    .hilltop-search-inner {
+        flex-wrap: wrap;
+        border-radius: 16px;
+        padding: 10px;
+        gap: 2px;
+    }
+    .hs-field { flex: 1 1 45%; border-left: none !important; padding: 6px 8px; }
+    .hs-field + .hs-field { border-top: 1px solid #eee; }
+    .hs-btn { width: 100%; border-radius: 12px; margin-left: 0; margin-top: 6px; padding: 10px; }
+    .hilltop-hero-content { padding: 0 12px 20px; }
+    .hilltop-arr { display: none; }
+}
+@media (max-width: 480px) {
+    .hilltop-hero-wrap,
+    .hilltop-slides,
+    .hilltop-slides .slick-list,
+    .hilltop-slides .slick-track,
+    .hilltop-slide { height: 420px !important; }
+    .hs-field { flex: 1 1 100%; }
+}
+
+
+.hilltop-slides .slick-list { overflow: hidden !important; }
+.hilltop-slides .slick-track { width: 100% !important; }
+.hilltop-slides .slick-slide { 
+    position: absolute !important; 
+    top: 0; left: 0;
+    opacity: 0 !important;
+    transition: opacity 0.8s ease !important;
+    width: 100% !important;
+}
+.hilltop-slides .slick-slide.slick-active { 
+    opacity: 1 !important; 
+    position: relative !important;
+}
+
+/* Fix 2: Mobile - ensure title shows at top */
+@media (max-width: 575px) {
+    .hilltop-hero-wrap,
+    .hilltop-slides,
+    .hilltop-slides .slick-list,
+    .hilltop-slides .slick-track,
+    .hilltop-slide { height: 560px !important; }
+    .hilltop-hero-content {
+        justify-content: center !important;
+        padding: 20px 12px 16px !important;
+    }
+    .hilltop-hero-text h6 { font-size: 15px !important; margin-bottom: 5px !important; }
+    .hilltop-hero-text h1 { font-size: 1.5rem !important; margin-bottom: 8px !important; }
+    .hilltop-hero-text p { font-size: 13px !important; }
+    .hilltop-hero-text { margin-bottom: 12px !important; }
+}
+
+
+
+
+
+
+
+.hilltop-slides .slick-slide {
+    width: 100vw !important;
+}
+.hilltop-slides.slick-initialized .slick-slide {
+    display: block !important;
+}
+/* Remove any gap from slick-track in fade mode */
+.hilltop-slides .slick-track {
+    height: 650px !important;
+}
+
+
+
+/* Pure CSS Crossfade Slider */
+.hilltop-css-slider {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+}
+.hilltop-css-slide {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    background-size: cover !important;
+    background-position: center center !important;
+    background-repeat: no-repeat !important;
+    opacity: 0;
+    transition: opacity 1.2s ease-in-out;
+    z-index: 1;
+}
+.hilltop-css-slide.active {
+    opacity: 1;
+    z-index: 2;
+}
+/* Dark overlay on each slide */
+.hilltop-css-slide::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(to bottom, rgba(0,0,0,0.4) 0%, rgba(0,0,0,0.2) 50%, rgba(0,0,0,0.5) 100%);
+}
+
+/* Hide language selector in header */
+li.language { display: none !important; }
+
+
+/* ---- Select2 in hero search bar - clean fix ---- */
+.hilltop-search-inner .select2-container--default .select2-selection--single {
+    height: 41px !important;
+    border: none !important;
+    background: transparent !important;
+    box-shadow: none !important;
+    outline: none !important;
+    display: flex !important;
+    align-items: center !important;
+}
+.hilltop-search-inner .select2-container--default .select2-selection--single .select2-selection__rendered {
+    line-height: 41px !important;
+    padding-left: 0 !important;
+    padding-right: 20px !important;
+    color: #555 !important;
+    font-size: 14px !important;
+}
+.hilltop-search-inner .select2-container--default .select2-selection--single .select2-selection__arrow {
+    height: 41px !important;
+    top: 0 !important;
+    right: 0 !important;
+    width: 16px !important;
+}
+.hilltop-search-inner .select2-container--default .select2-selection--single .select2-selection__arrow b {
+    border-color: #999 transparent transparent transparent !important;
+}
+
+/* Logo preloader */
+#preloader {
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+}
+#preloader-logo {
+    animation: preloaderPulse 1s ease-in-out infinite alternate;
+}
+#preloader-logo img {
+    width: 180px;
+    height: auto;
+}
+@keyframes preloaderPulse {
+    from { opacity: 0.4; transform: scale(0.95); }
+    to { opacity: 1; transform: scale(1.05); }
+}
+
+/* Hilltop preloader overrides */
+#preloader { background: #0a2540 !important; flex-direction: column !important; gap: 20px !important; }
+#preloader #text { flex-wrap: wrap !important; justify-content: center !important; max-width: 600px !important; }
+#preloader #text p { font-size: 28px !important; }
+#preloader #text p.space { width: 16px !important; min-width: 16px !important; }
+#preloader-logo img { width: 160px !important; }
+
+/* Fix preloader for 23 letters */
+#preloader #text p:nth-child(1)  { animation-delay: 0.1s; }
+#preloader #text p:nth-child(2)  { animation-delay: 0.2s; }
+#preloader #text p:nth-child(3)  { animation-delay: 0.3s; }
+#preloader #text p:nth-child(4)  { animation-delay: 0.4s; }
+#preloader #text p:nth-child(5)  { animation-delay: 0.5s; }
+#preloader #text p:nth-child(6)  { animation-delay: 0.6s; }
+#preloader #text p:nth-child(7)  { animation-delay: 0.7s; }
+#preloader #text p:nth-child(8)  { animation-delay: 0.75s; }
+#preloader #text p:nth-child(9)  { animation-delay: 0.8s; }
+#preloader #text p:nth-child(10) { animation-delay: 0.9s; }
+#preloader #text p:nth-child(11) { animation-delay: 1.0s; }
+#preloader #text p:nth-child(12) { animation-delay: 1.05s; }
+#preloader #text p:nth-child(13) { animation-delay: 1.1s; }
+#preloader #text p:nth-child(14) { animation-delay: 1.2s; }
+#preloader #text p:nth-child(15) { animation-delay: 1.3s; }
+#preloader #text p:nth-child(16) { animation-delay: 1.4s; }
+#preloader #text p:nth-child(17) { animation-delay: 1.5s; }
+#preloader #text p:nth-child(18) { animation-delay: 1.6s; }
+#preloader #text p:nth-child(19) { animation-delay: 1.7s; }
+#preloader #text p:nth-child(20) { animation-delay: 1.8s; }
+#preloader #text p:nth-child(21) { animation-delay: 1.9s; }
+#preloader #text p:nth-child(22) { animation-delay: 2.0s; }
+#preloader #text p:nth-child(23) { animation-delay: 2.1s; }
+#preloader-logo { display: none !important; }
