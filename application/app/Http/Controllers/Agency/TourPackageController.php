@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Agency;
 
 use App\Models\Category;
+use App\Models\PriceCategory;
 use App\Models\TourPackage;
 use App\Traits\TourService;
 use Illuminate\Http\Request;
@@ -30,15 +31,17 @@ class TourPackageController extends Controller
 
     public function edit($id)
     {
-       
+
         $pageTitle = 'Tour Package Edit';
         $categories = Category::where('status', 1)->latest()->get();
-        $tourPackage =  TourPackage::with('category')->where('user_type','agency')->where('user_id',auth('agency')->id())->first();
+        $priceCategories = PriceCategory::active()->ordered()->get();
+        $tourPackage =  TourPackage::with(['category', 'departures.departurePrices'])->where('user_type','agency')->where('user_id',auth('agency')->id())->first();
         if(!$tourPackage){
             $notify[] = ['error', 'Your tour package id is not valid'];
             return back()->withNotify($notify);
         }
-        return view($this->activeTemplate . 'agency.tour_package.edit', compact('pageTitle', 'categories', 'tourPackage'));
+        $tourPackage->departures->each(fn($departure) => $departure->setRelation('tourPackage', $tourPackage));
+        return view($this->activeTemplate . 'agency.tour_package.edit', compact('pageTitle', 'categories', 'priceCategories', 'tourPackage'));
     }
 
     public function active()

@@ -91,77 +91,26 @@
                                     </select>
                                 </div>
                             </div>
-
-                            <div class="col-lg-3">
-                                <div class="form-group">
-                                    <label class="mb-2 form--label">@lang('Flexible Date')</label>
-                                    <select name="flexible_date" id="status" class="form--control form--select"
-                                        required>
-                                        <option>@lang('Select flexible date')</option>
-                                        <option value="1">@lang('Fixed Date')</option>
-                                        <option value="2">@lang('Custom Date')</option>
-                                    </select>
-                                </div>
-                            </div>
                         </div>
 
                         <div class="row mb-4">
-                            <div class="col-lg-3">
-                                <div class="form-group">
-                                    <label class="mb-2 form--label">@lang('Tour Start Date') </label>
-                                    <input type="text" name="start_date"
-                                        class="form-control form--control datepicker-active" autocomplete="off"
-                                        data-language="en" placeholder="@lang('Start date')"
-                                        value="{{ old('start_date') }}" required>
-                                </div>
-                            </div>
-                            <div class="col-lg-3">
-                                <div class="form-group">
-                                    <label class="mb-2 form--label">@lang('Tour End Date')</label>
-                                    <input type="text" name="end_date"
-                                        class="form-control form--control datepicker-active" autocomplete="off"
-                                        data-language="en" placeholder="@lang('End date')"
-                                        value="{{ old('end_date') }}" required>
-                                </div>
-                            </div>
-
-                            <div class="col-md-6 col-lg-3">
-                                <div class="form-group">
-                                    <label class="mb-2 form--label">@lang('Person Capability')</label>
-                                    <input type="number" step="any" name="person_capability"
-                                        class="form-control form--control" placeholder="@lang('Person Capability')" required>
-                                </div>
-                            </div>
-
-                            <div class="col-md-6 col-lg-3">
+                            <div class="col-md-6 col-lg-4">
                                 <div class="form-group">
                                     <label class="mb-2 form--label">@lang('Stay day & nights')</label>
                                     <input type="text" step="any" name="day_nights"
-                                        class="form-control form--control" placeholder="@lang('3 day & 2 nights')" required>
+                                        class="form-control form--control" placeholder="@lang('3 day & 2 nights')"
+                                        value="{{ old('day_nights') }}" required>
                                 </div>
                             </div>
-                        </div>
-
-                        <div class="row align-items-center mb-4">
-                            <div class="col-md-6 col-lg-6">
+                            <div class="col-md-6 col-lg-4">
                                 <div class="form-group">
-                                    <label class="mb-2 form--label">@lang('Price')</label>
-                                    <div class="input-group">
-                                        <input type="text" class="form-control form--control" placeholder="Price"
-                                            name="price" aria-label="price" aria-describedby="basic-addon2"
-                                            value="{{ old('price') }}" required>
-                                        <span class="input-group-text" id="basic-addon2">{{ gs()->cur_sym }}</span>
-                                    </div>
+                                    <label class="mb-2 form--label">@lang('Duration (nights)')</label>
+                                    <input type="number" min="1" name="duration_nights"
+                                        class="form-control form--control" placeholder="@lang('e.g. 4')"
+                                        value="{{ old('duration_nights') }}" required>
+                                    <small class="text-muted">@lang('Used to compute each departure\'s end date.')</small>
                                 </div>
                             </div>
-                            <div class="col-lg-6">
-                                <div class="form-group">
-                                    <label class="mb-2 form--label">@lang('Discount')</label>
-                                    <input type="number" step="any" name="discount"
-                                        class="form-control form--control" placeholder="@lang('Discount')">
-                                </div>
-                            </div>
-
                         </div>
 
                         <div class="row mb-4">
@@ -309,13 +258,10 @@
 
 @push('style-lib')
     <link href="{{ asset('assets/admin/css/fontawesome-iconpicker.min.css') }}" rel="stylesheet">
-    <link rel="stylesheet" href="{{ asset('assets/admin/css/datepicker.min.css') }}">
 @endpush
 
 @push('script-lib')
     <script src="{{ asset('assets/admin/js/fontawesome-iconpicker.js') }}"></script>
-    <script src="{{ asset('assets/admin/js/datepicker.min.js') }}"></script>
-    <script src="{{ asset('assets/admin/js/datepicker.en.js') }}"></script>
     <script src="{{ asset('assets/common/js/ckeditor.js') }}"></script>
 @endpush
 
@@ -384,18 +330,6 @@
 @endpush
 
 @push('script')
-    <script>
-        $(document).ready(function() {
-            'use strict'
-            $(".datepicker-active").datepicker({
-                minDate: new Date(),
-                timepicker: true,
-                timeFormat: ', hh:ii aa'
-
-            });
-        });
-    </script>
-
     <script>
         (function($) {
             "use strict";
