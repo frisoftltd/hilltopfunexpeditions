@@ -9,7 +9,7 @@ class DeployPull extends Command
 {
     protected $signature = 'app:deploy';
 
-    protected $description = 'Pull the latest code from GitHub and clear caches (the same routine the admin panel Update button runs)';
+    protected $description = 'Pull the latest code from GitHub, run pending migrations, and clear caches (the same routine the admin panel Update button runs)';
 
     public function handle(DeployRunner $runner): int
     {

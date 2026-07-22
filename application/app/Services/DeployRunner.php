@@ -64,6 +64,10 @@ class DeployRunner
                 return ['ok' => false, 'log' => implode("\n", $log)];
             }
 
+            Artisan::call('migrate', ['--force' => true]);
+            $log[] = '$ php artisan migrate --force';
+            $log[] = trim(Artisan::output()) ?: 'Nothing to migrate.';
+
             Artisan::call('optimize:clear');
             $log[] = '$ php artisan optimize:clear';
             $log[] = trim(Artisan::output()) ?: 'Done.';

@@ -93,7 +93,7 @@
 
             $('#btnUpdate').on('click', function() {
                 if (!confirm(
-                        '@lang('This will pull the latest code now and briefly put the site into maintenance mode. Continue?')'
+                        '@lang('This will pull the latest code, run any pending database migrations, and briefly put the site into maintenance mode. Continue?')'
                     )) {
                     return;
                 }
