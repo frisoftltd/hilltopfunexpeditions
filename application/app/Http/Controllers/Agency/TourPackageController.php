@@ -26,7 +26,8 @@ class TourPackageController extends Controller
     {
         $pageTitle = 'Create Tour Package';
         $categories = Category::where('status', 1)->latest()->get();
-        return view($this->activeTemplate . 'agency.tour_package.create', compact('pageTitle', 'categories'));
+        $priceCategories = PriceCategory::active()->ordered()->get();
+        return view($this->activeTemplate . 'agency.tour_package.create', compact('pageTitle', 'categories', 'priceCategories'));
     }
 
     public function edit($id)
