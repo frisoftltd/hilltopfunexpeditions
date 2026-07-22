@@ -18,8 +18,6 @@ trait TourDepartureService
 {
     protected function storeDeparture(Request $request, TourPackage $tourPackage)
     {
-        $categories = PriceCategory::active()->get();
-
         $request->validate([
             'start_date' => 'required|date|after_or_equal:today',
             'seats_total' => 'required|integer|min:1',
@@ -30,14 +28,11 @@ trait TourDepartureService
 
         DB::beginTransaction();
         try {
-            $departure = new TourDeparture();
-            $departure->tour_package_id = $tourPackage->id;
-            $departure->start_date = $request->start_date;
-            $departure->seats_total = $request->seats_total;
-            $departure->status = 1;
-            $departure->save();
-
-            $this->savePrices($departure, $request->prices, $categories);
+            $this->createDeparture($tourPackage, [
+                'start_date' => $request->start_date,
+                'seats_total' => $request->seats_total,
+                'prices' => $request->prices,
+            ]);
 
             DB::commit();
             $notify[] = ['success', 'Departure added successfully'];
@@ -47,6 +42,38 @@ trait TourDepartureService
         }
 
         return back()->withNotify($notify);
+    }
+
+    /**
+     * Create one or more new departures (with per-category prices) for a
+     * package from an already-validated array - used when departures are
+     * staged alongside the rest of the package form (create/edit) instead of
+     * submitted one at a time via storeDeparture(). The caller owns the
+     * surrounding transaction.
+     *
+     * @param array<int, array{start_date: string, seats_total: int, prices: array}> $departuresData
+     */
+    protected function createDeparturesForPackage(TourPackage $tourPackage, array $departuresData): void
+    {
+        foreach ($departuresData as $data) {
+            $this->createDeparture($tourPackage, $data);
+        }
+    }
+
+    private function createDeparture(TourPackage $tourPackage, array $data): TourDeparture
+    {
+        $categories = PriceCategory::active()->get();
+
+        $departure = new TourDeparture();
+        $departure->tour_package_id = $tourPackage->id;
+        $departure->start_date = $data['start_date'];
+        $departure->seats_total = $data['seats_total'];
+        $departure->status = 1;
+        $departure->save();
+
+        $this->savePrices($departure, $data['prices'] ?? [], $categories);
+
+        return $departure;
     }
 
     protected function updateDeparture(Request $request, TourDeparture $departure)

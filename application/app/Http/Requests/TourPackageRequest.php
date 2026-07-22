@@ -47,8 +47,34 @@ class TourPackageRequest extends FormRequest
                 'icons.*' => 'required',
                 'features' => 'required|array|min:1',
                 'features.*' => 'required',
+                'exclusion_icons' => 'nullable|array',
+                'exclusion_icons.*' => 'required',
+                'exclusions' => 'nullable|array',
+                'exclusions.*' => 'required',
                 'images' => 'required|array|min:1',
-                'images.*' => ['max:3072','image', new FileTypeValidate(['jpg','jpeg','png','JPG','JPEG','PNG'])]
+                'images.*' => ['max:3072','image', new FileTypeValidate(['jpg','jpeg','png','JPG','JPEG','PNG'])],
+
+                // Trip attributes
+                'group_size_min' => 'nullable|integer|min:1',
+                'group_size_max' => 'nullable|integer|min:1|gte:group_size_min',
+                'guide_language' => 'nullable|string|max:190',
+                'age_range_min' => 'nullable|integer|min:0',
+                'age_range_max' => 'nullable|integer|min:0|gte:age_range_min',
+                'intensity' => 'nullable|integer|in:1,2,3,4,5',
+
+                // Day-by-day itinerary
+                'itinerary' => 'nullable|array',
+                'itinerary.*.day' => 'required_with:itinerary|integer|min:1',
+                'itinerary.*.title' => 'required_with:itinerary|string',
+                'itinerary.*.description' => 'nullable|string',
+
+                // Departures staged alongside the package itself
+                'departures' => 'nullable|array',
+                'departures.*.start_date' => 'required_with:departures|date|after_or_equal:today',
+                'departures.*.seats_total' => 'required_with:departures|integer|min:1',
+                'departures.*.prices' => 'required_with:departures|array',
+                'departures.*.prices.*.price' => 'required|numeric|min:0',
+                'departures.*.prices.*.discount' => 'nullable|numeric|min:0|max:100',
 
             ];
         if ($this->method() == "PUT" && request()->old_tour_package_images) {

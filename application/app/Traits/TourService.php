@@ -11,6 +11,8 @@ use App\Http\Requests\TourPackageRequest;
 
 trait TourService
 {
+    use TourDepartureService;
+
     protected $data;
 
     public function store(TourPackageRequest $request)
@@ -29,6 +31,10 @@ trait TourService
                 $notify[] = ['error', 'Some data are missing'];
                 return back()->withNotify($notify);
             }
+            if (count($request->exclusions ?? []) != count($request->exclusion_icons ?? [])) {
+                $notify[] = ['error', 'Some data are missing'];
+                return back()->withNotify($notify);
+            }
             if (!($request->latitude && $request->longitude)) {
                 $notify[] = ['error', 'Please location select Perfectly'];
                 return back()->withNotify($notify);
@@ -40,6 +46,14 @@ trait TourService
                 ],
                 $request->icons,
                 $request->features
+            );
+            $exclusionsArray = array_map(
+                fn($icon, $feature) => [
+                    'icon'    => $icon,
+                    'feature' => $feature,
+                ],
+                $request->exclusion_icons ?? [],
+                $request->exclusions ?? []
             );
 
             $tourPackage = new TourPackage();
@@ -59,12 +73,22 @@ trait TourService
             $tourPackage->country = $request->country;
             $tourPackage->zip_code = $request->zipcode;
             $tourPackage->features = $fullArray;
+            $tourPackage->exclusions = $exclusionsArray;
             $tourPackage->destination_overview = str_replace('"', "'", ($request->destination_overview));
             $tourPackage->highlights = $request->highlights;
+            $tourPackage->itinerary = $request->itinerary ?? [];
+            $tourPackage->group_size_min = $request->group_size_min;
+            $tourPackage->group_size_max = $request->group_size_max;
+            $tourPackage->guide_language = $request->guide_language;
+            $tourPackage->age_range_min = $request->age_range_min;
+            $tourPackage->age_range_max = $request->age_range_max;
+            $tourPackage->intensity = $request->intensity;
 
             $tourPackage->status = 1;
 
             $tourPackage->save();
+
+            $this->createDeparturesForPackage($tourPackage, $request->departures ?? []);
 
             if ($request->hasFile('images')) {
 
@@ -110,6 +134,10 @@ trait TourService
             $notify[] = ['error', 'Some data are missing'];
             return back()->withNotify($notify);
         }
+        if (count($request->exclusions ?? []) != count($request->exclusion_icons ?? [])) {
+            $notify[] = ['error', 'Some data are missing'];
+            return back()->withNotify($notify);
+        }
         if (!($request->latitude && $request->longitude)) {
             $notify[] = ['error', 'Please location select Perfectly'];
             return back()->withNotify($notify);
@@ -121,6 +149,14 @@ trait TourService
             ],
             $request->icons,
             $request->features
+        );
+        $exclusionsArray = array_map(
+            fn($icon, $feature) => [
+                'icon'    => $icon,
+                'feature' => $feature,
+            ],
+            $request->exclusion_icons ?? [],
+            $request->exclusions ?? []
         );
 
         $tourPackage = TourPackage::with('tour_package_images')->findOrFail($id);
@@ -138,10 +174,20 @@ trait TourService
         $tourPackage->country = $request->country;
         $tourPackage->zip_code = $request->zipcode;
         $tourPackage->features = $fullArray;
+        $tourPackage->exclusions = $exclusionsArray;
         $tourPackage->destination_overview = str_replace('"', "'", ($request->destination_overview));
         $tourPackage->highlights = $request->highlights;
+        $tourPackage->itinerary = $request->itinerary ?? [];
+        $tourPackage->group_size_min = $request->group_size_min;
+        $tourPackage->group_size_max = $request->group_size_max;
+        $tourPackage->guide_language = $request->guide_language;
+        $tourPackage->age_range_min = $request->age_range_min;
+        $tourPackage->age_range_max = $request->age_range_max;
+        $tourPackage->intensity = $request->intensity;
 
         $tourPackage->save();
+
+        $this->createDeparturesForPackage($tourPackage, $request->departures ?? []);
 
         if ($request->hasFile('images')) {
             foreach ($request->images as $index => $img) {
