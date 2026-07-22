@@ -39,12 +39,14 @@ class DeployRunner
         $log = ['[' . now()->toIso8601String() . '] Update started'];
 
         try {
-            $dirty = $this->runGit(['status', '--porcelain']);
-            $log[] = '$ git status --porcelain';
+            // -uno excludes untracked files (e.g. runtime uploads under assets/)
+            // so only changes to already-tracked files can block a deploy.
+            $dirty = $this->runGit(['status', '--porcelain', '-uno']);
+            $log[] = '$ git status --porcelain -uno';
             $log[] = $dirty['output'] !== '' ? $dirty['output'] : '(clean)';
 
             if ($dirty['output'] !== '') {
-                $log[] = 'ABORTED: server working tree has uncommitted changes. Resolve manually, then retry.';
+                $log[] = 'ABORTED: server has uncommitted changes to tracked files. Resolve manually, then retry.';
                 return ['ok' => false, 'log' => implode("\n", $log)];
             }
 

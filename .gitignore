@@ -8,6 +8,23 @@ application/storage/logs/*
 application/storage/app/public/*
 application/storage/app/deploy/*
 application/bootstrap/cache/*
+
+# Runtime uploads written by the app after deploy (see App\Traits\FileInfo /
+# App\Lib\FileManager) - these are user/admin content, not shipped assets.
+# Some of these paths already have files tracked from before this was added;
+# gitignore only affects new/untracked files, so those stay tracked as-is.
+assets/verify/*
+assets/images/verify/*
+assets/images/withdraw/*
+assets/support/*
+assets/images/general/*
+assets/images/plugins/*
+assets/images/seo/*
+assets/images/language/*
+assets/images/user/*
+assets/admin/images/profile/*
+assets/images/frontend/*
+assets/images/tour_package_image/*
 *.log
 __MACOSX/
 Files/
