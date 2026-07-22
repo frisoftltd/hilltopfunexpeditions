@@ -223,6 +223,70 @@
                                                 </div>
                                             </div>
                                         </div>
+                                        @if ($tourPackage->group_size_min || $tourPackage->group_size_max)
+                                            <div class="col-lg-6">
+                                                <div class="details__key-item">
+                                                    <div class="d-flex align-items-center justify-content-start gap--12 mb-2">
+                                                        <div class="icon--wrap d-flex align-items-center justify-content-center">
+                                                            <i class="fa-solid fa-user-group"></i>
+                                                        </div>
+                                                        <p>@lang('Group Size')</p>
+                                                    </div>
+                                                    <div class="content--wrap">
+                                                        <h6 class="mb-0 fw--500 text--black7">
+                                                            {{ $tourPackage->group_size_min }}@if ($tourPackage->group_size_max)–{{ $tourPackage->group_size_max }}@endif
+                                                        </h6>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        @endif
+                                        @if ($tourPackage->guide_language)
+                                            <div class="col-lg-6">
+                                                <div class="details__key-item">
+                                                    <div class="d-flex align-items-center justify-content-start gap--12 mb-2">
+                                                        <div class="icon--wrap d-flex align-items-center justify-content-center">
+                                                            <i class="fa-solid fa-language"></i>
+                                                        </div>
+                                                        <p>@lang('Guided In')</p>
+                                                    </div>
+                                                    <div class="content--wrap">
+                                                        <h6 class="mb-0 fw--500 text--black7">{{ $tourPackage->guide_language }}</h6>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        @endif
+                                        @if ($tourPackage->age_range_min || $tourPackage->age_range_max)
+                                            <div class="col-lg-6">
+                                                <div class="details__key-item">
+                                                    <div class="d-flex align-items-center justify-content-start gap--12 mb-2">
+                                                        <div class="icon--wrap d-flex align-items-center justify-content-center">
+                                                            <i class="fa-solid fa-child-reaching"></i>
+                                                        </div>
+                                                        <p>@lang('Age Range')</p>
+                                                    </div>
+                                                    <div class="content--wrap">
+                                                        <h6 class="mb-0 fw--500 text--black7">
+                                                            {{ $tourPackage->age_range_min }}@if ($tourPackage->age_range_max)–{{ $tourPackage->age_range_max }}@endif
+                                                        </h6>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        @endif
+                                        @if ($tourPackage->intensity)
+                                            <div class="col-lg-6">
+                                                <div class="details__key-item">
+                                                    <div class="d-flex align-items-center justify-content-start gap--12 mb-2">
+                                                        <div class="icon--wrap d-flex align-items-center justify-content-center">
+                                                            <i class="fa-solid fa-gauge-high"></i>
+                                                        </div>
+                                                        <p>@lang('Intensity')</p>
+                                                    </div>
+                                                    <div class="content--wrap">
+                                                        <h6 class="mb-0 fw--500 text--black7">{{ __($tourPackage->intensity_label) }}</h6>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        @endif
                                     </div>
                                 </div>
 
@@ -235,6 +299,35 @@
 
                                     </div>
                                 </div>
+
+                                @if (!empty($tourPackage->itinerary))
+                                    <div class="product--details__info mb-4 section--bg p-4 radius--12">
+                                        <h6 class="fs--22 fw--600 mb-3">@lang('Itinerary')</h6>
+                                        <div class="accordion" id="itineraryAccordion">
+                                            @foreach ($tourPackage->itinerary as $index => $day)
+                                                <div class="accordion-item">
+                                                    <h2 class="accordion-header" id="itineraryHeading{{ $index }}">
+                                                        <button class="accordion-button {{ $index > 0 ? 'collapsed' : '' }}"
+                                                            type="button" data-bs-toggle="collapse"
+                                                            data-bs-target="#itineraryCollapse{{ $index }}"
+                                                            aria-expanded="{{ $index == 0 ? 'true' : 'false' }}"
+                                                            aria-controls="itineraryCollapse{{ $index }}">
+                                                            @lang('Day') {{ $day->day }}: {{ $day->title }}
+                                                        </button>
+                                                    </h2>
+                                                    <div id="itineraryCollapse{{ $index }}"
+                                                        class="accordion-collapse collapse {{ $index == 0 ? 'show' : '' }}"
+                                                        aria-labelledby="itineraryHeading{{ $index }}"
+                                                        data-bs-parent="#itineraryAccordion">
+                                                        <div class="accordion-body">
+                                                            {{ $day->description }}
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            @endforeach
+                                        </div>
+                                    </div>
+                                @endif
 
                                 <div class="product--details__info mb-4 section--bg p-4 radius--12">
                                     <h6 class="fs--22 fw--600">@lang('Highlights')</h6>
@@ -253,17 +346,37 @@
                                     </ul>
                                 </div>
 
-                                <div class="product--details__info mb-4 section--bg p-4 radius--12">
-                                    <h6 class="fs--22 fw--600">@lang('What’s Included')</h6>
-                                    <ul class="highlight__key d-flex flex-column gap--12">
-                                        @foreach ($tourPackage->features as $item)
-                                            <li class="d-flex gap--8">
-                                                <span class="text--success">
-                                                    @php echo (iconCheck($item->icon)) @endphp </span>
-                                                <p>{{ __($item->feature) }}</p>
-                                            </li>
-                                        @endforeach
-                                    </ul>
+                                <div class="row gy-4">
+                                    <div class="col-lg-6">
+                                        <div class="product--details__info mb-4 section--bg p-4 radius--12 h-100">
+                                            <h6 class="fs--22 fw--600">@lang('What’s Included')</h6>
+                                            <ul class="highlight__key d-flex flex-column gap--12">
+                                                @foreach ($tourPackage->features as $item)
+                                                    <li class="d-flex gap--8">
+                                                        <span class="text--success">
+                                                            @php echo (iconCheck($item->icon)) @endphp </span>
+                                                        <p>{{ __($item->feature) }}</p>
+                                                    </li>
+                                                @endforeach
+                                            </ul>
+                                        </div>
+                                    </div>
+                                    @if (!empty($tourPackage->exclusions))
+                                        <div class="col-lg-6">
+                                            <div class="product--details__info mb-4 section--bg p-4 radius--12 h-100">
+                                                <h6 class="fs--22 fw--600">@lang('Not Included')</h6>
+                                                <ul class="highlight__key d-flex flex-column gap--12">
+                                                    @foreach ($tourPackage->exclusions as $item)
+                                                        <li class="d-flex gap--8">
+                                                            <span class="text--danger">
+                                                                @php echo (iconCheck($item->icon)) @endphp </span>
+                                                            <p>{{ __($item->feature) }}</p>
+                                                        </li>
+                                                    @endforeach
+                                                </ul>
+                                            </div>
+                                        </div>
+                                    @endif
                                 </div>
                             </div>
 
