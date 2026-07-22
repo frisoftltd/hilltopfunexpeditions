@@ -11,10 +11,7 @@
     $galleryElements = $galleryElements->filter(function($g){ return !empty($g->data_values) && !empty($g->data_values->banner_image); })->values();
 
     \Carbon\Carbon::setlocale(session('lang', 'en'));
-    $monthOptions = collect(range(0, 11))->map(function ($i) {
-        $date = now()->addMonthsNoOverflow($i);
-        return ['value' => $date->format('Y-m'), 'label' => $date->translatedFormat('F Y')];
-    });
+    $monthNames = collect(range(1, 12))->map(fn($m) => \Carbon\Carbon::create(2000, $m, 1)->translatedFormat('F'))->values();
 @endphp
 
 <div class="hilltop-hero-wrap">
@@ -43,18 +40,51 @@
                             @endforeach
                         </select>
                     </div>
-                    <div class="hs-field">
+                    <div class="hs-field tr-picker" data-picker="month">
                         <i class="fa-regular fa-calendar-days"></i>
-                        <select name="month" class="from-select3">
-                            <option value="">@lang('Anytime')</option>
-                            @foreach($monthOptions as $opt)
-                                <option value="{{ $opt['value'] }}">{{ $opt['label'] }}</option>
-                            @endforeach
-                        </select>
+                        <button type="button" class="tr-trigger" data-anytime="@lang('Anytime')">@lang('Anytime')</button>
+                        <input type="hidden" name="month" value="">
+                        <div class="tr-panel tr-panel--month">
+                            <div class="tr-panel__head">
+                                <button type="button" class="tr-nav" data-nav="-1">&#8249;</button>
+                                <span class="tr-year"></span>
+                                <button type="button" class="tr-nav" data-nav="1">&#8250;</button>
+                            </div>
+                            <div class="tr-months"></div>
+                            <button type="button" class="tr-anytime">@lang('Anytime')</button>
+                        </div>
                     </div>
-                    <div class="hs-field">
+                    <div class="hs-field tr-picker" data-picker="travelers">
                         <i class="fa-regular fa-user"></i>
-                        <input type="number" min="1" name="travelers" value="2">
+                        <button type="button" class="tr-trigger">2 @lang('Adults')</button>
+                        <input type="hidden" name="travelers" value="2">
+                        <input type="hidden" name="adults" value="2">
+                        <input type="hidden" name="children" value="0">
+                        <div class="tr-panel tr-panel--travelers">
+                            <div class="tr-row">
+                                <div class="tr-row__label">
+                                    <strong>@lang('Adults')</strong>
+                                    <small>@lang('Ages 18 or above')</small>
+                                </div>
+                                <div class="tr-stepper">
+                                    <button type="button" class="tr-step" data-type="adults" data-dir="-1">&minus;</button>
+                                    <span class="tr-count" data-type="adults">2</span>
+                                    <button type="button" class="tr-step" data-type="adults" data-dir="1">+</button>
+                                </div>
+                            </div>
+                            <div class="tr-row">
+                                <div class="tr-row__label">
+                                    <strong>@lang('Children')</strong>
+                                    <small>@lang('Under 18')</small>
+                                </div>
+                                <div class="tr-stepper">
+                                    <button type="button" class="tr-step" data-type="children" data-dir="-1">&minus;</button>
+                                    <span class="tr-count" data-type="children">0</span>
+                                    <button type="button" class="tr-step" data-type="children" data-dir="1">+</button>
+                                </div>
+                            </div>
+                            <button type="button" class="tr-apply">@lang('Apply')</button>
+                        </div>
                     </div>
                     <button type="submit" class="hs-btn">
                         <i class="fa-solid fa-magnifying-glass"></i> @lang('Search')
@@ -86,6 +116,188 @@
     window.hilltopNext = function(){ show(current + 1); reset(); };
     window.hilltopPrev = function(){ show(current - 1); reset(); };
 })();
+</script>
+
+<script>
+(function($) {
+    "use strict";
+
+    var monthNames = @json($monthNames);
+
+    function closeAllPanels(except) {
+        $('.tr-picker.is-open').each(function() {
+            if (this !== except) {
+                $(this).removeClass('is-open');
+            }
+        });
+    }
+
+    // .tr-panel is position:fixed (an ancestor of the primary hero clips
+    // overflow), so its coordinates have to be computed from the trigger's
+    // viewport position rather than relying on a relative-positioned parent.
+    function positionPanel($trigger, $panel) {
+        var rect = $trigger[0].getBoundingClientRect();
+        var panelWidth = $panel.outerWidth() || 280;
+        var left = Math.min(rect.left, window.innerWidth - panelWidth - 16);
+        left = Math.max(left, 16);
+        $panel.css({ top: rect.bottom + 8, left: left });
+    }
+
+    $(document).on('click', function(e) {
+        if (!$(e.target).closest('.tr-picker').length) {
+            closeAllPanels(null);
+        }
+    });
+
+    function initMonthPicker(el) {
+        var $picker = $(el);
+        var $trigger = $picker.find('.tr-trigger');
+        var $hidden = $picker.find('input[name="month"]');
+        var $panel = $picker.find('.tr-panel');
+        var $year = $panel.find('.tr-year');
+        var $months = $panel.find('.tr-months');
+        var anytimeLabel = $trigger.data('anytime') || 'Anytime';
+
+        var now = new Date();
+        var currentYear = now.getFullYear();
+        var currentMonth = now.getMonth() + 1;
+        var viewYear = currentYear;
+
+        function render() {
+            $year.text(viewYear);
+            $months.empty();
+            for (var m = 1; m <= 12; m++) {
+                var disabled = (viewYear === currentYear && m < currentMonth);
+                var value = viewYear + '-' + (m < 10 ? '0' + m : m);
+                var isSelected = value === $hidden.val();
+                var $btn = $('<button type="button" class="tr-month"></button>')
+                    .text(monthNames[m - 1].slice(0, 3))
+                    .attr('data-value', value)
+                    .toggleClass('is-selected', isSelected)
+                    .prop('disabled', disabled);
+                $months.append($btn);
+            }
+            $panel.find('.tr-nav[data-nav="-1"]').prop('disabled', viewYear <= currentYear);
+        }
+
+        function selectMonth(value) {
+            var parts = value.split('-');
+            $hidden.val(value);
+            $trigger.text(monthNames[parseInt(parts[1], 10) - 1] + ' ' + parts[0]);
+            $picker.removeClass('is-open');
+        }
+
+        function selectAnytime() {
+            $hidden.val('');
+            $trigger.text(anytimeLabel);
+            $picker.removeClass('is-open');
+        }
+
+        $trigger.on('click', function(e) {
+            e.stopPropagation();
+            var willOpen = !$picker.hasClass('is-open');
+            closeAllPanels(willOpen ? el : null);
+            $picker.toggleClass('is-open', willOpen);
+            if (willOpen) {
+                viewYear = currentYear;
+                var current = $hidden.val();
+                if (current) {
+                    viewYear = parseInt(current.split('-')[0], 10);
+                }
+                render();
+                positionPanel($trigger, $panel);
+            }
+        });
+
+        $panel.on('click', function(e) { e.stopPropagation(); });
+
+        $panel.on('click', '.tr-nav', function() {
+            var dir = parseInt($(this).data('nav'), 10);
+            var next = viewYear + dir;
+            if (next < currentYear) return;
+            viewYear = next;
+            render();
+        });
+
+        $panel.on('click', '.tr-month', function() {
+            if ($(this).prop('disabled')) return;
+            selectMonth($(this).data('value'));
+        });
+
+        $panel.on('click', '.tr-anytime', function() {
+            selectAnytime();
+        });
+    }
+
+    function initTravelersPicker(el) {
+        var $picker = $(el);
+        var $trigger = $picker.find('.tr-trigger');
+        var $panel = $picker.find('.tr-panel');
+        var $adultsInput = $picker.find('input[name="adults"]');
+        var $childrenInput = $picker.find('input[name="children"]');
+        var $travelersInput = $picker.find('input[name="travelers"]');
+
+        var adults = parseInt($adultsInput.val(), 10) || 2;
+        var children = parseInt($childrenInput.val(), 10) || 0;
+
+        function renderSummary() {
+            var text = adults + ' ' + (adults === 1 ? 'Adult' : 'Adults');
+            if (children > 0) {
+                text += ', ' + children + ' ' + (children === 1 ? 'Child' : 'Children');
+            }
+            $trigger.text(text);
+        }
+
+        function renderCounts() {
+            $panel.find('.tr-count[data-type="adults"]').text(adults);
+            $panel.find('.tr-count[data-type="children"]').text(children);
+            $panel.find('.tr-step[data-type="adults"][data-dir="-1"]').prop('disabled', adults <= 1);
+            $panel.find('.tr-step[data-type="children"][data-dir="-1"]').prop('disabled', children <= 0);
+        }
+
+        function syncInputs() {
+            $adultsInput.val(adults);
+            $childrenInput.val(children);
+            $travelersInput.val(adults + children);
+        }
+
+        renderCounts();
+        renderSummary();
+        syncInputs();
+
+        $trigger.on('click', function(e) {
+            e.stopPropagation();
+            var willOpen = !$picker.hasClass('is-open');
+            closeAllPanels(willOpen ? el : null);
+            $picker.toggleClass('is-open', willOpen);
+            if (willOpen) {
+                positionPanel($trigger, $panel);
+            }
+        });
+
+        $panel.on('click', function(e) { e.stopPropagation(); });
+
+        $panel.on('click', '.tr-step', function() {
+            var type = $(this).data('type');
+            var dir = parseInt($(this).data('dir'), 10);
+            if (type === 'adults') {
+                adults = Math.max(1, adults + dir);
+            } else {
+                children = Math.max(0, children + dir);
+            }
+            renderCounts();
+        });
+
+        $panel.on('click', '.tr-apply', function() {
+            syncInputs();
+            renderSummary();
+            $picker.removeClass('is-open');
+        });
+    }
+
+    $('[data-picker="month"]').each(function() { initMonthPicker(this); });
+    $('[data-picker="travelers"]').each(function() { initTravelersPicker(this); });
+})(jQuery);
 </script>
 @endpush
 
@@ -151,18 +363,51 @@
                                         @endforeach
                                     </select>
                                 </div>
-                                <div class="form-group position-relative">
+                                <div class="form-group position-relative tr-picker" data-picker="month">
                                     <span class="icon--wrap position-absolute fs--18"><i class="fa-regular fa-calendar-days"></i></span>
-                                    <select class="form--control pills from-select3" name="month">
-                                        <option value="">@lang('Anytime')</option>
-                                        @foreach($monthOptions as $opt)
-                                            <option value="{{ $opt['value'] }}">{{ $opt['label'] }}</option>
-                                        @endforeach
-                                    </select>
+                                    <button type="button" class="form--control pills tr-trigger" data-anytime="@lang('Anytime')">@lang('Anytime')</button>
+                                    <input type="hidden" name="month" value="">
+                                    <div class="tr-panel tr-panel--month">
+                                        <div class="tr-panel__head">
+                                            <button type="button" class="tr-nav" data-nav="-1">&#8249;</button>
+                                            <span class="tr-year"></span>
+                                            <button type="button" class="tr-nav" data-nav="1">&#8250;</button>
+                                        </div>
+                                        <div class="tr-months"></div>
+                                        <button type="button" class="tr-anytime">@lang('Anytime')</button>
+                                    </div>
                                 </div>
-                                <div class="form-group position-relative d-none d-md-block">
+                                <div class="form-group position-relative d-none d-md-block tr-picker" data-picker="travelers">
                                     <span class="icon--wrap position-absolute fs--18"><i class="fa-regular fa-user"></i></span>
-                                    <input class="form--control pills" type="number" min="1" name="travelers" value="2">
+                                    <button type="button" class="form--control pills tr-trigger">2 @lang('Adults')</button>
+                                    <input type="hidden" name="travelers" value="2">
+                                    <input type="hidden" name="adults" value="2">
+                                    <input type="hidden" name="children" value="0">
+                                    <div class="tr-panel tr-panel--travelers">
+                                        <div class="tr-row">
+                                            <div class="tr-row__label">
+                                                <strong>@lang('Adults')</strong>
+                                                <small>@lang('Ages 18 or above')</small>
+                                            </div>
+                                            <div class="tr-stepper">
+                                                <button type="button" class="tr-step" data-type="adults" data-dir="-1">&minus;</button>
+                                                <span class="tr-count" data-type="adults">2</span>
+                                                <button type="button" class="tr-step" data-type="adults" data-dir="1">+</button>
+                                            </div>
+                                        </div>
+                                        <div class="tr-row">
+                                            <div class="tr-row__label">
+                                                <strong>@lang('Children')</strong>
+                                                <small>@lang('Under 18')</small>
+                                            </div>
+                                            <div class="tr-stepper">
+                                                <button type="button" class="tr-step" data-type="children" data-dir="-1">&minus;</button>
+                                                <span class="tr-count" data-type="children">0</span>
+                                                <button type="button" class="tr-step" data-type="children" data-dir="1">+</button>
+                                            </div>
+                                        </div>
+                                        <button type="button" class="tr-apply">@lang('Apply')</button>
+                                    </div>
                                 </div>
                             </div>
                             <div class="banner--filter__btn flex-shrink-0">
@@ -247,6 +492,3 @@
         </div>
     </div>
 </section>
-@push('script-lib')
-    <script src="{{ asset('assets/admin/js/datepicker.en.js') }}"></script>
-@endpush

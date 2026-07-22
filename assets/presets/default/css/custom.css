@@ -349,3 +349,109 @@ li.language { display: none !important; }
 #preloader #text p:nth-child(22) { animation-delay: 2.0s; }
 #preloader #text p:nth-child(23) { animation-delay: 2.1s; }
 #preloader-logo { display: none !important; }
+
+/* ---- TourRadar-style hero pickers (month + travelers) ---- */
+.tr-picker { position: relative; cursor: pointer; }
+.tr-trigger {
+    border: none !important;
+    background: transparent !important;
+    outline: none !important;
+    width: 100%;
+    text-align: left;
+    font-size: 14px;
+    padding: 6px 0;
+    color: #333;
+    cursor: pointer;
+}
+.tr-panel {
+    /* position: fixed (not absolute) - the primary hero wrapper clips
+       overflow, and fixed positioning (computed in JS from the trigger's
+       getBoundingClientRect()) is the only way the panel isn't cut off. */
+    display: none;
+    position: fixed;
+    background: #fff;
+    border-radius: 14px;
+    box-shadow: 0 12px 40px rgba(0,0,0,0.18);
+    padding: 16px;
+    z-index: 1050;
+    cursor: default;
+}
+.tr-picker.is-open .tr-panel { display: block; }
+
+.tr-panel--month { width: 280px; }
+.tr-panel__head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; }
+.tr-year { font-weight: 600; font-size: 15px; }
+.tr-nav {
+    border: 1px solid #e0e0e0;
+    background: #fff;
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    cursor: pointer;
+    font-size: 16px;
+    line-height: 1;
+}
+.tr-nav:disabled { opacity: 0.35; cursor: not-allowed; }
+.tr-months {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 8px;
+    margin-bottom: 12px;
+}
+.tr-month {
+    border: 1px solid #e6e6e6;
+    background: #fff;
+    border-radius: 8px;
+    padding: 8px 4px;
+    font-size: 13px;
+    cursor: pointer;
+}
+.tr-month.is-selected {
+    background: var(--base-color, #0d6efd);
+    color: #fff;
+    border-color: var(--base-color, #0d6efd);
+}
+.tr-month:disabled {
+    opacity: 0.35;
+    cursor: not-allowed;
+}
+.tr-anytime {
+    width: 100%;
+    border: 1px solid #e0e0e0;
+    background: #fff;
+    border-radius: 8px;
+    padding: 8px;
+    font-size: 13px;
+    cursor: pointer;
+}
+
+.tr-panel--travelers { width: 260px; }
+.tr-row { display: flex; align-items: center; justify-content: space-between; padding: 10px 0; border-bottom: 1px solid #f0f0f0; }
+.tr-row:last-of-type { border-bottom: none; }
+.tr-row__label strong { display: block; font-size: 14px; }
+.tr-row__label small { color: #888; font-size: 12px; }
+.tr-stepper { display: flex; align-items: center; gap: 10px; }
+.tr-step {
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    border: 1px solid #d0d0d0;
+    background: #fff;
+    font-size: 16px;
+    line-height: 1;
+    cursor: pointer;
+}
+.tr-step:disabled { opacity: 0.35; cursor: not-allowed; }
+.tr-count { min-width: 20px; text-align: center; font-size: 14px; }
+.tr-apply {
+    width: 100%;
+    margin-top: 12px;
+    background: var(--base-color, #0d6efd);
+    color: #fff;
+    border: none;
+    border-radius: 8px;
+    padding: 10px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+}
