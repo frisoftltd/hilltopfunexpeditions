@@ -125,6 +125,60 @@
                                 </div>
 
                                 <div class="row">
+                                    <div class="col-md-6 col-lg-3">
+                                        <div class="form-group">
+                                            <label class="mb-2 form--label">@lang('Group Size Min')</label>
+                                            <input type="number" min="1" name="group_size_min" class="form-control"
+                                                value="{{ $tourPackage->group_size_min }}">
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6 col-lg-3">
+                                        <div class="form-group">
+                                            <label class="mb-2 form--label">@lang('Group Size Max')</label>
+                                            <input type="number" min="1" name="group_size_max" class="form-control"
+                                                value="{{ $tourPackage->group_size_max }}">
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6 col-lg-3">
+                                        <div class="form-group">
+                                            <label class="mb-2 form--label">@lang('Guided In (Language)')</label>
+                                            <input type="text" name="guide_language" class="form-control"
+                                                placeholder="@lang('e.g. English')"
+                                                value="{{ $tourPackage->guide_language }}">
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6 col-lg-3">
+                                        <div class="form-group">
+                                            <label class="mb-2 form--label">@lang('Intensity')</label>
+                                            <select name="intensity" class="form-control">
+                                                <option value="">@lang('Not set')</option>
+                                                @foreach (\App\Models\TourPackage::INTENSITY_LABELS as $value => $label)
+                                                    <option value="{{ $value }}" {{ $tourPackage->intensity == $value ? 'selected' : '' }}>
+                                                        {{ __($label) }}</option>
+                                                @endforeach
+                                            </select>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="row">
+                                    <div class="col-md-6 col-lg-3">
+                                        <div class="form-group">
+                                            <label class="mb-2 form--label">@lang('Age Range Min')</label>
+                                            <input type="number" min="0" name="age_range_min" class="form-control"
+                                                value="{{ $tourPackage->age_range_min }}">
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6 col-lg-3">
+                                        <div class="form-group">
+                                            <label class="mb-2 form--label">@lang('Age Range Max')</label>
+                                            <input type="number" min="0" name="age_range_max" class="form-control"
+                                                value="{{ $tourPackage->age_range_max }}">
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="row">
                                     <div class="col-sm-12">
                                         <div class="form-group">
                                             <label for="images">@lang('Images')</label>
@@ -213,6 +267,50 @@
                                         </div>
                                     </div>
                                 </div>
+                            </div>
+                        </div>
+                        <div class="card mt-2">
+                            <h5 class="card-header d-flex justify-content-between align-items-center">
+                                @lang('Day-by-Day Itinerary')
+                                <button type="button" class="btn btn--primary btn--sm addItineraryDay">
+                                    <i class="fa fa-plus"></i> @lang('Add Day')
+                                </button>
+                            </h5>
+                            <div class="card-body purpose">
+                                <div id="itineraryContainer">
+                                    @foreach ($tourPackage->itinerary ?? [] as $index => $day)
+                                        <div class="row align-items-start itinerary-day mb-3 pb-3 border-bottom">
+                                            <div class="col-md-2">
+                                                <div class="form-group">
+                                                    <label class="mb-2 form--label">@lang('Day')</label>
+                                                    <input type="number" min="1" class="form-control"
+                                                        name="itinerary[{{ $index }}][day]" value="{{ $day->day }}" required>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-3">
+                                                <div class="form-group">
+                                                    <label class="mb-2 form--label">@lang('Title')</label>
+                                                    <input type="text" class="form-control"
+                                                        name="itinerary[{{ $index }}][title]" value="{{ $day->title }}"
+                                                        required>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-6">
+                                                <div class="form-group">
+                                                    <label class="mb-2 form--label">@lang('Description')</label>
+                                                    <textarea class="form-control" rows="2"
+                                                        name="itinerary[{{ $index }}][description]">{{ $day->description }}</textarea>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-1 pt-4">
+                                                <button type="button" class="btn btn--danger btn-sm remove-itinerary-day"><i
+                                                        class="la la-trash"></i></button>
+                                            </div>
+                                        </div>
+                                    @endforeach
+                                </div>
+                                <p class="text-muted mb-0" id="noItineraryDays" @if (!empty($tourPackage->itinerary)) style="display:none" @endif>
+                                    @lang('No itinerary days added yet.')</p>
                             </div>
                         </div>
                         <div class="card mt-2">
@@ -313,7 +411,108 @@
                                             </div>
                                         </div>
                                     </div>
+
+                                    <div class="col-sm-12">
+                                        <div class="form-group">
+                                            <div class="text-end">
+                                                <button type="button" class="btn btn--primary btn--sm addExclusions">
+                                                    <i class="fa fa-plus"></i> @lang('Add New')
+                                                </button>
+                                            </div>
+                                            @if (!empty($tourPackage->exclusions))
+                                                <div class="row">
+                                                    <div class="col-sm-4">
+                                                        <div class="file-upload">
+                                                            <label class="form-label">@lang('Not Included icon')</label>
+                                                            <div class="file-upload input-group">
+                                                                <input type="text" name="exclusion_icons[]" id="inputExclusionIcon"
+                                                                    class="form-control form--control iconPicker icon"
+                                                                    value="{{ $tourPackage->exclusions[0]->icon }}"
+                                                                    placeholder="@lang('Icons')">
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                    <div class="col-sm-8">
+                                                        <div class="file-upload">
+                                                            <label class="form-label">@lang('Not Included')</label>
+                                                            <input type="text" name="exclusions[]"
+                                                                value="{{ $tourPackage->exclusions[0]->feature }}"
+                                                                class="form-control form--control mb-0"
+                                                                placeholder="@lang('e.g. International flights')" />
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div id="fileUploadExclusions">
+                                                    @php
+                                                        $exclusions = $tourPackage->exclusions;
+                                                        unset($exclusions[0]);
+                                                    @endphp
+                                                    @foreach ($exclusions as $item)
+                                                        <div class="row">
+                                                            <div class="col-sm-4">
+                                                                <div class="file-upload">
+                                                                    <label class="form-label">@lang('Not Included icon')</label>
+                                                                    <div class="file-upload input-group">
+                                                                        <input type="text" name="exclusion_icons[]" id="inputExclusionIcon"
+                                                                            class="form-control form--control iconPicker icon"
+                                                                            value="{{ $item->icon }}" placeholder="@lang('Icons')">
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                            <div class="col-sm-8">
+                                                                <div class="file-upload">
+                                                                    <label class="form-label">@lang('Not Included')</label>
+                                                                    <input type="text" name="exclusions[]"
+                                                                        class="form-control form--control mb-0"
+                                                                        value="{{ $item->feature }}"
+                                                                        placeholder="@lang('e.g. International flights')" />
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    @endforeach
+                                                </div>
+                                            @else
+                                                <div class="row">
+                                                    <div class="col-sm-4">
+                                                        <div class="file-upload">
+                                                            <label class="form-label">@lang('Not Included icon')</label>
+                                                            <div class="file-upload input-group">
+                                                                <input type="text" name="exclusion_icons[]" id="inputExclusionIcon"
+                                                                    class="form-control form--control iconPicker icon"
+                                                                    placeholder="@lang('Icons')">
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                    <div class="col-sm-8">
+                                                        <div class="file-upload">
+                                                            <label class="form-label">@lang('Not Included')</label>
+                                                            <input type="text" name="exclusions[]"
+                                                                class="form-control form--control mb-0"
+                                                                placeholder="@lang('e.g. International flights')" />
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div id="fileUploadExclusions"></div>
+                                            @endif
+                                        </div>
+                                    </div>
                                 </div>
+                            </div>
+                        </div>
+                        <div class="card mt-2">
+                            <h5 class="card-header d-flex justify-content-between align-items-center">
+                                @lang('Add New Departures')
+                                <button type="button" class="btn btn--primary btn--sm addDepartureRow">
+                                    <i class="fa fa-plus"></i> @lang('Add Departure')
+                                </button>
+                            </h5>
+                            <div class="card-body purpose">
+                                <p class="text-muted">@lang('Existing departures are managed in the Departures table below. Add rows here for brand new ones - they\'ll be created when you click Update.')</p>
+                                <div id="departuresContainer"></div>
+                                <p class="text-muted mb-0" id="noDepartureRows">@lang('No new departures staged.')</p>
+                                @if ($priceCategories->isEmpty())
+                                    <p class="text-danger mb-0">@lang('No active price categories yet - add one under Price Categories first if you want to set prices now.')</p>
+                                @endif
                             </div>
                         </div>
                         <div class="col-lg-12 text-end mt-3">
@@ -500,6 +699,75 @@
                 </div>
             </div>
         </form>
+    </div>
+</div>
+
+{{-- Row templates - kept OUTSIDE any form so their unreplaced __INDEX__
+     placeholders are never submitted; only the clones JS appends into
+     #itineraryContainer/#departuresContainer (inside the main edit form)
+     get submitted. --}}
+<div id="itineraryDayTemplate" class="d-none">
+    <div class="row align-items-start itinerary-day mb-3 pb-3 border-bottom">
+        <div class="col-md-2">
+            <div class="form-group">
+                <label class="mb-2 form--label">@lang('Day')</label>
+                <input type="number" min="1" class="form-control" name="itinerary[__INDEX__][day]" required>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="form-group">
+                <label class="mb-2 form--label">@lang('Title')</label>
+                <input type="text" class="form-control" name="itinerary[__INDEX__][title]"
+                    placeholder="@lang('e.g. Arrival in Kigali')" required>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="form-group">
+                <label class="mb-2 form--label">@lang('Description')</label>
+                <textarea class="form-control" rows="2" name="itinerary[__INDEX__][description]"></textarea>
+            </div>
+        </div>
+        <div class="col-md-1 pt-4">
+            <button type="button" class="btn btn--danger btn-sm remove-itinerary-day"><i class="la la-trash"></i></button>
+        </div>
+    </div>
+</div>
+
+<div id="departureRowTemplate" class="d-none">
+    <div class="row align-items-end departure-row mb-3 pb-3 border-bottom">
+        <div class="col-md-3">
+            <div class="form-group">
+                <label class="mb-2 form--label">@lang('Start Date')</label>
+                <input type="date" class="form-control" name="departures[__INDEX__][start_date]"
+                    min="{{ now()->toDateString() }}" required>
+            </div>
+        </div>
+        <div class="col-md-2">
+            <div class="form-group">
+                <label class="mb-2 form--label">@lang('Total Seats')</label>
+                <input type="number" min="1" class="form-control" name="departures[__INDEX__][seats_total]" required>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="row">
+                @foreach ($priceCategories as $category)
+                    <div class="col-md-6 mb-2">
+                        <label class="mb-1 form--label">{{ $category->name }}</label>
+                        <div class="input-group input-group-sm">
+                            <input type="number" step="0.01" min="0" class="form-control"
+                                name="departures[__INDEX__][prices][{{ $category->id }}][price]"
+                                placeholder="@lang('Price')" required>
+                            <input type="number" step="0.01" min="0" max="100" class="form-control"
+                                name="departures[__INDEX__][prices][{{ $category->id }}][discount]"
+                                placeholder="@lang('Disc %')">
+                        </div>
+                    </div>
+                @endforeach
+            </div>
+        </div>
+        <div class="col-md-1">
+            <button type="button" class="btn btn--danger btn-sm remove-departure-row"><i class="la la-trash"></i></button>
+        </div>
     </div>
 </div>
 
@@ -985,6 +1253,83 @@
             });
 
             editModal.modal('show');
+        });
+    })(jQuery);
+</script>
+
+<script>
+    (function($) {
+        "use strict";
+        var fileAdded = 0;
+        $('.addExclusions').on('click', function() {
+            if (fileAdded >= 20) {
+                notify('error', 'You\'ve added maximum number of file');
+                return false;
+            }
+            fileAdded++;
+            $("#fileUploadExclusions").append(`
+            <div class="row elements">
+                <div class="col-sm-4 my-2">
+                    <div class="file-upload input-group">
+                        <input type="text" name="exclusion_icons[]" id="inputExclusionIcon"
+                            class="form-control form--control iconPicker icon" placeholder="@lang('Icons')">
+                    </div>
+                </div>
+                <div class="col-sm-8 my-2">
+                    <div class="file-upload input-group">
+                        <input type="text" name="exclusions[]" class="form-control form--control"
+                            placeholder="@lang('e.g. International flights')" />
+                            <button class="input-group-text btn--danger remove-btn border-0"><i class="las la-times"></i></button>
+                    </div>
+                </div>
+            </div>
+        `)
+            $('.iconPicker').iconpicker().on('iconpickerSelected', function(e) {
+                $(this).closest('.file-upload').find('.iconpicker-input').val(
+                    `<i class="${e.iconpickerValue}"></i>`);
+            });
+        });
+        $(document).on('click', '.remove-btn', function() {
+            fileAdded--;
+            $(this).closest('.elements').remove();
+        });
+    })(jQuery);
+</script>
+
+<script>
+    (function($) {
+        "use strict";
+        var itineraryIndex = {{ count($tourPackage->itinerary ?? []) }};
+        $('.addItineraryDay').on('click', function() {
+            var html = $('#itineraryDayTemplate').html().replace(/__INDEX__/g, itineraryIndex);
+            $('#itineraryContainer').append(html);
+            itineraryIndex++;
+            $('#noItineraryDays').hide();
+        });
+        $(document).on('click', '.remove-itinerary-day', function() {
+            $(this).closest('.itinerary-day').remove();
+            if ($('#itineraryContainer .itinerary-day').length === 0) {
+                $('#noItineraryDays').show();
+            }
+        });
+    })(jQuery);
+</script>
+
+<script>
+    (function($) {
+        "use strict";
+        var departureIndex = 0;
+        $('.addDepartureRow').on('click', function() {
+            var html = $('#departureRowTemplate').html().replace(/__INDEX__/g, departureIndex);
+            $('#departuresContainer').append(html);
+            departureIndex++;
+            $('#noDepartureRows').hide();
+        });
+        $(document).on('click', '.remove-departure-row', function() {
+            $(this).closest('.departure-row').remove();
+            if ($('#departuresContainer .departure-row').length === 0) {
+                $('#noDepartureRows').show();
+            }
         });
     })(jQuery);
 </script>
