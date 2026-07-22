@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Models\Category;
+use App\Models\PriceCategory;
 use App\Models\TourPackage;
 use App\Traits\TourService;
 use Illuminate\Http\Request;
@@ -32,8 +33,10 @@ class TourPackageController extends Controller
     {
         $pageTitle = 'Tour Package Edit';
         $categories = Category::where('status', 1)->latest()->get();
-        $tourPackage =  TourPackage::with('category')->where('id',$id)->first();
-        return view('admin.tour_package.edit', compact('pageTitle', 'categories', 'tourPackage'));
+        $priceCategories = PriceCategory::active()->ordered()->get();
+        $tourPackage =  TourPackage::with(['category', 'departures.departurePrices'])->where('id',$id)->first();
+        $tourPackage->departures->each(fn($departure) => $departure->setRelation('tourPackage', $tourPackage));
+        return view('admin.tour_package.edit', compact('pageTitle', 'categories', 'priceCategories', 'tourPackage'));
     }
 
     public function active()

@@ -65,6 +65,13 @@
                     </a>
                 </li>
 
+                <li class="sidebar-menu-item {{ menuActive('admin.price.category.index') }}">
+                    <a href="{{ route('admin.price.category.index') }}" class="nav-link ">
+                        <i class="menu-icon las la-tags"></i>
+                        <span class="menu-title">@lang('Price Categories')</span>
+                    </a>
+                </li>
+
                 <li class="sidebar-menu-item  {{ menuActive('admin.tour.package.index*') }}">
                     <a href="{{ route('admin.tour.package.index') }}" class="nav-link"
                         data-default-url="{{ route('admin.tour.package.index') }}">

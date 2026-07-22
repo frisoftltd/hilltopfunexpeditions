@@ -2,7 +2,6 @@
 
 namespace App\Traits;
 
-use Carbon\Carbon;
 use App\Models\TourPackage;
 use App\Models\TourPackageImage;
 use Illuminate\Support\Facades\DB;
@@ -34,17 +33,6 @@ trait TourService
                 $notify[] = ['error', 'Please location select Perfectly'];
                 return back()->withNotify($notify);
             }
-            $startDate = Carbon::createFromFormat('m/d/Y , h:i a', $request->start_date);
-            $endDate   = Carbon::createFromFormat('m/d/Y , h:i a', $request->end_date);
-
-            if ($startDate->lt(now())) {
-                $notify[] = ['error', 'Start date must be today or a future date.'];
-                return back()->withNotify($notify);
-            }
-            if (!$endDate->gt($startDate)) {
-                $notify[] = ['error', 'End date must be greater than start date.'];
-                return back()->withNotify($notify);
-            }
             $fullArray = array_map(
                 fn($icon, $feature) => [
                     'icon'    => $icon,
@@ -61,13 +49,8 @@ trait TourService
             $tourPackage->title = $request->tour_title;
             $tourPackage->address = $request->address;
             $tourPackage->description = $purifier->purify($request->description);
-            $tourPackage->price = $request->price;
-            $tourPackage->discount = $request->discount;
             $tourPackage->day_nights = $request->day_nights;
-            $tourPackage->person_capability = $request->person_capability;
-            $tourPackage->flexible_date = $request->flexible_date;
-            $tourPackage->tour_start = $startDate->toDateTimeString();
-            $tourPackage->tour_end = $endDate->toDateTimeString();
+            $tourPackage->duration_nights = $request->duration_nights;
             $tourPackage->category_id = $request->category_id;
             $tourPackage->latitude = $request->latitude;
             $tourPackage->longitude = $request->longitude;
@@ -78,7 +61,7 @@ trait TourService
             $tourPackage->features = $fullArray;
             $tourPackage->destination_overview = str_replace('"', "'", ($request->destination_overview));
             $tourPackage->highlights = $request->highlights;
-            
+
             $tourPackage->status = 1;
 
             $tourPackage->save();
@@ -100,7 +83,7 @@ trait TourService
             $notify[] = ['success', 'Tour Package created successfully'];
         } catch (\Exception $exp) {
             DB::rollBack();
-            $notify[] = ['success', 'something went wrong'];
+            $notify[] = ['error', 'something went wrong'];
         }
 
         return back()->withNotify($notify);
@@ -131,12 +114,6 @@ trait TourService
             $notify[] = ['error', 'Please location select Perfectly'];
             return back()->withNotify($notify);
         }
-        $startDate = Carbon::createFromFormat('m/d/Y , h:i a', $request->start_date);
-        $endDate   = Carbon::createFromFormat('m/d/Y , h:i a', $request->end_date);
-        if (!$endDate->gt($startDate)) {
-            $notify[] = ['error', 'End date must be greater than start date.'];
-            return back()->withNotify($notify);
-        }
         $fullArray = array_map(
             fn($icon, $feature) => [
                 'icon'    => $icon,
@@ -151,13 +128,8 @@ trait TourService
         $tourPackage->title = $request->tour_title;
         $tourPackage->address = $request->address;
         $tourPackage->description = $purifier->purify($request->description);
-        $tourPackage->price = $request->price;
-        $tourPackage->discount = $request->discount;
         $tourPackage->day_nights = $request->day_nights;
-        $tourPackage->person_capability = $request->person_capability;
-        $tourPackage->flexible_date = $request->flexible_date;
-        $tourPackage->tour_start = $startDate->toDateTimeString();
-        $tourPackage->tour_end = $endDate->toDateTimeString();
+        $tourPackage->duration_nights = $request->duration_nights;
         $tourPackage->category_id = $request->category_id;
         $tourPackage->latitude = $request->latitude;
         $tourPackage->longitude = $request->longitude;
@@ -184,7 +156,7 @@ trait TourService
         $notify[] = ['success', 'Tour Package updated successfully'];
         } catch (\Exception $exp) {
             DB::rollBack();
-             $notify[] = ['success', 'something went wrong'];
+             $notify[] = ['error', 'something went wrong'];
 
         }
         return back()->withNotify($notify);
@@ -226,7 +198,7 @@ trait TourService
             $notify[] = ['success', 'Tour Package delete successfully'];
             return back()->withNotify($notify);
         } catch (\Exception $exp) {
-            $notify[] = ['success', 'something went wrong'];
+            $notify[] = ['error', 'something went wrong'];
             return back()->withNotify($notify);
         }
     }
