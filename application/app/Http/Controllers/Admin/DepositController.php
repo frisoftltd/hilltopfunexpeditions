@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Admin;
 
 use App\Models\Deposit;
 use App\Models\Gateway;
+use App\Models\TourDeparture;
 use App\Http\Controllers\Controller;
 use App\Http\Controllers\Gateway\PaymentController;
 use Carbon\Carbon;
@@ -162,6 +163,14 @@ class DepositController extends Controller
         $deposit->admin_feedback = $request->message;
         $deposit->status = 3;
         $deposit->save();
+
+        // Give back the seats only if this booking had already been counted as
+        // approved (seats are added in PaymentController::userDataUpdate on
+        // approval) - safe to call even when that never happened.
+        if ($deposit->tour_booking->status == 1 && $deposit->tour_booking->tour_departure_id) {
+            TourDeparture::whereKey($deposit->tour_booking->tour_departure_id)
+                ->decrement('seats_booked', $deposit->tour_booking->seat);
+        }
 
         $deposit->tour_booking->status = 3;
         $deposit->tour_booking->save();

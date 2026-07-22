@@ -37,7 +37,7 @@
                                     </li>
                                     <li class="flex-shrink-0">
                                         <p class="fs--14"><i class="fa-regular fa-clock"></i>
-                                            {{ tourVacationCount($bookingDetails?->tour_package->tour_start, $bookingDetails?->tour_package->tour_end) }} @lang('Days')
+                                            {{ $bookingDetails?->tour_package?->day_nights }}
                                         </p>
                                     </li>
                                 </ul>
@@ -105,11 +105,11 @@
                                 @lang('Get Discount'):
                                 <span class="fw--500 badge badge--success">{{ $bookingDetails->discount ?? 0 }}%</span>
                             </li>
-                            @if ($bookingDetails?->user_proposal_date != $bookingDetails?->tour_package?->tour_start)
+                            @if ($bookingDetails?->user_proposal_date)
                                 <li class="list-group-item p-0 border-0 d-flex justify-content-between align-items-center">
-                                    @lang('User Proposal Date'):
+                                    @lang('Departure Date'):
                                     <span
-                                        class="fw--500">{{ showDateTime($bookingDetails?->user_proposal_date, 'd-m-Y h:i A') }}</span>
+                                        class="fw--500">{{ showDateTime($bookingDetails?->user_proposal_date, 'd-m-Y') }}</span>
                                 </li>
                             @endif
 

@@ -26,7 +26,7 @@
                                 <label class="form--label">@lang('Amount')</label>
                                 <div class="input-group">
                                     <input type="number" step="any" name="amount" class="form-control form--control"
-                                        value="{{ showTourPackageCalculateDiscount($tourPackage->price * $seat, $tourPackage->discount) }}" autocomplete="off" readonly required>
+                                        value="{{ showTourPackageCalculateDiscount($departurePrice->price * $seat, $departurePrice->discount) }}" autocomplete="off" readonly required>
                                     <span class="input-group-text bg--base text-white">{{ $general->cur_text }}</span>
                                 </div>
                             </div>

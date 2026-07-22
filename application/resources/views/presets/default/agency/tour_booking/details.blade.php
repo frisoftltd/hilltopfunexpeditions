@@ -44,30 +44,30 @@
                         </li>
                     @endif
                     <li class="list-group-item p-0 border-0 d-flex justify-content-between align-items-center">
-                        @lang('Total Persons'):
-                        <span class="fw--500">{{ __($bookingDetails?->tour_package?->person_capability) }}</span>
+                        @lang('Seats Booked'):
+                        <span class="fw--500">{{ __($bookingDetails?->seat) }}</span>
                     </li>
 
                     <li class="list-group-item p-0 border-0 d-flex justify-content-between align-items-center">
                         @lang('Price'):
                         <span
-                            class="fw--500 badge badge--success">{{ $general->cur_sym }}{{ showAmount($bookingDetails?->tour_package?->price) }}</span>
+                            class="fw--500 badge badge--success">{{ $general->cur_sym }}{{ showAmount($bookingDetails?->price) }}</span>
                     </li>
                     <li class="list-group-item p-0 border-0 d-flex justify-content-between align-items-center">
                         @lang('Discount'):
                         <span
-                            class="fw--500 badge badge--success">{{ $bookingDetails?->tour_package?->discount }}%</span>
+                            class="fw--500 badge badge--success">{{ $bookingDetails?->discount }}%</span>
                     </li>
 
                     <li class="list-group-item p-0 border-0 d-flex justify-content-between align-items-center">
                         @lang('Start Date'):
                         <span
-                            class="fw--500">{{ showDateTime($bookingDetails?->tour_package?->tour_start, 'd-m-Y h:i A') }}</span>
+                            class="fw--500">{{ $bookingDetails?->departure ? showDateTime($bookingDetails->departure->start_date, 'd-m-Y') : '—' }}</span>
                     </li>
                     <li class="list-group-item p-0 border-0 d-flex justify-content-between align-items-center">
                         @lang('End Date'):
                         <span
-                            class="fw--500">{{ showDateTime($bookingDetails?->tour_package->tour_end, 'd-m-Y h:i A') }}</span>
+                            class="fw--500">{{ $bookingDetails?->departure?->end_date ? showDateTime($bookingDetails->departure->end_date, 'd-m-Y') : '—' }}</span>
                     </li>
                     <li class="list-group-item p-0 border-0 d-flex justify-content-between align-items-center">
                         @lang('Stay Day/Nights'):
@@ -142,11 +142,11 @@
                         @lang('Get Discount'):
                         <span class="fw--500 badge badge--success">{{ $bookingDetails->discount ?? 0 }}%</span>
                     </li>
-                    @if ($bookingDetails?->user_proposal_date != $bookingDetails?->tour_package?->tour_start)
+                    @if ($bookingDetails?->user_proposal_date)
                         <li class="list-group-item p-0 border-0 d-flex justify-content-between align-items-center">
-                            @lang('User Proposal Date'):
+                            @lang('Departure Date'):
                             <span
-                                class="fw--500">{{ showDateTime($bookingDetails?->user_proposal_date, 'd-m-Y h:i A') }}</span>
+                                class="fw--500">{{ showDateTime($bookingDetails?->user_proposal_date, 'd-m-Y') }}</span>
                         </li>
                     @endif
 

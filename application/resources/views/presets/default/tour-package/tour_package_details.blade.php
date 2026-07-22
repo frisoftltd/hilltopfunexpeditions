@@ -93,7 +93,7 @@
                             <ul class="d-flex gap--20">
                                 <li>
                                     <span class="text--black7"><i class="fa-solid fa-user-group"></i>
-                                        {{ $tourPackage->person_capability }}</span>
+                                        {{ $tourPackage->activeDepartures->sum('seats_total') }}</span>
                                 </li>
                                 <li>
                                     <span class="text--black7"><i class="fa-regular fa-heart"></i>
@@ -105,7 +105,7 @@
 
                                 <li>
                                     <span class="text--black7"><i class="fa-solid fa-stopwatch"></i>
-                                        {{ $tourPackage->booking_person }}</span>
+                                        {{ $tourPackage->activeDepartures->sum('seats_booked') }}</span>
                                 </li>
 
                             </ul>
@@ -215,10 +215,10 @@
                                                     <div class="icon--wrap d-flex align-items-center justify-content-center">
                                                         <i class="fa-solid fa-users"></i>
                                                     </div>
-                                                    <p>@lang('Person')</p> 
+                                                    <p>@lang('Person')</p>
                                                 </div>
                                                 <div class="content--wrap">
-                                                    <h6 class="mb-0 fw--500 text--black7">{{ $tourPackage->person_capability }}
+                                                    <h6 class="mb-0 fw--500 text--black7">{{ $tourPackage->activeDepartures->sum('seats_total') }}
                                                     </h6>
                                                 </div>
                                             </div>
@@ -348,66 +348,74 @@
                 </div>
                 <div class="col-lg-4">
                     <div class="product--info__wrap  position-sticky">
-                        <div class="bg--white radius--20 p-4 mb-4">
-                            <form method="POST" action="{{ route('user.tour.package.booking.now') }}">
-                                @csrf
+                        <h6 class="fs--20 fw--600 mb-3">@lang('Departures')</h6>
+                        @forelse ($tourPackage->activeDepartures as $departure)
+                            <div class="bg--white radius--20 p-4 mb-4">
+                                <form method="POST" action="{{ route('user.tour.package.booking.now') }}">
+                                    @csrf
+                                    <input type="hidden" value="{{ $tourPackage->id }}" name="tour_package_id">
+                                    <input type="hidden" value="{{ $departure->id }}" name="tour_departure_id">
 
-                                <div class="product--info__item d-flex flex-column gap--20">
-                                    <div>
-                                        <p class="mb-1"><i class="fa-solid fa-calendar-days"></i> @lang('From - To') {{ $tourPackage->flexible_date == 1 ? '(Flexible)': '' }}</p>
-                                        <h6 class="price fs--18 fw--500 mb-0 text--black7">
-                                            {{ showDateTime($tourPackage->tour_start, 'M d, Y') }} - {{ showDateTime($tourPackage->tour_end, 'M d, Y') }}
-                                        </h6>
+                                    <div class="product--info__item d-flex flex-column gap--20">
+                                        <div>
+                                            <p class="mb-1"><i class="fa-solid fa-calendar-days"></i> @lang('From - To')</p>
+                                            <h6 class="price fs--18 fw--500 mb-0 text--black7">
+                                                {{ $departure->start_date->format('M d, Y') }}
+                                                @if ($departure->end_date)
+                                                    - {{ $departure->end_date->format('M d, Y') }}
+                                                @endif
+                                            </h6>
+                                        </div>
+                                        <div>
+                                            <p class="mb-1"><i class="fa-solid fa-chair"></i> @lang('Seats Left')</p>
+                                            <h6 class="price fs--18 fw--500 mb-0 text--black7">{{ $departure->seats_available }}</h6>
+                                        </div>
                                     </div>
-                                </div>
 
-                                <div class="product--info__item">
-                                    <p class="mb-1">@lang('Price')</p>
-                                    <h6 class="price fs--28 fw--600 mb-0">
-                                        {{ $general->cur_sym }}{{ showAmount(showTourPackageCalculateDiscount($tourPackage->price, $tourPackage->discount)) }}
-                                        @if ($tourPackage->discount)
-                                            <span class="text--black7 fs--16 ">{{ $general->cur_sym }} <del
-                                                    class="text--black7 fs--16">
-                                                    {{ $tourPackage->discount }} </del></span>
-                                        @endif
-                                    </h6>
-                                </div>
-
-                                <div class="product--info__item border-0 pb-2 mb-0">
-                                    <div class="row">
-                                        <input type="number" class="d-none" value="{{ $tourPackage->id }}"
-                                            name="tour_package_id">
-                                        @if ($tourPackage->flexible_date == 1)
-                                            <div class="col-lg-6">
-                                                <div class="mb-4 form-group">
-                                                    <label class="mb-2 form--label">@lang('Suggested Date')</label>
-                                                    <input class="form--control details--datepicker datepicker-active"
-                                                        data-language="en" autocomplete="off" placeholder="dd/mm/yyyy"
-                                                        name="user_proposal_date">
+                                    @if ($departure->departurePrices->isEmpty())
+                                        <p class="text-danger mt-3 mb-0">@lang('Pricing for this departure is not set yet.')</p>
+                                    @else
+                                        <div class="product--info__item">
+                                            <label class="mb-2 form--label">@lang('Price Category')</label>
+                                            @foreach ($departure->departurePrices as $dp)
+                                                <div class="form--check mb-2">
+                                                    <input class="form-check-input" type="radio" name="price_category_id"
+                                                        id="priceCategory{{ $departure->id }}_{{ $dp->price_category_id }}"
+                                                        value="{{ $dp->price_category_id }}"
+                                                        {{ $loop->first ? 'checked' : '' }} required>
+                                                    <label class="form-check-label"
+                                                        for="priceCategory{{ $departure->id }}_{{ $dp->price_category_id }}">
+                                                        {{ $dp->priceCategory->name }} —
+                                                        {{ $general->cur_sym }}{{ showAmount($dp->final_price) }}
+                                                        @if ($dp->discount)
+                                                            <del class="text--black7 fs--14">{{ $general->cur_sym }}{{ $dp->price }}</del>
+                                                        @endif
+                                                    </label>
                                                 </div>
-                                            </div>
-                                        @endif
+                                            @endforeach
+                                        </div>
 
-                                        <div class="col-lg-{{ $tourPackage->flexible_date == 1 ? '6' : '12' }}">
-                                            <div class="mb-4 form-group">
-                                                <label class="mb-2 form--label ">@lang('Person')</label>
-                                                <input class="form--control" type="number" min="1" value="1"
-                                                    step="1" name="seat" placeholder='0'>
+                                        <div class="product--info__item border-0 pb-2 mb-0">
+                                            <div class="form-group">
+                                                <label class="mb-2 form--label">@lang('Travelers')</label>
+                                                <input class="form--control" type="number" min="1"
+                                                    max="{{ $departure->seats_available }}" value="1" step="1"
+                                                    name="seat" required>
                                             </div>
                                         </div>
 
-                                    </div>
-                                </div>
-                                <div class="product--info__item">
-                                    <button class="btn btn--base btn--lg w--100 pills" type="submit">@lang('Book Now')
-                                        <i class="fa-solid fa-arrow-right-long"></i></button>
-                                </div>
-                            </form>
-                        </div>
-
-                        <div class="bg--white radius--20 p-4 d-flex flex-column justify-content-center align-items-center">
-                            <div class="details--page__datepicker" id="datepicker" data-language="en"></div>
-                        </div>
+                                        <div class="product--info__item">
+                                            <button class="btn btn--base btn--lg w--100 pills" type="submit">@lang('Book Now')
+                                                <i class="fa-solid fa-arrow-right-long"></i></button>
+                                        </div>
+                                    @endif
+                                </form>
+                            </div>
+                        @empty
+                            <div class="bg--white radius--20 p-4 mb-4 text-center">
+                                <p class="mb-0">@lang('No upcoming departures for this tour yet. Check back soon!')</p>
+                            </div>
+                        @endforelse
                     </div>
                 </div>
             </div>
@@ -439,36 +447,7 @@
 
 @endsection
 
-@push('style-lib')
-    <link rel="stylesheet" href="{{ asset('assets/admin/css/datepicker.min.css') }}">
-@endpush
-
-@push('script-lib')
-    <script src="{{ asset('assets/admin/js/datepicker.min.js') }}"></script>
-    <script src="{{ asset('assets/admin/js/datepicker.en.js') }}"></script>
-@endpush
-
 @push('script')
-    <script>
-        $(function() {
-            'use strict'
-            $("#datepicker").datepicker({
-                showOtherMonths: true,
-                defaultViewDate: new Date(),
-            });
-        });
-    </script>
-
-    <script>
-        $(document).ready(function() {
-            'use strict'
-            $(".datepicker-active").datepicker({
-                minDate: new Date(),
-                timepicker: true,
-                timeFormat: ', hh:ii aa',
-            });
-        });
-    </script>
     <script>
         // rating set
         $(document).ready(function() {

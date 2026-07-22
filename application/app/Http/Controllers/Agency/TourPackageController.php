@@ -107,7 +107,7 @@ class TourPackageController extends Controller
                 }
             });
         }
-        return $tourPackages->with('category','TourPackagePrimaryImage','agency')
+        return $tourPackages->with('category','TourPackagePrimaryImage','agency','activeDepartures.departurePrices')
         ->where('user_type','agency')
         ->where('user_id',auth('agency')->id())
         ->orderBy('id', 'desc')

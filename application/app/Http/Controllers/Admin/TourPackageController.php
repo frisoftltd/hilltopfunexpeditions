@@ -84,7 +84,7 @@ class TourPackageController extends Controller
     {
         $pageTitle = 'Agency Tour Package';
         $categories = Category::where('status', 1)->latest()->get();
-        $tourPackages = TourPackage::with('category','TourPackagePrimaryImage','agency')
+        $tourPackages = TourPackage::with('category','TourPackagePrimaryImage','agency','activeDepartures.departurePrices')
         ->where('user_type','agency')
         ->orderBy('id', 'desc');
         if ($request->search || $request->category_id) {
@@ -118,7 +118,7 @@ class TourPackageController extends Controller
     {
         $pageTitle = 'My Tour Package';
         $categories = Category::where('status', 1)->latest()->get();
-        $tourPackages = TourPackage::with('category','TourPackagePrimaryImage','agency')
+        $tourPackages = TourPackage::with('category','TourPackagePrimaryImage','agency','activeDepartures.departurePrices')
         ->where('user_type','admin')
         ->where('user_id',auth('admin')->id())
         ->orderBy('id', 'desc');
@@ -162,7 +162,7 @@ class TourPackageController extends Controller
                 }
             });
         }
-        return $tourPackages->with('category','agency','TourPackagePrimaryImage','agency')->orderBy('id', 'desc')->paginate(getPaginate());
+        return $tourPackages->with('category','agency','TourPackagePrimaryImage','activeDepartures.departurePrices')->orderBy('id', 'desc')->paginate(getPaginate());
     }
   
 }

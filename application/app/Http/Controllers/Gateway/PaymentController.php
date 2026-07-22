@@ -9,12 +9,14 @@ use App\Models\Agency;
 use App\Models\Deposit;
 use App\Lib\FormProcessor;
 use App\Models\TourBooking;
+use App\Models\TourDeparture;
 use App\Models\TourPackage;
 use App\Models\Transaction;
 use Illuminate\Http\Request;
 use App\Models\GatewayCurrency;
 use App\Models\AdminNotification;
 use App\Http\Controllers\Controller;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Session;
 
 class PaymentController extends Controller
@@ -60,15 +62,24 @@ class PaymentController extends Controller
         $tourPackageSession = collect($tourPackageSession);
 
         $tourPackage = TourPackage::findOrFail($tourPackageSession['tour_package_id']);
+        $departure = TourDeparture::with('departurePrices')->findOrFail($tourPackageSession['tour_departure_id']);
+        $departurePrice = $departure->departurePrices->firstWhere('price_category_id', $tourPackageSession['price_category_id']);
+
+        if (!$departurePrice) {
+            $notify[] = ['error', 'Invalid price category for this departure.'];
+            return back()->withNotify($notify);
+        }
 
         $tourBooking = new TourBooking();
         $tourBooking->user_id = auth()->id();
         $tourBooking->owner_id = $tourPackage->user_id;
         $tourBooking->owner_type = $tourPackage->user_type;
-        $tourBooking->price = showTourPackageCalculateDiscount($tourPackage->price * $tourPackageSession['seat'], $tourPackage->discount);
-        $tourBooking->discount = $tourPackage->discount;
+        $tourBooking->price = showTourPackageCalculateDiscount($departurePrice->price * $tourPackageSession['seat'], $departurePrice->discount);
+        $tourBooking->discount = $departurePrice->discount;
         $tourBooking->tour_package_id = $tourPackage->id;
-        $tourBooking->user_proposal_date = $tourPackageSession['user_proposal_date'] ?? $tourPackage->tour_start;
+        $tourBooking->tour_departure_id = $departure->id;
+        $tourBooking->price_category_id = $departurePrice->price_category_id;
+        $tourBooking->user_proposal_date = $departure->start_date;
         $tourBooking->seat = $tourPackageSession['seat'];
         $tourBooking->status = 0;
         $tourBooking->save();
@@ -154,7 +165,7 @@ class PaymentController extends Controller
             $deposit->save();
 
             // tour booking status update
-            $tourBooking = TourBooking::with(['tour_package', 'agency', 'admin', 'user'])->findOrFail($deposit->tour_booking_id);
+            $tourBooking = TourBooking::with(['tour_package', 'departure', 'agency', 'admin', 'user'])->findOrFail($deposit->tour_booking_id);
             $tourBooking->status = 1;
             $tourBooking->save();
 
@@ -166,11 +177,9 @@ class PaymentController extends Controller
                 $agency->save();
             }
 
-            // set tourPackage total booking person 
-            $tourPackage = $tourBooking->tour_package;
-            if ($tourPackage) {
-                $tourPackage->booking_person += $tourBooking->seat;
-                $tourPackage->save();
+            // increment seats booked on the specific departure (atomic UPDATE)
+            if ($tourBooking->tour_departure_id) {
+                TourDeparture::whereKey($tourBooking->tour_departure_id)->increment('seats_booked', $tourBooking->seat);
             }
 
             $user = User::find($deposit->user_id);
@@ -212,8 +221,8 @@ class PaymentController extends Controller
                 'price' => showAmount($tourBooking->price),
                 'discount' => showAmount($tourBooking->discount),
                 'booking_seats' => $tourBooking->seat,
-                'tour_start' => showDateTime($tourBooking->tour_package->tour_start),
-                'tour_end' => showDateTime($tourBooking->tour_package->tour_end),
+                'tour_start' => $tourBooking->departure ? showDateTime($tourBooking->departure->start_date) : null,
+                'tour_end' => $tourBooking->departure?->end_date ? showDateTime($tourBooking->departure->end_date) : null,
                 'tour_stay' => $tourBooking->tour_package->day_nights,
             ]);
 

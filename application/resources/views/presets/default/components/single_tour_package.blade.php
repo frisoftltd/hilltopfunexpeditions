@@ -39,7 +39,7 @@
                         </li>
                         <li class="flex-shrink-0">
                             <p class="fs--14"><i class="fa-regular fa-clock"></i>
-                                {{ tourVacationCount($item->tour_start, $item->tour_end) }} @lang('Days')
+                                {{ $item->day_nights }}
                             </p>
                         </li>
                     </ul>
@@ -60,8 +60,13 @@
 
                 <div class="tour-card__price-wrap d-flex justify-content-between align-items-center gap--16 flex-wrap">
                     <div class="tour-card__price">
-                        <h6 class="fs--20 fw--600 mb-0 body--font">{{ $general->cur_sym }}{{ $item->price }}<span
-                                class="text--black7 fs--16">/@lang('package')</span></h6>
+                        @if ($item->from_price !== null)
+                            <h6 class="fs--20 fw--600 mb-0 body--font">@lang('From') {{ $general->cur_sym }}{{ $item->from_price }}
+                            </h6>
+                            <span class="text--black7 fs--14">{{ $item->departures_count }} @lang('departures')</span>
+                        @else
+                            <span class="text--black7 fs--14">@lang('No upcoming departures')</span>
+                        @endif
                     </div>
 
                     <div class="tour-card__btn-wrap">

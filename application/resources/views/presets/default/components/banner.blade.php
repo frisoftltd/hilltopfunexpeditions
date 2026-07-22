@@ -3,9 +3,7 @@
     $sliderElements = getContent('banner.element', false, null, true);
     $sliderElements = $sliderElements->filter(function($sl){ return !empty($sl->data_values) && !empty($sl->data_values->banner_image);})->values();
     $bc = getContent('banner.content', true);
-    $sliderCats = App\Models\Category::where('status', 1)->get();
     $bannerContent = getContent('banner.content', true);
-    $categories = App\Models\Category::where('status', 1)->get();
     $heroLocations = App\Models\Location::where('status', 1)->get();
     $languages = App\Models\Language::all();
     $currentLang = $languages->firstWhere('code', session('lang', 'en'));
@@ -32,34 +30,23 @@
                 <div class="hilltop-search-inner">
                     <div class="hs-field">
                         <i class="fa-solid fa-location-dot"></i>
-                        <select class="from-select3 hero-location-select">
-                            <option value="">Location</option>
+                        <select name="destination" class="from-select3">
+                            <option value="">@lang('Destination')</option>
                             @foreach($heroLocations as $loc)
-                                <option data-lat="{{ $loc->latitude }}" data-lng="{{ $loc->longitude }}">{{ $loc->name }}</option>
-                            @endforeach
-                        </select>
-                        <input type="hidden" name="lati" class="hero-lati">
-                        <input type="hidden" name="longi" class="hero-longi">
-                    </div>
-                    <div class="hs-field">
-                        <i class="fa-regular fa-compass"></i>
-                        <select name="category_id" class="from-select3">
-                            <option value="0">Select Category</option>
-                            @foreach($sliderCats as $cat)
-                                <option value="{{ $cat->id }}">{{ $cat->name }}</option>
+                                <option value="{{ $loc->name }}">{{ $loc->name }}</option>
                             @endforeach
                         </select>
                     </div>
                     <div class="hs-field">
                         <i class="fa-regular fa-calendar-days"></i>
-                        <input class="datepicker-here" name="start_date" data-language="en" placeholder="Date">
+                        <input type="month" name="month" placeholder="@lang('Month')">
                     </div>
                     <div class="hs-field">
                         <i class="fa-regular fa-user"></i>
-                        <input type="number" name="person" placeholder="Person">
+                        <input type="number" min="1" name="travelers" placeholder="@lang('Travelers')">
                     </div>
                     <button type="submit" class="hs-btn">
-                        <i class="fa-solid fa-magnifying-glass"></i> Search
+                        <i class="fa-solid fa-magnifying-glass"></i> @lang('Search')
                     </button>
                 </div>
             </form>
@@ -88,16 +75,6 @@
     window.hilltopNext = function(){ show(current + 1); reset(); };
     window.hilltopPrev = function(){ show(current - 1); reset(); };
 })();
-
-// Sync selected Location dropdown -> hidden lati/longi fields for geo-radius search
-$(document).on('change', '.hero-location-select', function(){
-    var selected = $(this).find(':selected');
-    var lat = selected.data('lat') || '';
-    var lng = selected.data('lng') || '';
-    var $form = $(this).closest('form');
-    $form.find('.hero-lati').val(lat);
-    $form.find('.hero-longi').val(lng);
-});
 </script>
 @endpush
 
@@ -156,31 +133,20 @@ $(document).on('change', '.hero-location-select', function(){
                             <div class="banner--filter__inputs">
                                 <div class="form-group position-relative pills">
                                     <span class="icon--wrap position-absolute fs--18"><i class="fa-solid fa-location-dot"></i></span>
-                                    <select class="form--control pills from-select3 hero-location-select">
-                                        <option value="">@lang('Location')</option>
+                                    <select class="form--control pills from-select3" name="destination">
+                                        <option value="">@lang('Destination')</option>
                                         @foreach($heroLocations as $loc)
-                                            <option data-lat="{{ $loc->latitude }}" data-lng="{{ $loc->longitude }}">{{ $loc->name }}</option>
-                                        @endforeach
-                                    </select>
-                                    <input type="hidden" name="lati" class="hero-lati">
-                                    <input type="hidden" name="longi" class="hero-longi">
-                                </div>
-                                <div class="form-group position-relative pills d-none d-md-block">
-                                    <span class="icon--wrap position-absolute fs--18"><i class="fa-regular fa-compass"></i></span>
-                                    <select class="form--control form-control from-select3" name="category_id">
-                                        <option value="0">@lang('Select Category')</option>
-                                        @foreach ($categories as $item)
-                                            <option value="{{$item->id}}">{{$item->name}}</option>
+                                            <option value="{{ $loc->name }}">{{ $loc->name }}</option>
                                         @endforeach
                                     </select>
                                 </div>
                                 <div class="form-group position-relative">
                                     <span class="icon--wrap position-absolute fs--18"><i class="fa-regular fa-calendar-days"></i></span>
-                                    <input class="form--control form-control pills datepicker-here" name="start_date" data-language="en" placeholder="@lang('Date')">
+                                    <input type="month" class="form--control form-control pills" name="month" placeholder="@lang('Month')">
                                 </div>
                                 <div class="form-group position-relative d-none d-md-block">
                                     <span class="icon--wrap position-absolute fs--18"><i class="fa-regular fa-user"></i></span>
-                                    <input class="form--control pills" type="number" name="person" placeholder="@lang('Person')">
+                                    <input class="form--control pills" type="number" min="1" name="travelers" placeholder="@lang('Travelers')">
                                 </div>
                             </div>
                             <div class="banner--filter__btn flex-shrink-0">

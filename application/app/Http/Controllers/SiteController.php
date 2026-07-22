@@ -139,11 +139,11 @@ class SiteController extends Controller
     public function tourPackageDetails($id, $slug)
     {
         $pageTitle = 'Tour Details';
-        $tourPackage = TourPackage::with(['reviews', 'reviews.user', 'wishlists', 'tour_package_images'])->findOrFail($id);
+        $tourPackage = TourPackage::with(['reviews', 'reviews.user', 'wishlists', 'tour_package_images', 'activeDepartures.departurePrices.priceCategory'])->findOrFail($id);
         $tourPackage->view += 1;
         $tourPackage->save();
 
-        $tourPackages = TourPackage::with(['reviews', 'reviews.user', 'wishlists', 'tour_package_images', 'TourPackagePrimaryImage'])
+        $tourPackages = TourPackage::with(['reviews', 'reviews.user', 'wishlists', 'tour_package_images', 'TourPackagePrimaryImage', 'activeDepartures.departurePrices'])
             ->where('id', '!=', $id)
             ->inRandomOrder()
             ->limit(3)
@@ -162,39 +162,38 @@ class SiteController extends Controller
                 $query->whereIn('status',[1,2,3]);
             }])
             ->get();
-        $query = TourPackage::with(['reviews', 'reviews.user', 'wishlists', 'tour_package_images', 'TourPackagePrimaryImage'])
+        $query = TourPackage::with(['reviews', 'reviews.user', 'wishlists', 'tour_package_images', 'TourPackagePrimaryImage', 'activeDepartures.departurePrices'])
             ->whereIn('status',[1,2,3]);
         $page = Page::where('tempname', $this->activeTemplate)->where('slug', 'browse')->first();
         $sections = $page->secs;
-        $locationSearch = request()->query('location');
+        $destinationSearch = request()->query('destination');
         $categorySearch = request()->query('category_id');
-        $dateSearch = request()->query('start_date');
-        $personSearch = request()->query('person');
-        $locationIdSearch = request()->query('location_id');
-        $inputLatitude = request()->query('lati');
-        $inputLongitude = request()->query('longi');
-        if ($locationSearch || $categorySearch || $dateSearch || $personSearch || $locationIdSearch || ($inputLatitude && $inputLongitude)) {
-            if ($locationSearch) {
-                $query->where('address', 'LIKE', "%{$locationSearch}%")->whereColumn('booking_person', '<=', 'person_capability');
+        $monthSearch = request()->query('month');
+        $travelersSearch = (int) request()->query('travelers');
+
+        if ($destinationSearch || $categorySearch || $monthSearch || $travelersSearch) {
+            if ($destinationSearch) {
+                $query->where(function ($q) use ($destinationSearch) {
+                    $q->where('address', 'LIKE', "%{$destinationSearch}%")
+                        ->orWhere('city', 'LIKE', "%{$destinationSearch}%")
+                        ->orWhere('country', 'LIKE', "%{$destinationSearch}%");
+                });
             }
 
             if ($categorySearch) {
-                $query->where('category_id', $categorySearch)->whereColumn('booking_person', '<=', 'person_capability');
+                $query->where('category_id', $categorySearch);
             }
 
-            if ($dateSearch) {
-                $carbonDate = Carbon::parse($dateSearch)->format('Y-m-d');
-                $query->where('tour_start', '<', $carbonDate)->whereColumn('booking_person', '<=', 'person_capability');
-            }
-
-            if ($personSearch) {
-                $query->where('person_capability', $personSearch)->whereColumn('booking_person', '<=', 'person_capability');
-            }
-
-            if ($inputLatitude && $inputLongitude) {
-
-                $query->selectRaw('*, (6371 * acos(cos(radians(?)) * cos(radians(latitude)) * cos(radians(longitude) - radians(?)) + sin(radians(?)) * sin(radians(latitude)))) AS distance', [$inputLatitude, $inputLongitude, $inputLatitude])
-                    ->havingRaw('distance < ?', [100]);
+            if ($monthSearch || $travelersSearch) {
+                $query->whereHas('departures', function ($q) use ($monthSearch, $travelersSearch) {
+                    $q->active();
+                    if ($monthSearch) {
+                        $q->whereRaw("DATE_FORMAT(start_date, '%Y-%m') = ?", [$monthSearch]);
+                    }
+                    if ($travelersSearch) {
+                        $q->whereRaw('seats_total - seats_booked >= ?', [$travelersSearch]);
+                    }
+                });
             }
 
             $tourPackages = $query->orderBy('id', 'desc')->paginate(getPaginate(9));
@@ -239,7 +238,7 @@ class SiteController extends Controller
         $priceMin = $request->input('priceMin');
         $priceMax = $request->input('priceMax');
 
-        $query = TourPackage::with(['reviews', 'reviews.user', 'wishlists', 'tour_package_images', 'TourPackagePrimaryImage'])->whereIn('status', [1,2,3])->orderBy('id', 'desc')->limit(9)->latest();
+        $query = TourPackage::with(['reviews', 'reviews.user', 'wishlists', 'tour_package_images', 'TourPackagePrimaryImage', 'activeDepartures.departurePrices'])->whereIn('status', [1,2,3])->orderBy('id', 'desc')->limit(9)->latest();
         if (!empty($searchKey) && strlen($searchKey) >= 2) {
             $query->where('title', 'LIKE', "%{$searchKey}%");
         }

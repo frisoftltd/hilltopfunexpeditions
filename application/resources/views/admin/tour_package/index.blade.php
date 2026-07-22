@@ -58,8 +58,8 @@
                                     <th>@lang('Title')</th>
                                     <th>@lang('Image')</th>
                                     <th>@lang('Category')</th>
-                                    <th>@lang('Amount')</th>
-                                    <th>@lang('Person')</th>
+                                    <th>@lang('From Price')</th>
+                                    <th>@lang('Seats')</th>
                                     <th>@lang('Country')</th>
                                     <th>@lang('Tour Status')</th>
                                     <th>@lang('Action')</th>
@@ -89,8 +89,14 @@
                                         </td>
 
                                         <td>{{ __($item->category->name) }}</td>
-                                        <td> {{ $general->cur_sym }}{{ showAmount($item->price) }}</td>
-                                        <td> {{ $item->person_capability }}</td>
+                                        <td>
+                                            @if ($item->from_price !== null)
+                                                {{ $general->cur_sym }}{{ showAmount($item->from_price) }} ({{ $item->departures_count }})
+                                            @else
+                                                &mdash;
+                                            @endif
+                                        </td>
+                                        <td> {{ $item->activeDepartures->sum('seats_total') }}</td>
                                         <td> {{ $item->country }}</td>
 
                                         <td>
