@@ -29,18 +29,34 @@ class SiteController extends Controller
         $pageTitle = 'Home';
         $sections = Page::where('tempname', $this->activeTemplate)->where('slug', '/')->first();
 
-        // check all tour package running or expired
-        $allTourPackages = TourPackage::whereIn('status', [1, 2, 3])->get();
-        foreach ($allTourPackages ?? [] as $key => $value) {
-            if ($value->tour_start < now() && $value->tour_end > now()) {
-                $value->status = 2;
-                $value->save();
+        // Auto status transition, based on departures rather than
+        // tour_packages.tour_start/tour_end (frozen since the departures
+        // redesign, and subject to that column's ON UPDATE
+        // current_timestamp() corruption before that).
+        $now = now();
+        $allTourPackages = TourPackage::whereIn('status', [1, 2, 3])->with('departures')->get();
+        foreach ($allTourPackages as $tourPackage) {
+            $departures = $tourPackage->departures->where('status', 1);
+            if ($departures->isEmpty()) {
+                continue;
             }
-            if ($value->tour_end < now()) {
-                $value->status = 3;
-                $value->save();
+
+            $effectiveEnd = fn ($departure) => ($departure->end_date ?? $departure->start_date)->copy()->endOfDay();
+
+            $inProgress = $departures->contains(
+                fn ($departure) => $departure->start_date->lte($now) && $effectiveEnd($departure)->gte($now)
+            );
+            $allPast = $departures->every(fn ($departure) => $effectiveEnd($departure)->lt($now));
+
+            if ($inProgress) {
+                $tourPackage->status = 2;
+                $tourPackage->save();
+            } elseif ($allPast) {
+                $tourPackage->status = 3;
+                $tourPackage->save();
             }
         }
+
         return view($this->activeTemplate . 'home', compact('pageTitle', 'sections'));
     }
 
