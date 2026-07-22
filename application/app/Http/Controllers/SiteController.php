@@ -202,7 +202,7 @@ class SiteController extends Controller
 
             if ($monthSearch || $travelersSearch) {
                 $query->whereHas('departures', function ($q) use ($monthSearch, $travelersSearch) {
-                    $q->active();
+                    $q->active()->where('start_date', '>=', now()->toDateString());
                     if ($monthSearch) {
                         $q->whereRaw("DATE_FORMAT(start_date, '%Y-%m') = ?", [$monthSearch]);
                     }

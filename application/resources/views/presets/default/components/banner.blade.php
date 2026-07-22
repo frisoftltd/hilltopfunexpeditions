@@ -9,6 +9,12 @@
     $currentLang = $languages->firstWhere('code', session('lang', 'en'));
     $galleryElements = getContent('gallery.element', false, '6', true);
     $galleryElements = $galleryElements->filter(function($g){ return !empty($g->data_values) && !empty($g->data_values->banner_image); })->values();
+
+    \Carbon\Carbon::setlocale(session('lang', 'en'));
+    $monthOptions = collect(range(0, 11))->map(function ($i) {
+        $date = now()->addMonthsNoOverflow($i);
+        return ['value' => $date->format('Y-m'), 'label' => $date->translatedFormat('F Y')];
+    });
 @endphp
 
 <div class="hilltop-hero-wrap">
@@ -39,11 +45,16 @@
                     </div>
                     <div class="hs-field">
                         <i class="fa-regular fa-calendar-days"></i>
-                        <input type="month" name="month" placeholder="@lang('Month')">
+                        <select name="month" class="from-select3">
+                            <option value="">@lang('Anytime')</option>
+                            @foreach($monthOptions as $opt)
+                                <option value="{{ $opt['value'] }}">{{ $opt['label'] }}</option>
+                            @endforeach
+                        </select>
                     </div>
                     <div class="hs-field">
                         <i class="fa-regular fa-user"></i>
-                        <input type="number" min="1" name="travelers" placeholder="@lang('Travelers')">
+                        <input type="number" min="1" name="travelers" value="2">
                     </div>
                     <button type="submit" class="hs-btn">
                         <i class="fa-solid fa-magnifying-glass"></i> @lang('Search')
@@ -142,11 +153,16 @@
                                 </div>
                                 <div class="form-group position-relative">
                                     <span class="icon--wrap position-absolute fs--18"><i class="fa-regular fa-calendar-days"></i></span>
-                                    <input type="month" class="form--control form-control pills" name="month" placeholder="@lang('Month')">
+                                    <select class="form--control pills from-select3" name="month">
+                                        <option value="">@lang('Anytime')</option>
+                                        @foreach($monthOptions as $opt)
+                                            <option value="{{ $opt['value'] }}">{{ $opt['label'] }}</option>
+                                        @endforeach
+                                    </select>
                                 </div>
                                 <div class="form-group position-relative d-none d-md-block">
                                     <span class="icon--wrap position-absolute fs--18"><i class="fa-regular fa-user"></i></span>
-                                    <input class="form--control pills" type="number" min="1" name="travelers" placeholder="@lang('Travelers')">
+                                    <input class="form--control pills" type="number" min="1" name="travelers" value="2">
                                 </div>
                             </div>
                             <div class="banner--filter__btn flex-shrink-0">
