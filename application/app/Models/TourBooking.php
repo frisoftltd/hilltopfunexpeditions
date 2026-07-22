@@ -39,6 +39,16 @@ class TourBooking extends Model
         return $this->belongsTo(TourPackage::class);
     }
 
+    public function departure()
+    {
+        return $this->belongsTo(TourDeparture::class, 'tour_departure_id');
+    }
+
+    public function priceCategory()
+    {
+        return $this->belongsTo(PriceCategory::class);
+    }
+
     public function scopeAdminAll($query)
     {
         return $query->where('owner_type','admin')->where('owner_id', auth('admin')->id());

@@ -41,6 +41,16 @@ class TourPackage extends Model
         return $this->hasMany(TourBooking::class, 'tour_package_id', 'id')->orderBy('id', 'asc');
     }
 
+    public function departures()
+    {
+        return $this->hasMany(TourDeparture::class)->orderBy('start_date');
+    }
+
+    public function activeDepartures()
+    {
+        return $this->departures()->active()->upcoming();
+    }
+
     public function tour_package_images()
     {
         return $this->hasMany(TourPackageImage::class, 'tour_package_id', 'id');
