@@ -14,7 +14,22 @@ class TourPackage extends Model
         'icons' => 'object',
         'highlights' => 'object',
         'destination_overview' => 'object',
+        'exclusions' => 'object',
+        'itinerary' => 'object',
     ];
+
+    const INTENSITY_LABELS = [
+        1 => 'Easy',
+        2 => 'Moderate',
+        3 => 'Average',
+        4 => 'Challenging',
+        5 => 'Demanding',
+    ];
+
+    public function getIntensityLabelAttribute()
+    {
+        return self::INTENSITY_LABELS[$this->intensity] ?? null;
+    }
 
     public function category()
     {
