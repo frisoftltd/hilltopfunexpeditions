@@ -3,11 +3,6 @@
 use Illuminate\Support\Facades\Route;
 
 
-Route::get('/clear', function () {
-    \Illuminate\Support\Facades\Artisan::call('optimize:clear');
-    return redirect()->back();
-})->name('clear.cache');
-
 Route::namespace('Auth')->group(function () {
     Route::controller('LoginController')->group(function () {
         Route::get('/', 'showLoginForm')->name('login');
@@ -359,6 +354,16 @@ Route::middleware('admin')->group(function () {
         Route::post('extensions/update/{id}', 'update')->name('extensions.update');
         Route::post('extensions/status/{id}', 'status')->name('extensions.status');
     });
+
+    // System Update (pull from GitHub)
+    Route::controller('SystemUpdateController')->prefix('system-update')->name('system.update.')->group(function () {
+        Route::get('/', 'index')->name('index');
+        Route::get('check', 'check')->name('check');
+        Route::post('run', 'update')->name('run');
+        Route::get('status', 'status')->name('status');
+        Route::post('clear-cache', 'clearCache')->name('clear.cache');
+    });
+
     // SEO
     Route::get('seo', 'FrontendController@seoEdit')->name('seo');
 

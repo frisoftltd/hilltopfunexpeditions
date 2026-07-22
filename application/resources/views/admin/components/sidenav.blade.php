@@ -288,10 +288,10 @@
                     </a>
                 </li>
 
-                <li class="sidebar-menu-item">
-                    <a href="{{ route('admin.clear.cache') }}" class="nav-link">
-                        <i class="menu-icon las la-broom"></i>
-                        <span class="menu-title">@lang('Clear Cache')</span>
+                <li class="sidebar-menu-item {{ menuActive('admin.system.update.index') }}">
+                    <a href="{{ route('admin.system.update.index') }}" class="nav-link">
+                        <i class="menu-icon las la-sync"></i>
+                        <span class="menu-title">@lang('System Update')</span>
                     </a>
                 </li>
                 <li class="sidebar-menu-item">

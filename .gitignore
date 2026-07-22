@@ -6,6 +6,7 @@ application/storage/framework/sessions/*
 application/storage/framework/views/*
 application/storage/logs/*
 application/storage/app/public/*
+application/storage/app/deploy/*
 application/bootstrap/cache/*
 *.log
 __MACOSX/
