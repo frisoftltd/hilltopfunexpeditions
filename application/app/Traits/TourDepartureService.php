@@ -8,6 +8,7 @@ use App\Models\TourDeparture;
 use App\Models\TourPackage;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 
 /**
  * Shared by Admin\TourDepartureController and Agency\TourDepartureController.
@@ -38,6 +39,7 @@ trait TourDepartureService
             $notify[] = ['success', 'Departure added successfully'];
         } catch (\Exception $e) {
             DB::rollBack();
+            Log::error('Departure store failed: ' . $e->getMessage(), ['exception' => $e]);
             $notify[] = ['error', 'Something went wrong'];
         }
 
@@ -100,6 +102,7 @@ trait TourDepartureService
             $notify[] = ['success', 'Departure updated successfully'];
         } catch (\Exception $e) {
             DB::rollBack();
+            Log::error('Departure update failed: ' . $e->getMessage(), ['exception' => $e]);
             $notify[] = ['error', 'Something went wrong'];
         }
 
@@ -129,8 +132,23 @@ trait TourDepartureService
 
             DeparturePrice::updateOrCreate(
                 ['tour_departure_id' => $departure->id, 'price_category_id' => $categoryId],
-                ['price' => $data['price'], 'discount' => $data['discount'] ?? null]
+                [
+                    'price' => $this->nullIfBlank($data['price'] ?? null),
+                    'discount' => $this->nullIfBlank($data['discount'] ?? null),
+                ]
             );
         }
+    }
+
+    /**
+     * An empty ('') form field is present-but-blank, not absent - `?? null`
+     * doesn't catch it. Left uncorrected, MySQL strict mode rejects '' for a
+     * numeric column outright (this is what "something went wrong" was
+     * hiding for a blank discount/price). !== '' rather than empty() so a
+     * legitimate 0 is preserved.
+     */
+    private function nullIfBlank($value)
+    {
+        return ($value === null || $value === '') ? null : $value;
     }
 }

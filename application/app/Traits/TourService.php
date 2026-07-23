@@ -5,6 +5,7 @@ namespace App\Traits;
 use App\Models\TourPackage;
 use App\Models\TourPackageImage;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Http\Request;
 use App\Http\Requests\TourPackageRequest;
 
@@ -77,12 +78,12 @@ trait TourService
             $tourPackage->destination_overview = str_replace('"', "'", ($request->destination_overview));
             $tourPackage->highlights = $request->highlights;
             $tourPackage->itinerary = $request->itinerary ?? [];
-            $tourPackage->group_size_min = $request->group_size_min;
-            $tourPackage->group_size_max = $request->group_size_max;
+            $tourPackage->group_size_min = $request->filled('group_size_min') ? $request->group_size_min : null;
+            $tourPackage->group_size_max = $request->filled('group_size_max') ? $request->group_size_max : null;
             $tourPackage->guide_language = $request->guide_language;
-            $tourPackage->age_range_min = $request->age_range_min;
-            $tourPackage->age_range_max = $request->age_range_max;
-            $tourPackage->intensity = $request->intensity;
+            $tourPackage->age_range_min = $request->filled('age_range_min') ? $request->age_range_min : null;
+            $tourPackage->age_range_max = $request->filled('age_range_max') ? $request->age_range_max : null;
+            $tourPackage->intensity = $request->filled('intensity') ? $request->intensity : null;
 
             $tourPackage->status = 1;
 
@@ -107,6 +108,7 @@ trait TourService
             $notify[] = ['success', 'Tour Package created successfully'];
         } catch (\Exception $exp) {
             DB::rollBack();
+            Log::error('Tour package store failed: ' . $exp->getMessage(), ['exception' => $exp]);
             $notify[] = ['error', 'something went wrong'];
         }
 
@@ -178,12 +180,12 @@ trait TourService
         $tourPackage->destination_overview = str_replace('"', "'", ($request->destination_overview));
         $tourPackage->highlights = $request->highlights;
         $tourPackage->itinerary = $request->itinerary ?? [];
-        $tourPackage->group_size_min = $request->group_size_min;
-        $tourPackage->group_size_max = $request->group_size_max;
+        $tourPackage->group_size_min = $request->filled('group_size_min') ? $request->group_size_min : null;
+        $tourPackage->group_size_max = $request->filled('group_size_max') ? $request->group_size_max : null;
         $tourPackage->guide_language = $request->guide_language;
-        $tourPackage->age_range_min = $request->age_range_min;
-        $tourPackage->age_range_max = $request->age_range_max;
-        $tourPackage->intensity = $request->intensity;
+        $tourPackage->age_range_min = $request->filled('age_range_min') ? $request->age_range_min : null;
+        $tourPackage->age_range_max = $request->filled('age_range_max') ? $request->age_range_max : null;
+        $tourPackage->intensity = $request->filled('intensity') ? $request->intensity : null;
 
         $tourPackage->save();
 
@@ -202,6 +204,7 @@ trait TourService
         $notify[] = ['success', 'Tour Package updated successfully'];
         } catch (\Exception $exp) {
             DB::rollBack();
+            Log::error('Tour package update failed: ' . $exp->getMessage(), ['exception' => $exp]);
              $notify[] = ['error', 'something went wrong'];
 
         }
@@ -224,6 +227,7 @@ trait TourService
             ];
             return response()->json($data);
         } catch (\Exception $exp) {
+            Log::error('Tour package image delete failed: ' . $exp->getMessage(), ['exception' => $exp]);
             $notify[] = ['error', 'Couldn\'t delete your image'];
             return back()->withNotify($notify);
         }
@@ -244,6 +248,7 @@ trait TourService
             $notify[] = ['success', 'Tour Package delete successfully'];
             return back()->withNotify($notify);
         } catch (\Exception $exp) {
+            Log::error('Tour package delete failed: ' . $exp->getMessage(), ['exception' => $exp]);
             $notify[] = ['error', 'something went wrong'];
             return back()->withNotify($notify);
         }
