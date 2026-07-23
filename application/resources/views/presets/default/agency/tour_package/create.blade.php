@@ -1,9 +1,20 @@
 @extends($activeTemplate . 'layouts.agency.master')
+@php
+    $highlightsList = old('highlights', ['']);
+    $featuresList = old('features', ['']);
+    $iconsList = old('icons', ['']);
+    $exclusionsList = old('exclusions', []);
+    $exclusionIconsList = old('exclusion_icons', []);
+    $itineraryList = old('itinerary', []);
+    $departuresList = old('departures', []);
+    $itineraryNextIndex = empty($itineraryList) ? 0 : max(array_keys($itineraryList)) + 1;
+    $departuresNextIndex = empty($departuresList) ? 0 : max(array_keys($departuresList)) + 1;
+@endphp
 @section('content')
     <div class="row justify-content-center">
         <div class="col-lg-12">
             <div class="base--card">
-                <form action="{{ route('agency.tour.package.store') }}" method="post" enctype="multipart/form-data">
+                <form id="tourPackageForm" action="{{ route('agency.tour.package.store') }}" method="post" enctype="multipart/form-data">
                     @csrf
                     <div class="mb-5">
                         <h5>@lang('Basic Information')</h5>
@@ -257,8 +268,41 @@
                                 <i class="fa fa-plus"></i> @lang('Add Day')
                             </button>
                         </div>
-                        <div id="itineraryContainer"></div>
-                        <p class="text-muted mb-0" id="noItineraryDays">@lang('No itinerary days added yet.')</p>
+                        <div id="itineraryContainer">
+                            @foreach ($itineraryList as $index => $day)
+                                @php $day = (object) $day; @endphp
+                                <div class="row align-items-start itinerary-day mb-3 pb-3 border-bottom">
+                                    <div class="col-md-2">
+                                        <div class="form-group">
+                                            <label class="mb-2 form--label">@lang('Day')</label>
+                                            <input type="number" min="1" class="form-control form--control"
+                                                name="itinerary[{{ $index }}][day]"
+                                                value="{{ $day->day ?? '' }}" required>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-3">
+                                        <div class="form-group">
+                                            <label class="mb-2 form--label">@lang('Title')</label>
+                                            <input type="text" class="form-control form--control"
+                                                name="itinerary[{{ $index }}][title]"
+                                                value="{{ $day->title ?? '' }}"
+                                                placeholder="@lang('e.g. Arrival in Kigali')" required>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="form-group">
+                                            <label class="mb-2 form--label">@lang('Description')</label>
+                                            <textarea class="form-control form--control" rows="2"
+                                                name="itinerary[{{ $index }}][description]">{{ $day->description ?? '' }}</textarea>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-1 pt-4">
+                                        <button type="button" class="btn btn--danger btn-sm remove-itinerary-day"><i class="la la-trash"></i></button>
+                                    </div>
+                                </div>
+                            @endforeach
+                        </div>
+                        <p class="text-muted mb-0 @if (count($itineraryList)) d-none @endif" id="noItineraryDays">@lang('No itinerary days added yet.')</p>
                     </div>
 
                     <div class="mb-5">
@@ -273,18 +317,22 @@
                                             <i class="fa fa-plus"></i> @lang('Add New')
                                         </button>
                                     </div>
-                                    <div class="row">
-                                        <div class="col-sm-12 my-2">
-                                            <div class="file-upload">
-                                                <label class="form-label">@lang('Destination Highlights')</label>
-                                                <input type="text" name="highlights[]" id="highlights"
-                                                    class="form-control form--control mb-0" required
-                                                    placeholder="@lang('Destination Highlights')" />
-                                            </div>
-                                        </div>
-                                    </div>
                                     <div id="fileUploadsContainer">
-
+                                        @foreach ($highlightsList as $item)
+                                            <div class="row elements">
+                                                <div class="col-sm-12 my-2">
+                                                    <div class="file-upload input-group">
+                                                        <input type="text" name="highlights[]"
+                                                            class="form-control form--control"
+                                                            value="{{ $item }}"
+                                                            placeholder="@lang('Destination Highlights')" required />
+                                                        <button type="button"
+                                                            class="input-group-text btn--danger remove-btn border-0"><i
+                                                                class="las la-times"></i></button>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        @endforeach
                                     </div>
                                 </div>
                             </div>
@@ -295,30 +343,36 @@
                                             <i class="fa fa-plus"></i> @lang('Add New')
                                         </button>
                                     </div>
-                                    <div class="row">
-                                        <div class="col-sm-4">
-                                            <div class="file-upload">
-                                                <label class="form-label">@lang('Destination icons')</label>
-                                                <div class="file-upload input-group">
-                                                    <input type="text" name="icons[]" id="inputIcon"
-                                                        class="form-control form--control iconPicker icon" value=""
-                                                        autocomplete="off" placeholder="@lang('Icons')" required>
-                                                    <span class="input-group-text input-group-addon bg--base text--white"
-                                                        data-icon="las la-home"></span>
+                                    <div id="fileUploadFeatures">
+                                        @foreach ($featuresList as $i => $featureText)
+                                            <div class="row elements">
+                                                <div class="col-sm-4">
+                                                    <div class="file-upload">
+                                                        <label class="form-label">@lang('Destination icons')</label>
+                                                        <div class="file-upload input-group">
+                                                            <input type="text" name="icons[]"
+                                                                class="form-control form--control iconPicker icon"
+                                                                value="{{ $iconsList[$i] ?? '' }}"
+                                                                autocomplete="off" placeholder="@lang('Icons')" required>
+                                                            <span class="input-group-text input-group-addon bg--base text--white"
+                                                                data-icon="las la-home">@php echo $iconsList[$i] ?? '' @endphp</span>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="col-sm-8 my-2">
+                                                    <div class="file-upload input-group">
+                                                        <label class="form-label w-100">@lang('Destination Features')</label>
+                                                        <input type="text" name="features[]"
+                                                            class="form-control form--control mb-0" required
+                                                            value="{{ $featureText }}"
+                                                            placeholder="@lang('Destination Features')" />
+                                                        <button type="button"
+                                                            class="input-group-text btn--danger remove-btn border-0"><i
+                                                                class="las la-times"></i></button>
+                                                    </div>
                                                 </div>
                                             </div>
-                                        </div>
-                                        <div class="col-sm-8 my-2">
-                                            <div class="file-upload">
-                                                <label class="form-label">@lang('Destination Features')</label>
-                                                <input type="text" name="features[]" id="features"
-                                                    class="form-control form--control mb-0" required
-                                                    placeholder="@lang('Destination Features')" />
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <div id="fileUploadFeatures">
-
+                                        @endforeach
                                     </div>
                                 </div>
                             </div>
@@ -329,28 +383,34 @@
                                             <i class="fa fa-plus"></i> @lang('Add New')
                                         </button>
                                     </div>
-                                    <div class="row">
-                                        <div class="col-sm-4">
-                                            <div class="file-upload">
-                                                <label class="form-label">@lang('Not Included icon')</label>
-                                                <div class="file-upload input-group">
-                                                    <input type="text" name="exclusion_icons[]" id="inputExclusionIcon"
-                                                        class="form-control form--control iconPicker icon" value=""
-                                                        autocomplete="off" placeholder="@lang('Icons')">
+                                    <div id="fileUploadExclusions">
+                                        @foreach ($exclusionsList as $i => $exclusionText)
+                                            <div class="row elements">
+                                                <div class="col-sm-4">
+                                                    <div class="file-upload">
+                                                        <label class="form-label">@lang('Not Included icon')</label>
+                                                        <div class="file-upload input-group">
+                                                            <input type="text" name="exclusion_icons[]"
+                                                                class="form-control form--control iconPicker icon"
+                                                                value="{{ $exclusionIconsList[$i] ?? '' }}"
+                                                                autocomplete="off" placeholder="@lang('Icons')">
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="col-sm-8 my-2">
+                                                    <div class="file-upload input-group">
+                                                        <label class="form-label w-100">@lang('Not Included')</label>
+                                                        <input type="text" name="exclusions[]"
+                                                            class="form-control form--control mb-0"
+                                                            value="{{ $exclusionText }}"
+                                                            placeholder="@lang('e.g. International flights')" />
+                                                        <button type="button"
+                                                            class="input-group-text btn--danger remove-btn border-0"><i
+                                                                class="las la-times"></i></button>
+                                                    </div>
                                                 </div>
                                             </div>
-                                        </div>
-                                        <div class="col-sm-8 my-2">
-                                            <div class="file-upload">
-                                                <label class="form-label">@lang('Not Included')</label>
-                                                <input type="text" name="exclusions[]" id="exclusions"
-                                                    class="form-control form--control mb-0"
-                                                    placeholder="@lang('e.g. International flights')" />
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <div id="fileUploadExclusions">
-
+                                        @endforeach
                                     </div>
                                 </div>
                             </div>
@@ -364,8 +424,52 @@
                                 <i class="fa fa-plus"></i> @lang('Add Departure')
                             </button>
                         </div>
-                        <div id="departuresContainer"></div>
-                        <p class="text-muted mb-0" id="noDepartureRows">@lang('No departures added yet. You can add them now or later from the edit page.')</p>
+                        <div id="departuresContainer">
+                            @foreach ($departuresList as $index => $dep)
+                                <div class="row align-items-end departure-row mb-3 pb-3 border-bottom">
+                                    <div class="col-md-3">
+                                        <div class="form-group">
+                                            <label class="mb-2 form--label">@lang('Start Date')</label>
+                                            <input type="date" class="form-control form--control"
+                                                name="departures[{{ $index }}][start_date]"
+                                                value="{{ $dep['start_date'] ?? '' }}"
+                                                min="{{ now()->toDateString() }}" required>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-2">
+                                        <div class="form-group">
+                                            <label class="mb-2 form--label">@lang('Total Seats')</label>
+                                            <input type="number" min="1" class="form-control form--control"
+                                                name="departures[{{ $index }}][seats_total]"
+                                                value="{{ $dep['seats_total'] ?? '' }}" required>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="row">
+                                            @foreach ($priceCategories as $category)
+                                                <div class="col-md-6 mb-2">
+                                                    <label class="mb-1 form--label">{{ $category->name }}</label>
+                                                    <div class="input-group input-group-sm">
+                                                        <input type="number" step="0.01" min="0" class="form-control form--control"
+                                                            name="departures[{{ $index }}][prices][{{ $category->id }}][price]"
+                                                            value="{{ $dep['prices'][$category->id]['price'] ?? '' }}"
+                                                            placeholder="@lang('Price')" required>
+                                                        <input type="number" step="0.01" min="0" max="100" class="form-control form--control"
+                                                            name="departures[{{ $index }}][prices][{{ $category->id }}][discount]"
+                                                            value="{{ $dep['prices'][$category->id]['discount'] ?? '' }}"
+                                                            placeholder="@lang('Disc %')">
+                                                    </div>
+                                                </div>
+                                            @endforeach
+                                        </div>
+                                    </div>
+                                    <div class="col-md-1">
+                                        <button type="button" class="btn btn--danger btn-sm remove-departure-row"><i class="la la-trash"></i></button>
+                                    </div>
+                                </div>
+                            @endforeach
+                        </div>
+                        <p class="text-muted mb-0 @if (count($departuresList)) d-none @endif" id="noDepartureRows">@lang('No departures added yet. You can add them now or later from the edit page.')</p>
                         @if ($priceCategories->isEmpty())
                             <p class="text-danger mb-0">@lang('No active price categories yet - ask the site admin to add one if you want to set prices now.')</p>
                         @endif
@@ -769,7 +873,7 @@
     <script>
         (function($) {
             "use strict";
-            var itineraryIndex = 0;
+            var itineraryIndex = {{ $itineraryNextIndex }};
             $('.addItineraryDay').on('click', function() {
                 var html = $('#itineraryDayTemplate').html().replace(/__INDEX__/g, itineraryIndex);
                 $('#itineraryContainer').append(html);
@@ -788,7 +892,7 @@
     <script>
         (function($) {
             "use strict";
-            var departureIndex = 0;
+            var departureIndex = {{ $departuresNextIndex }};
             $('.addDepartureRow').on('click', function() {
                 var html = $('#departureRowTemplate').html().replace(/__INDEX__/g, departureIndex);
                 $('#departuresContainer').append(html);
@@ -801,6 +905,123 @@
                     $('#noDepartureRows').removeClass('d-none');
                 }
             });
+        })(jQuery);
+    </script>
+
+    <script>
+        (function($) {
+            "use strict";
+            var draftKey = 'travela_draft_agency_tour_create';
+            var hasServerErrors = @json($errors->any());
+            var $form = $('#tourPackageForm');
+
+            function saveDraft() {
+                try {
+                    localStorage.setItem(draftKey, JSON.stringify($form.serializeArray()));
+                } catch (e) {}
+            }
+
+            var saveTimer;
+            $form.on('input change', function() {
+                clearTimeout(saveTimer);
+                saveTimer = setTimeout(saveDraft, 800);
+            });
+
+            $form.on('submit', function() {
+                try {
+                    localStorage.removeItem(draftKey);
+                } catch (e) {}
+            });
+
+            function groupByName(data) {
+                var byName = {};
+                data.forEach(function(f) {
+                    (byName[f.name] = byName[f.name] || []).push(f.value);
+                });
+                return byName;
+            }
+
+            function countDistinctIndex(data, regex) {
+                var seen = {};
+                data.forEach(function(f) {
+                    var m = f.name.match(regex);
+                    if (m) seen[m[1]] = true;
+                });
+                return Object.keys(seen).length;
+            }
+
+            function restoreDraft(data) {
+                var byName = groupByName(data);
+                var itineraryNeeded = countDistinctIndex(data, /^itinerary\[(\d+)\]/);
+                var departuresNeeded = countDistinctIndex(data, /^departures\[(\d+)\]/);
+                var highlightsNeeded = (byName['highlights[]'] || []).length;
+                var featuresNeeded = (byName['features[]'] || []).length;
+                var exclusionsNeeded = (byName['exclusions[]'] || []).length;
+
+                while ($('#itineraryContainer .itinerary-day').length < itineraryNeeded) {
+                    $('.addItineraryDay').trigger('click');
+                }
+                while ($('#departuresContainer .departure-row').length < departuresNeeded) {
+                    $('.addDepartureRow').trigger('click');
+                }
+                while ($('#fileUploadsContainer .elements').length < highlightsNeeded) {
+                    $('.addHighlights').trigger('click');
+                }
+                while ($('#fileUploadFeatures .elements').length < featuresNeeded) {
+                    $('.addFeatures').trigger('click');
+                }
+                while ($('#fileUploadExclusions .elements').length < exclusionsNeeded) {
+                    $('.addExclusions').trigger('click');
+                }
+
+                Object.keys(byName).forEach(function(name) {
+                    var values = byName[name];
+                    var $els = $form.find('[name="' + name + '"]').filter(function() {
+                        return this.type !== 'file';
+                    });
+                    $els.each(function(i) {
+                        if (i < values.length) {
+                            $(this).val(values[i]);
+                        }
+                    });
+                });
+
+                if (byName['description'] && byName['description'][0]) {
+                    var descVal = byName['description'][0];
+                    var applyToEditor = function(retries) {
+                        if (window.editor) {
+                            window.editor.setData(descVal);
+                        } else if (retries > 0) {
+                            setTimeout(function() {
+                                applyToEditor(retries - 1);
+                            }, 200);
+                        }
+                    };
+                    applyToEditor(15);
+                }
+            }
+
+            if (!hasServerErrors) {
+                var saved = null;
+                try {
+                    saved = localStorage.getItem(draftKey);
+                } catch (e) {}
+                if (saved) {
+                    var data = null;
+                    try {
+                        data = JSON.parse(saved);
+                    } catch (e) {}
+                    if (data && data.length) {
+                        if (window.confirm(@json(__('We found an unsaved draft of this form. Restore it?')))) {
+                            restoreDraft(data);
+                        } else {
+                            try {
+                                localStorage.removeItem(draftKey);
+                            } catch (e) {}
+                        }
+                    }
+                }
+            }
         })(jQuery);
     </script>
 @endpush
