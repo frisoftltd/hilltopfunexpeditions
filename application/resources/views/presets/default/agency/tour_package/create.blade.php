@@ -3,16 +3,10 @@
     <div class="row justify-content-center">
         <div class="col-lg-12">
             <div class="base--card">
-                <form class="navbar-search">
-                    <input type="text" name="" id="locationInput" style="display:none"
-                        class="controls my-2 form-control form--control pills" placeholder="@lang('Enter a location')"
-                        autocomplete="off">
-                </form>
                 <form action="{{ route('agency.tour.package.store') }}" method="post" enctype="multipart/form-data">
                     @csrf
                     <div class="mb-5">
                         <h5>@lang('Basic Information')</h5>
-                        <div id="map" class="mb-3" style="display:none"></div>
                         <div class="row d-none">
                             <div class="col-md-6 mb-2">
                                 <div class="form-group">
@@ -37,30 +31,6 @@
                                         value="{{ old('longitude') }}" hidden>
                                 </div>
                             </div>
-                            <div class="col-md-6 mb-2">
-                                <div class="form-group">
-                                    <input type="text" id="city" name="city" class="form-control"
-                                        value="{{ old('city') }}" hidden>
-                                </div>
-                            </div>
-                            <div class="col-md-6 mb-2">
-                                <div class="form-group">
-                                    <input type="text" id="zipCode" name="zipcode" class="form-control"
-                                        value="{{ old('zipcode') }}" hidden>
-                                </div>
-                            </div>
-                            <div class="col-md-6 mb-2">
-                                <div class="form-group">
-                                    <input type="text" id="state" name="state" class="form-control"
-                                        value="{{ old('state') }}" hidden>
-                                </div>
-                            </div>
-                            <div class="col-md-6 mb-2">
-                                <div class="form-group">
-                                    <input type="text" id="country" name="country" class="form-control"
-                                        value="{{ old('country') }}" hidden>
-                                </div>
-                            </div>
                         </div>
 
                         <div class="row mb-4">
@@ -73,9 +43,24 @@
                             </div>
                             <div class="col-lg-3">
                                 <div class="form-group">
+                                    <label class="mb-2 form--label">@lang('Location')</label>
+                                    <select id="locationSelect" class="form--control form--select">
+                                        <option value="">@lang('Custom (type address below)')</option>
+                                        @foreach ($locations as $loc)
+                                            <option value="{{ $loc->name }}"
+                                                data-address="{{ $loc->location ?: $loc->name }}"
+                                                data-lat="{{ $loc->latitude }}" data-lng="{{ $loc->longitude }}">
+                                                {{ $loc->name }}</option>
+                                        @endforeach
+                                    </select>
+                                    <small class="text-muted">@lang('Fills the address below - still editable.')</small>
+                                </div>
+                            </div>
+                            <div class="col-lg-3">
+                                <div class="form-group">
                                     <label for="location"class=" mb-2 form--label">@lang('Address')</label>
                                     <input type="text" id="location" name="address" class="form-control form--control"
-                                        value="{{ old('address') }}" required readonly>
+                                        placeholder="@lang('Full address')" value="{{ old('address') }}" required>
                                 </div>
                             </div>
                             <div class="col-lg-3">
@@ -89,6 +74,37 @@
                                                 {{ $item->name }}</option>
                                         @endforeach
                                     </select>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row mb-4">
+                            <div class="col-md-6 col-lg-3">
+                                <div class="form-group">
+                                    <label class="mb-2 form--label">@lang('City')</label>
+                                    <input type="text" name="city" class="form-control form--control"
+                                        value="{{ old('city') }}">
+                                </div>
+                            </div>
+                            <div class="col-md-6 col-lg-3">
+                                <div class="form-group">
+                                    <label class="mb-2 form--label">@lang('State')</label>
+                                    <input type="text" name="state" class="form-control form--control"
+                                        value="{{ old('state') }}">
+                                </div>
+                            </div>
+                            <div class="col-md-6 col-lg-3">
+                                <div class="form-group">
+                                    <label class="mb-2 form--label">@lang('Country')</label>
+                                    <input type="text" name="country" class="form-control form--control"
+                                        value="{{ old('country', 'Rwanda') }}">
+                                </div>
+                            </div>
+                            <div class="col-md-6 col-lg-3">
+                                <div class="form-group">
+                                    <label class="mb-2 form--label">@lang('Zip Code')</label>
+                                    <input type="text" name="zipcode" class="form-control form--control"
+                                        value="{{ old('zipcode') }}">
                                 </div>
                             </div>
                         </div>
@@ -680,151 +696,18 @@
         });
     </script>
 
-    <script src="https://maps.googleapis.com/maps/api/js?libraries=places&key={{ $general->map_api_key }}&callback=initMap"
-        async defer></script>
-
     <script>
         (function($) {
             "use strict";
-            var map;
-            var marker;
-
-            window.initMap = function() {
-                var map = new google.maps.Map(document.getElementById('map'), {
-                    center: {
-                        lat: -33.8688,
-                        lng: 151.2195
-                    },
-                    zoom: 13
-                });
-
-                var input = document.getElementById('locationInput');
-                map.controls[google.maps.ControlPosition.TOP_CENTER].push(input);
-
-                var autocomplete = new google.maps.places.Autocomplete(input);
-                autocomplete.bindTo('bounds', map);
-
-                var infowindow = new google.maps.InfoWindow();
-                marker = new google.maps.Marker({
-                    map: map,
-                    draggable: true,
-                    anchorPoint: new google.maps.Point(0, -29),
-                    title: "This marker is draggable."
-                });
-
-                var addressElement = document.getElementById('location');
-                var latElement = document.getElementById('lat');
-                var lonElement = document.getElementById('lon');
-                var cityElement = document.getElementById('city');
-                var zipCodeElement = document.getElementById('zipCode');
-                var stateElement = document.getElementById('state');
-                var countryElement = document.getElementById('country');
-
-                infowindow.setContent('');
-
-                autocomplete.addListener('place_changed', function() {
-                    infowindow.close();
-                    marker.setVisible(false);
-                    var place = autocomplete.getPlace();
-                    if (!place.geometry) {
-                        window.alert("Autocomplete's returned place contains no geometry");
-                        return;
-                    }
-
-                    marker.setPosition(place.geometry.location);
-                    map.setCenter(place.geometry.location);
-                    marker.setVisible(true);
-
-                    marker.setTitle(place.name);
-
-                    infowindow.setContent('Name: ' + place.name);
-
-                    addressElement.value = place.formatted_address;
-                    latElement.value = place.geometry.location.lat();
-                    lonElement.value = place.geometry.location.lng();
-                    cityElement.value = getComponentValue(place, 'locality');
-                    zipCodeElement.value = getComponentValue(place, 'postal_code');
-                    stateElement.value = getComponentValue(place, 'administrative_area_level_1');
-                    countryElement.value = getComponentValue(place, 'country');
-
-                });
-
-                google.maps.event.addListener(map, 'click', function(event) {
-                    var latLng = event.latLng;
-                    var lat = latLng.lat();
-                    var lng = latLng.lng();
-
-                    marker.setPosition(event.latLng);
-                    marker.setVisible(true);
-                    marker.setTitle('Custom Name');
-
-                    latElement.value = lat;
-                    lonElement.value = lng;
-
-                    var geocoder = new google.maps.Geocoder();
-                    geocoder.geocode({
-                        location: event.latLng
-                    }, function(results, status) {
-                        if (status === 'OK' && results[0]) {
-                            var placeData = results[0];
-                            addressElement.value = placeData.formatted_address;
-                            cityElement.value = getComponentValue(placeData, 'locality');
-                            zipCodeElement.value = getComponentValue(placeData, 'postal_code');
-                            stateElement.value = getComponentValue(placeData,
-                                'administrative_area_level_1');
-                            countryElement.value = getComponentValue(placeData, 'country');
-                        } else {
-                            // Handle error if geocoding fails
-                        }
-                    });
-
-                    infowindow.setContent('Place Name: ' + addressElement.value + '<br>Latitude: ' + lat +
-                        '<br>Longitude: ' + lng);
-                    infowindow.open(map, marker);
-                });
-
-                marker.addListener('dragend', function(event) {
-                    var lat = event.latLng.lat();
-                    var lng = event.latLng.lng();
-
-                    latElement.value = lat;
-                    lonElement.value = lng;
-
-                    var geocoder = new google.maps.Geocoder();
-                    geocoder.geocode({
-                        location: event.latLng
-                    }, function(results, status) {
-                        if (status === 'OK' && results[0]) {
-                            var placeData = results[0];
-                            addressElement.value = placeData.formatted_address;
-                            cityElement.value = getComponentValue(placeData, 'locality');
-                            zipCodeElement.value = getComponentValue(placeData, 'postal_code');
-                            stateElement.value = getComponentValue(placeData,
-                                'administrative_area_level_1');
-                            countryElement.value = getComponentValue(placeData, 'country');
-                        } else {
-                            // Handle error if geocoding fails
-                        }
-                    });
-
-                    infowindow.setContent('Place Name: ' + addressElement.value + '<br>Latitude: ' + lat +
-                        '<br>Longitude: ' + lng);
-                    infowindow.open(map, marker);
-                });
-            }
-
-            function getComponentValue(placeData, componentType) {
-                for (var i = 0; i < placeData.address_components.length; i++) {
-                    var component = placeData.address_components[i];
-                    for (var j = 0; j < component.types.length; j++) {
-                        if (component.types[j] === componentType) {
-                            return component.long_name;
-                        }
-                    }
+            $('#locationSelect').on('change', function() {
+                var selected = $(this).find(':selected');
+                var address = selected.data('address');
+                if (address) {
+                    $('#location').val(address);
                 }
-                return '';
-            }
-
+                $('#lat').val(selected.data('lat') || '');
+                $('#lon').val(selected.data('lng') || '');
+            });
         })(jQuery);
     </script>
 

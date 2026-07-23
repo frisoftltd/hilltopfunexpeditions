@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Models\Category;
+use App\Models\Location;
 use App\Models\PriceCategory;
 use App\Models\TourPackage;
 use App\Traits\TourService;
@@ -27,7 +28,8 @@ class TourPackageController extends Controller
         $pageTitle = 'Create Tour Package';
         $categories = Category::where('status', 1)->latest()->get();
         $priceCategories = PriceCategory::active()->ordered()->get();
-        return view('admin.tour_package.create', compact('pageTitle', 'categories', 'priceCategories'));
+        $locations = Location::where('status', 1)->get();
+        return view('admin.tour_package.create', compact('pageTitle', 'categories', 'priceCategories', 'locations'));
     }
 
     public function edit($id)
@@ -35,9 +37,10 @@ class TourPackageController extends Controller
         $pageTitle = 'Tour Package Edit';
         $categories = Category::where('status', 1)->latest()->get();
         $priceCategories = PriceCategory::active()->ordered()->get();
+        $locations = Location::where('status', 1)->get();
         $tourPackage =  TourPackage::with(['category', 'departures.departurePrices'])->where('id',$id)->first();
         $tourPackage->departures->each(fn($departure) => $departure->setRelation('tourPackage', $tourPackage));
-        return view('admin.tour_package.edit', compact('pageTitle', 'categories', 'priceCategories', 'tourPackage'));
+        return view('admin.tour_package.edit', compact('pageTitle', 'categories', 'priceCategories', 'locations', 'tourPackage'));
     }
 
     public function active()
