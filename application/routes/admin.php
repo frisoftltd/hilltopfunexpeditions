@@ -149,6 +149,7 @@ Route::middleware('admin')->group(function () {
         Route::post('store', 'store')->name('store');
         Route::get('edit/{id}', 'edit')->name('edit');
         Route::put('update/{id}', 'update')->name('update');
+        Route::get('keep-alive', 'keepAlive')->name('keep.alive');
         Route::get('status-change/{id}', 'statusChange')->name('status.change');
         Route::post('delete/{id}', 'delete')->name('delete');
         Route::get('my-tour', 'myList')->name('my.list');

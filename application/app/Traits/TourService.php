@@ -228,6 +228,19 @@ trait TourService
     }
 
 
+    /**
+     * Pinged periodically by the create/edit form's JS while it's open, so a
+     * long fill-in session doesn't idle the session out from under the user
+     * and turn their submit into a 419. Touching the session here (any
+     * request through the 'web' middleware group does this) resets its
+     * inactivity clock; returning the current CSRF token lets the page keep
+     * its hidden _token input in sync in case anything else regenerated it.
+     */
+    public function keepAlive()
+    {
+        return response()->json(['token' => csrf_token()]);
+    }
+
     public function tourPackageImageDelete(Request $request)
     {
         try {

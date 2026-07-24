@@ -1038,4 +1038,23 @@
             }
         })(jQuery);
     </script>
+
+    <script>
+        (function($) {
+            "use strict";
+            //keeps the session (and this CSRF token) alive while a long form
+            //is left open - well under session.lifetime so it never expires
+            //mid-fill
+            var keepAliveUrl = '{{ route('admin.tour.package.keep.alive') }}';
+            var keepAliveInterval = 5 * 60 * 1000;
+
+            setInterval(function() {
+                $.get(keepAliveUrl).done(function(res) {
+                    if (res && res.token) {
+                        $('#tourPackageForm input[name="_token"]').val(res.token);
+                    }
+                });
+            }, keepAliveInterval);
+        })(jQuery);
+    </script>
 @endpush
