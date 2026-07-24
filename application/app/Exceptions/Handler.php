@@ -22,20 +22,19 @@ class Handler extends ExceptionHandler
     ];
 
     /**
-     * Route names of the long tour package forms - a 419 on these loses a lot
-     * of typed-in work, so it gets its own recovery instead of the blank
-     * "Page Expired" page. See the keep-alive ping in
-     * App\Traits\TourService::keepAlive() for the primary fix; this is the
-     * backstop for whatever slips past it.
-     *
-     * @var array<int, string>
+     * A 419 on any admin/agency form loses whatever the user typed in -
+     * worst on the long ones, but there's no reason to special-case a
+     * handful of routes when every admin/agency POST/PUT/PATCH/DELETE can
+     * flash its input back the same way. Root cause of the original
+     * session-expiry reports was config/app.php's timezone (Africa/Kigali)
+     * disagreeing with the host's filesystem clock, which the file session
+     * driver's filemtime()-based expiry check is exposed to - fixed by
+     * switching SESSION_DRIVER to database (see the create_sessions_table
+     * migration), which never touches the filesystem clock. This handler is
+     * the backstop for whatever still slips through - a genuinely idle
+     * session, a clock hiccup elsewhere, etc.
      */
-    private const RECOVERABLE_419_ROUTES = [
-        'admin.tour.package.store',
-        'admin.tour.package.update',
-        'agency.tour.package.store',
-        'agency.tour.package.update',
-    ];
+    private const RECOVERABLE_419_METHODS = ['POST', 'PUT', 'PATCH', 'DELETE'];
 
     /**
      * Register the exception handling callbacks for the application.
@@ -63,7 +62,11 @@ class Handler extends ExceptionHandler
     {
         $routeName = optional($request->route())->getName();
 
-        return in_array($routeName, self::RECOVERABLE_419_ROUTES, true);
+        if (!$routeName || !in_array($request->method(), self::RECOVERABLE_419_METHODS, true)) {
+            return false;
+        }
+
+        return str_starts_with($routeName, 'admin.') || str_starts_with($routeName, 'agency.');
     }
 
     private function recoverFrom419(Request $request)

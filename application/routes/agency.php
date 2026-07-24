@@ -83,7 +83,6 @@ Route::middleware('agency')->name('agency.')->group(function () {
                 Route::post('store', 'store')->name('store')->middleware('agency.kyc');
                 Route::get('edit/{id}', 'edit')->name('edit')->middleware('agency.kyc');
                 Route::put('update/{id}', 'update')->name('update')->middleware('agency.kyc');
-                Route::get('keep-alive', 'keepAlive')->name('keep.alive');
                 Route::get('status-change/{id}', 'statusChange')->name('status.change')->middleware('agency.kyc');
                 Route::post('delete/{id}', 'delete')->name('delete')->middleware('agency.kyc');
                 Route::get('my-tour', 'myList')->name('my.list');
