@@ -1,8 +1,8 @@
 @extends('admin.layouts.app')
 @php
     $highlightsList = old('highlights', $tourPackage->highlights ?: ['']);
-    $featuresList = old('features', $tourPackage->features->pluck('feature')->all() ?: ['']);
-    $iconsList = old('icons', $tourPackage->features->pluck('icon')->all() ?: ['']);
+    $featuresList = old('features', collect($tourPackage->features ?? [])->pluck('feature')->all() ?: ['']);
+    $iconsList = old('icons', collect($tourPackage->features ?? [])->pluck('icon')->all() ?: ['']);
     $exclusionsList = old('exclusions', $tourPackage->exclusions ? collect($tourPackage->exclusions)->pluck('feature')->all() : []);
     $exclusionIconsList = old('exclusion_icons', $tourPackage->exclusions ? collect($tourPackage->exclusions)->pluck('icon')->all() : []);
     $itineraryList = old('itinerary', $tourPackage->itinerary ?? []);
