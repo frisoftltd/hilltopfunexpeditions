@@ -91,8 +91,19 @@ trait TourService
 
             $this->createDeparturesForPackage($tourPackage, $request->departures ?? []);
 
-            if ($request->hasFile('images')) {
+            DB::commit();
+            $notify[] = ['success', 'Tour Package created successfully'];
+        } catch (\Exception $exp) {
+            DB::rollBack();
+            Log::error('Tour package store failed: ' . $exp->getMessage(), ['exception' => $exp]);
+            $notify[] = ['error', 'something went wrong'];
+            return back()->withNotify($notify);
+        }
 
+        //image resizing/disk I/O runs after the transaction has already
+        //committed, so it doesn't hold DB row locks for the duration
+        if ($request->hasFile('images')) {
+            try {
                 foreach ($request->images as $index => $img) {
                     $tourPackageImage = new TourPackageImage();
                     $tourPackageImage->tour_package_id = $tourPackage->id;
@@ -103,13 +114,10 @@ trait TourService
                     }
                     $tourPackageImage->save();
                 }
+            } catch (\Exception $exp) {
+                Log::error('Tour package image upload failed: ' . $exp->getMessage(), ['exception' => $exp]);
+                $notify[] = ['error', 'Tour package saved, but one or more images failed to upload'];
             }
-            DB::commit();
-            $notify[] = ['success', 'Tour Package created successfully'];
-        } catch (\Exception $exp) {
-            DB::rollBack();
-            Log::error('Tour package store failed: ' . $exp->getMessage(), ['exception' => $exp]);
-            $notify[] = ['error', 'something went wrong'];
         }
 
         return back()->withNotify($notify);
@@ -191,23 +199,31 @@ trait TourService
 
         $this->createDeparturesForPackage($tourPackage, $request->departures ?? []);
 
-        if ($request->hasFile('images')) {
-            foreach ($request->images as $index => $img) {
-                $tourPackageImage = new TourPackageImage();
-                $tourPackageImage->tour_package_id = $tourPackage->id;
-                $tourPackageImage->image = fileUploader($img, getFilePath('tourPackageImage'), getFileSize('tourPackageImage'));
-                $tourPackageImage->save();
-            }
-        }
-
         DB::commit();
         $notify[] = ['success', 'Tour Package updated successfully'];
         } catch (\Exception $exp) {
             DB::rollBack();
             Log::error('Tour package update failed: ' . $exp->getMessage(), ['exception' => $exp]);
              $notify[] = ['error', 'something went wrong'];
-
+            return back()->withNotify($notify);
         }
+
+        //image resizing/disk I/O runs after the transaction has already
+        //committed, so it doesn't hold DB row locks for the duration
+        if ($request->hasFile('images')) {
+            try {
+                foreach ($request->images as $index => $img) {
+                    $tourPackageImage = new TourPackageImage();
+                    $tourPackageImage->tour_package_id = $tourPackage->id;
+                    $tourPackageImage->image = fileUploader($img, getFilePath('tourPackageImage'), getFileSize('tourPackageImage'));
+                    $tourPackageImage->save();
+                }
+            } catch (\Exception $exp) {
+                Log::error('Tour package image upload failed: ' . $exp->getMessage(), ['exception' => $exp]);
+                $notify[] = ['error', 'Tour package saved, but one or more images failed to upload'];
+            }
+        }
+
         return back()->withNotify($notify);
     }
 

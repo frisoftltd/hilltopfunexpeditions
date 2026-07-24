@@ -29,11 +29,13 @@ trait TourDepartureService
 
         DB::beginTransaction();
         try {
+            $categories = PriceCategory::active()->get();
+
             $this->createDeparture($tourPackage, [
                 'start_date' => $request->start_date,
                 'seats_total' => $request->seats_total,
                 'prices' => $request->prices,
-            ]);
+            ], $categories);
 
             DB::commit();
             $notify[] = ['success', 'Departure added successfully'];
@@ -57,15 +59,19 @@ trait TourDepartureService
      */
     protected function createDeparturesForPackage(TourPackage $tourPackage, array $departuresData): void
     {
+        if (empty($departuresData)) {
+            return;
+        }
+
+        $categories = PriceCategory::active()->get();
+
         foreach ($departuresData as $data) {
-            $this->createDeparture($tourPackage, $data);
+            $this->createDeparture($tourPackage, $data, $categories);
         }
     }
 
-    private function createDeparture(TourPackage $tourPackage, array $data): TourDeparture
+    private function createDeparture(TourPackage $tourPackage, array $data, $categories): TourDeparture
     {
-        $categories = PriceCategory::active()->get();
-
         $departure = new TourDeparture();
         $departure->tour_package_id = $tourPackage->id;
         $departure->start_date = $data['start_date'];
@@ -73,9 +79,39 @@ trait TourDepartureService
         $departure->status = 1;
         $departure->save();
 
-        $this->savePrices($departure, $data['prices'] ?? [], $categories);
+        $this->insertPrices($departure, $data['prices'] ?? [], $categories);
 
         return $departure;
+    }
+
+    /**
+     * Brand-new departure, so there are no existing price rows to find -
+     * a single batched insert instead of one updateOrCreate() (SELECT then
+     * INSERT) per price category.
+     */
+    private function insertPrices(TourDeparture $departure, array $prices, $categories): void
+    {
+        $now = now();
+        $rows = [];
+
+        foreach ($prices as $categoryId => $data) {
+            if (!$categories->contains('id', (int) $categoryId)) {
+                continue;
+            }
+
+            $rows[] = [
+                'tour_departure_id' => $departure->id,
+                'price_category_id' => $categoryId,
+                'price' => $this->nullIfBlank($data['price'] ?? null),
+                'discount' => $this->nullIfBlank($data['discount'] ?? null),
+                'created_at' => $now,
+                'updated_at' => $now,
+            ];
+        }
+
+        if (!empty($rows)) {
+            DeparturePrice::insert($rows);
+        }
     }
 
     protected function updateDeparture(Request $request, TourDeparture $departure)

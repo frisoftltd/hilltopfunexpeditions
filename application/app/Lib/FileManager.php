@@ -146,7 +146,9 @@ class FileManager
                 $this->removeFile($this->path . '/thumb_' . $this->old);
             }
 	        $thumb = explode('x', $this->thumb);
-	        Image::make($this->file)->resize($thumb[0], $thumb[1])->save($this->path . '/thumb_' . $this->filename);
+	        //clone the already-decoded image instead of re-reading and
+	        //re-decoding the source file from disk a second time
+	        (clone $image)->resize($thumb[0], $thumb[1])->save($this->path . '/thumb_' . $this->filename);
 	    }
 
         //save the image as watermark version
