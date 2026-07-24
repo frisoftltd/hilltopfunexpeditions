@@ -7,6 +7,8 @@ use Illuminate\Database\Eloquent\Model;
 
 class TourDeparture extends Model
 {
+    protected $fillable = ['tour_package_id', 'start_date', 'seats_total', 'seats_booked', 'status'];
+
     protected $casts = [
         'start_date' => 'date',
     ];

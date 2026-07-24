@@ -6,6 +6,8 @@ use Illuminate\Database\Eloquent\Model;
 
 class PriceCategory extends Model
 {
+    protected $fillable = ['name', 'sort_order', 'status'];
+
     public function departurePrices()
     {
         return $this->hasMany(DeparturePrice::class);

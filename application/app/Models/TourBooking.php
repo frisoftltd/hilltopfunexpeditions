@@ -9,6 +9,12 @@ class TourBooking extends Model
 {
     use HasFactory;
 
+    protected $fillable = [
+        'user_id', 'owner_id', 'owner_type', 'price', 'discount',
+        'tour_package_id', 'tour_departure_id', 'price_category_id',
+        'user_proposal_date', 'seat', 'status',
+    ];
+
     public function user()
     {
         return $this->belongsTo(User::class, 'user_id', 'id');

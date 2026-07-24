@@ -6,6 +6,8 @@ use Illuminate\Database\Eloquent\Model;
 
 class DeparturePrice extends Model
 {
+    protected $fillable = ['tour_departure_id', 'price_category_id', 'price', 'discount'];
+
     public function departure()
     {
         return $this->belongsTo(TourDeparture::class, 'tour_departure_id');
