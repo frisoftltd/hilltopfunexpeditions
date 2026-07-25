@@ -4,13 +4,13 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 
-class DeparturePrice extends Model
+class PackagePrice extends Model
 {
-    protected $fillable = ['tour_departure_id', 'price_category_id', 'price', 'discount'];
+    protected $fillable = ['tour_package_id', 'price_category_id', 'price', 'discount'];
 
-    public function departure()
+    public function tourPackage()
     {
-        return $this->belongsTo(TourDeparture::class, 'tour_departure_id');
+        return $this->belongsTo(TourPackage::class);
     }
 
     public function priceCategory()

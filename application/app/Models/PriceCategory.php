@@ -8,9 +8,9 @@ class PriceCategory extends Model
 {
     protected $fillable = ['name', 'sort_order', 'status'];
 
-    public function departurePrices()
+    public function packagePrices()
     {
-        return $this->hasMany(DeparturePrice::class);
+        return $this->hasMany(PackagePrice::class);
     }
 
     public function scopeActive($query)

@@ -56,28 +56,17 @@ class TourPackage extends Model
         return $this->hasMany(TourBooking::class, 'tour_package_id', 'id')->orderBy('id', 'asc');
     }
 
-    public function departures()
+    public function packagePrices()
     {
-        return $this->hasMany(TourDeparture::class)->orderBy('start_date');
-    }
-
-    public function activeDepartures()
-    {
-        return $this->departures()->active()->upcoming();
+        return $this->hasMany(PackagePrice::class);
     }
 
     public function getFromPriceAttribute()
     {
-        return $this->activeDepartures
-            ->flatMap(fn($departure) => $departure->departurePrices)
-            ->map(fn($departurePrice) => $departurePrice->final_price)
+        return $this->packagePrices
+            ->map(fn($packagePrice) => $packagePrice->final_price)
             ->sort()
             ->first();
-    }
-
-    public function getDeparturesCountAttribute()
-    {
-        return $this->activeDepartures->count();
     }
 
     public function tour_package_images()

@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
@@ -11,8 +12,12 @@ class TourBooking extends Model
 
     protected $fillable = [
         'user_id', 'owner_id', 'owner_type', 'price', 'discount',
-        'tour_package_id', 'tour_departure_id', 'price_category_id',
-        'user_proposal_date', 'seat', 'status',
+        'tour_package_id', 'price_category_id',
+        'start_date', 'party_size', 'status',
+    ];
+
+    protected $casts = [
+        'start_date' => 'date',
     ];
 
     public function user()
@@ -45,14 +50,25 @@ class TourBooking extends Model
         return $this->belongsTo(TourPackage::class);
     }
 
-    public function departure()
-    {
-        return $this->belongsTo(TourDeparture::class, 'tour_departure_id');
-    }
-
     public function priceCategory()
     {
         return $this->belongsTo(PriceCategory::class);
+    }
+
+    /**
+     * Trip length lives on the package (duration_nights), not the booking,
+     * so end_date is derived from the tourist's chosen start_date rather
+     * than stored - same approach TourDeparture used to take.
+     */
+    public function getEndDateAttribute(): ?Carbon
+    {
+        $nights = $this->tour_package?->duration_nights;
+
+        if (!$this->start_date || $nights === null) {
+            return null;
+        }
+
+        return $this->start_date->copy()->addDays($nights);
     }
 
     public function scopeAdminAll($query)
