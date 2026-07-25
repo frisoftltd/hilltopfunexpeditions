@@ -36,7 +36,7 @@ class ProcessController extends Controller
                 'currency1' => 'USD',
                 'currency2' => $deposit->method_currency,
                 'custom' => $deposit->trx,
-                'buyer_email' => auth()->user()->email,
+                'buyer_email' => $deposit->user->email,
                 'ipn_url' => $callbackUrl,
             );
 

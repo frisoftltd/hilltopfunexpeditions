@@ -31,7 +31,7 @@ class ProcessController extends Controller
         $val['PAYMENT_URL_METHOD'] = 'POST';
         $val['NOPAYMENT_URL'] = route(gatewayRedirectUrl());
         $val['NOPAYMENT_URL_METHOD'] = 'POST';
-        $val['SUGGESTED_MEMO'] = auth()->user()->username;
+        $val['SUGGESTED_MEMO'] = $deposit->user->username;
         $val['BAGGAGE_FIELDS'] = 'IDENT';
 
 

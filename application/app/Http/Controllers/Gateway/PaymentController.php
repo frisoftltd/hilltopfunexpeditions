@@ -15,11 +15,13 @@ use Illuminate\Http\Request;
 use App\Models\GatewayCurrency;
 use App\Models\AdminNotification;
 use App\Http\Controllers\Controller;
+use App\Traits\SetPasswordLinkGenerator;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Session;
 
 class PaymentController extends Controller
 {
+    use SetPasswordLinkGenerator;
 
     public function deposit()
     {
@@ -38,7 +40,19 @@ class PaymentController extends Controller
             'currency' => 'required',
         ]);
 
-        $user = auth()->user();
+        $tourPackageSession = Session::get('tourPackageSession');
+        $tourPackageSession = collect($tourPackageSession);
+
+        //logged-in user, or - for the guest-checkout route group, which
+        //never establishes a session for a pre-existing account - the
+        //resolved user_id GuestBookingController stashed in this same
+        //session payload
+        $user = auth()->user() ?? User::find($tourPackageSession['user_id'] ?? null);
+        if (!$user) {
+            $notify[] = ['error', 'Your booking session has expired. Please start your booking again.'];
+            return to_route('home')->withNotify($notify);
+        }
+
         $gate = GatewayCurrency::whereHas('method', function ($gate) {
             $gate->where('status', 1);
         })->where('method_code', $request->method_code)->where('currency', $request->currency)->first();
@@ -56,10 +70,6 @@ class PaymentController extends Controller
         $payable = $request->amount + $charge;
         $final_amo = $payable * $gate->rate;
 
-
-        $tourPackageSession = Session::get('tourPackageSession');
-        $tourPackageSession = collect($tourPackageSession);
-
         $tourPackage = TourPackage::with('packagePrices')->findOrFail($tourPackageSession['tour_package_id']);
         $packagePrice = $tourPackage->packagePrices->firstWhere('price_category_id', $tourPackageSession['price_category_id']);
 
@@ -69,7 +79,7 @@ class PaymentController extends Controller
         }
 
         $tourBooking = new TourBooking();
-        $tourBooking->user_id = auth()->id();
+        $tourBooking->user_id = $user->id;
         $tourBooking->owner_id = $tourPackage->user_id;
         $tourBooking->owner_type = $tourPackage->user_type;
         $tourBooking->price = showTourPackageCalculateDiscount($packagePrice->price * $tourPackageSession['party_size'], $packagePrice->discount);
@@ -78,6 +88,8 @@ class PaymentController extends Controller
         $tourBooking->price_category_id = $packagePrice->price_category_id;
         $tourBooking->start_date = $tourPackageSession['start_date'];
         $tourBooking->party_size = $tourPackageSession['party_size'];
+        $tourBooking->phone = $tourPackageSession['phone'] ?? null;
+        $tourBooking->guest_signup = $tourPackageSession['guest_signup'] ?? null;
         $tourBooking->status = 0;
         $tourBooking->save();
 
@@ -99,7 +111,7 @@ class PaymentController extends Controller
         $data->save();
         Session::forget("tourPackageSession");
         session()->put('Track', $data->trx);
-        return to_route('user.deposit.confirm');
+        return to_route(auth()->check() ? 'user.deposit.confirm' : 'guest.deposit.confirm');
     }
 
 
@@ -124,7 +136,7 @@ class PaymentController extends Controller
         $deposit = Deposit::where('trx', $track)->where('status', 0)->orderBy('id', 'DESC')->with('gateway')->firstOrFail();
 
         if ($deposit->method_code >= 1000) {
-            return to_route('user.deposit.manual.confirm');
+            return to_route(auth()->check() ? 'user.deposit.manual.confirm' : 'guest.deposit.manual.confirm');
         }
 
 
@@ -224,8 +236,19 @@ class PaymentController extends Controller
                 'first_name' => $tourBooking->user->firstname,
                 'last_name' => $tourBooking->user->lastname,
                 'email' => $tourBooking->user->email,
-                'phone' => $tourBooking->user->phone
+                'phone' => $tourBooking->phone ?? $tourBooking->user->mobile
             ]);
+
+            if ($tourBooking->guest_signup) {
+                $setPasswordUrl = self::generateSetPasswordLink($user);
+                $template = $tourBooking->guest_signup === 'new' ? 'GUEST_BOOKING_WELCOME' : 'GUEST_BOOKING_EXISTING_ACCOUNT';
+
+                notify($user, $template, [
+                    'tour_title' => $tourBooking->tour_package->title,
+                    'price' => showAmount($tourBooking->price),
+                    'set_password_url' => $setPasswordUrl,
+                ]);
+            }
         }
     }
 
@@ -288,6 +311,6 @@ class PaymentController extends Controller
         ]);
 
         $notify[] = ['success', 'You have payment request has been taken'];
-        return to_route('user.deposit.history')->withNotify($notify);
+        return to_route(gatewayRedirectUrl(true))->withNotify($notify);
     }
 }

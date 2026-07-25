@@ -21,7 +21,7 @@ class ProcessController extends Controller
 
 
         $send['key'] = $paystackAcc->public_key;
-        $send['email'] = auth()->user()->email;
+        $send['email'] = $deposit->user->email;
         $send['amount'] = $deposit->final_amo * 100;
         $send['currency'] = $deposit->method_currency;
         $send['ref'] = $deposit->trx;

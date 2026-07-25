@@ -49,12 +49,12 @@ class ProcessController extends Controller
         $val['currency'] = $deposit->method_currency;
         $val['order_id'] = $order['id'];
         $val['buttontext'] = "Pay with Razorpay";
-        $val['name'] = auth()->user()->username;
+        $val['name'] = $deposit->user->username;
         $val['description'] = "Payment By Razorpay";
         $val['image'] = getImage(getFilePath('logoIcon') .'/logo.png');
-        $val['prefill.name'] = auth()->user()->firstname . ' ' . auth()->user()->lastname;
-        $val['prefill.email'] = auth()->user()->email;
-        $val['prefill.contact'] = auth()->user()->mobile;
+        $val['prefill.name'] = $deposit->user->firstname . ' ' . $deposit->user->lastname;
+        $val['prefill.email'] = $deposit->user->email;
+        $val['prefill.contact'] = $deposit->user->mobile;
         $val['theme.color'] = "#2ecc71";
         $send['val'] = $val;
 

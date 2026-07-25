@@ -17,7 +17,7 @@ class ProcessController extends Controller
 
         $url = 'https://api.commerce.coinbase.com/charges';
         $array = [
-            'name' => auth()->user()->username,
+            'name' => $deposit->user->username,
             'description' => "Pay to " . $basic->site_name,
             'local_price' => [
                 'amount' => $deposit->final_amo,

@@ -369,12 +369,22 @@ function getContent($dataKeys, $singleQuery = false, $limit = null, $orderById =
 }
 
 
+/**
+ * Central redirect target for the whole deposit/gateway flow (wallet
+ * top-ups and tour-booking checkout alike) - every gateway ProcessController's
+ * ipn() uses this. Guest checkout can reach this flow logged out (an
+ * existing account attached to a booking never gets Auth::login()'d - see
+ * App\Traits\GuestAccountResolver), so this has to resolve to the guest
+ * route group instead of the auth-gated one in that case, or the final
+ * success/failure redirect would hit the login wall.
+ */
 function gatewayRedirectUrl($type = false)
 {
+    $loggedIn = auth()->check();
     if ($type) {
-        return 'user.deposit.history';
+        return $loggedIn ? 'user.deposit.history' : 'guest.deposit.success';
     } else {
-        return 'user.deposit';
+        return $loggedIn ? 'user.deposit' : 'guest.deposit';
     }
 }
 
