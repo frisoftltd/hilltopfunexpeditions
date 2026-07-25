@@ -93,7 +93,7 @@
                             <ul class="d-flex gap--20">
                                 <li>
                                     <span class="text--black7"><i class="fa-solid fa-user-group"></i>
-                                        {{ $tourPackage->activeDepartures->sum('seats_total') }}</span>
+                                        {{ $tourPackage->tour_bookings->where('status', 1)->sum('party_size') }}</span>
                                 </li>
                                 <li>
                                     <span class="text--black7"><i class="fa-regular fa-heart"></i>
@@ -105,7 +105,7 @@
 
                                 <li>
                                     <span class="text--black7"><i class="fa-solid fa-stopwatch"></i>
-                                        {{ $tourPackage->activeDepartures->sum('seats_booked') }}</span>
+                                        {{ $tourPackage->duration_nights }}</span>
                                 </li>
 
                             </ul>
@@ -205,20 +205,6 @@
                                                 </div>
                                                 <div class="content--wrap">
                                                     <h6 class="mb-0 fw--500 text--black7">{{ __($tourPackage->category->name) }}
-                                                    </h6>
-                                                </div>
-                                            </div>
-                                        </div>
-                                        <div class="col-lg-6">
-                                            <div class="details__key-item">
-                                                <div class="d-flex align-items-center justify-content-start gap--12 mb-2">
-                                                    <div class="icon--wrap d-flex align-items-center justify-content-center">
-                                                        <i class="fa-solid fa-users"></i>
-                                                    </div>
-                                                    <p>@lang('Person')</p>
-                                                </div>
-                                                <div class="content--wrap">
-                                                    <h6 class="mb-0 fw--500 text--black7">{{ $tourPackage->activeDepartures->sum('seats_total') }}
                                                     </h6>
                                                 </div>
                                             </div>
@@ -461,74 +447,67 @@
                 </div>
                 <div class="col-lg-4">
                     <div class="product--info__wrap  position-sticky">
-                        <h6 class="fs--20 fw--600 mb-3">@lang('Departures')</h6>
-                        @forelse ($tourPackage->activeDepartures as $departure)
-                            <div class="bg--white radius--20 p-4 mb-4">
-                                <form method="POST" action="{{ route('user.tour.package.booking.now') }}">
+                        <h6 class="fs--20 fw--600 mb-3">@lang('Book This Tour')</h6>
+                        <div class="bg--white radius--20 p-4 mb-4">
+                            @if ($tourPackage->packagePrices->isEmpty())
+                                <p class="text-danger mb-0">@lang('Pricing for this tour is not set yet.')</p>
+                            @else
+                                <form method="POST" action="{{ route('user.tour.package.booking.now') }}" id="bookingWidgetForm">
                                     @csrf
                                     <input type="hidden" value="{{ $tourPackage->id }}" name="tour_package_id">
-                                    <input type="hidden" value="{{ $departure->id }}" name="tour_departure_id">
 
-                                    <div class="product--info__item d-flex flex-column gap--20">
-                                        <div>
-                                            <p class="mb-1"><i class="fa-solid fa-calendar-days"></i> @lang('From - To')</p>
-                                            <h6 class="price fs--18 fw--500 mb-0 text--black7">
-                                                {{ $departure->start_date->format('M d, Y') }}
-                                                @if ($departure->end_date)
-                                                    - {{ $departure->end_date->format('M d, Y') }}
-                                                @endif
-                                            </h6>
-                                        </div>
-                                        <div>
-                                            <p class="mb-1"><i class="fa-solid fa-chair"></i> @lang('Seats Left')</p>
-                                            <h6 class="price fs--18 fw--500 mb-0 text--black7">{{ $departure->seats_available }}</h6>
+                                    <div class="product--info__item">
+                                        <div class="form-group">
+                                            <label class="mb-2 form--label">@lang('Start Date')</label>
+                                            <input class="form--control" type="date" name="start_date"
+                                                min="{{ now()->toDateString() }}" required>
                                         </div>
                                     </div>
 
-                                    @if ($departure->departurePrices->isEmpty())
-                                        <p class="text-danger mt-3 mb-0">@lang('Pricing for this departure is not set yet.')</p>
-                                    @else
-                                        <div class="product--info__item">
-                                            <label class="mb-2 form--label">@lang('Price Category')</label>
-                                            @foreach ($departure->departurePrices as $dp)
-                                                <div class="form--check mb-2">
-                                                    <input class="form-check-input" type="radio" name="price_category_id"
-                                                        id="priceCategory{{ $departure->id }}_{{ $dp->price_category_id }}"
-                                                        value="{{ $dp->price_category_id }}"
-                                                        {{ $loop->first ? 'checked' : '' }} required>
-                                                    <label class="form-check-label"
-                                                        for="priceCategory{{ $departure->id }}_{{ $dp->price_category_id }}">
-                                                        {{ $dp->priceCategory->name }} —
-                                                        {{ $general->cur_sym }}{{ showAmount($dp->final_price) }}
-                                                        @if ($dp->discount)
-                                                            <del class="text--black7 fs--14">{{ $general->cur_sym }}{{ $dp->price }}</del>
-                                                        @endif
-                                                    </label>
-                                                </div>
-                                            @endforeach
-                                        </div>
-
-                                        <div class="product--info__item border-0 pb-2 mb-0">
-                                            <div class="form-group">
-                                                <label class="mb-2 form--label">@lang('Travelers')</label>
-                                                <input class="form--control" type="number" min="1"
-                                                    max="{{ $departure->seats_available }}" value="1" step="1"
-                                                    name="seat" required>
+                                    <div class="product--info__item">
+                                        <label class="mb-2 form--label">@lang('Price Category')</label>
+                                        @foreach ($tourPackage->packagePrices as $packagePrice)
+                                            <div class="form--check mb-2">
+                                                <input class="form-check-input price-option" type="radio" name="price_category_id"
+                                                    id="priceCategory{{ $packagePrice->price_category_id }}"
+                                                    value="{{ $packagePrice->price_category_id }}"
+                                                    data-price="{{ $packagePrice->final_price }}"
+                                                    {{ $loop->first ? 'checked' : '' }} required>
+                                                <label class="form-check-label"
+                                                    for="priceCategory{{ $packagePrice->price_category_id }}">
+                                                    {{ $packagePrice->priceCategory->name }} —
+                                                    {{ $general->cur_sym }}{{ showAmount($packagePrice->final_price) }}
+                                                    @if ($packagePrice->discount)
+                                                        <del class="text--black7 fs--14">{{ $general->cur_sym }}{{ $packagePrice->price }}</del>
+                                                    @endif
+                                                </label>
                                             </div>
-                                        </div>
+                                        @endforeach
+                                    </div>
 
-                                        <div class="product--info__item">
-                                            <button class="btn btn--base btn--lg w--100 pills" type="submit">@lang('Book Now')
-                                                <i class="fa-solid fa-arrow-right-long"></i></button>
+                                    <div class="product--info__item border-0 pb-2">
+                                        <div class="form-group">
+                                            <label class="mb-2 form--label">@lang('Travelers')</label>
+                                            <input class="form--control" type="number" min="1" step="1"
+                                                id="partySizeInput" name="party_size"
+                                                value="{{ (int) request()->query('travelers') ?: 1 }}" required>
                                         </div>
-                                    @endif
+                                    </div>
+
+                                    <div class="product--info__item">
+                                        <div class="d-flex justify-content-between align-items-center">
+                                            <span class="text--black7">@lang('Estimated total')</span>
+                                            <h6 class="mb-0 fw--600" id="bookingPricePreview">{{ $general->cur_sym }}0.00</h6>
+                                        </div>
+                                    </div>
+
+                                    <div class="product--info__item">
+                                        <button class="btn btn--base btn--lg w--100 pills" type="submit">@lang('Request to Book')
+                                            <i class="fa-solid fa-arrow-right-long"></i></button>
+                                    </div>
                                 </form>
-                            </div>
-                        @empty
-                            <div class="bg--white radius--20 p-4 mb-4 text-center">
-                                <p class="mb-0">@lang('No upcoming departures for this tour yet. Check back soon!')</p>
-                            </div>
-                        @endforelse
+                            @endif
+                        </div>
                     </div>
                 </div>
             </div>
@@ -652,5 +631,26 @@
                 });
             }
         }
+    </script>
+
+    <script>
+        (function($) {
+            "use strict";
+            var $form = $('#bookingWidgetForm');
+            if (!$form.length) {
+                return;
+            }
+
+            function updatePreview() {
+                var price = parseFloat($form.find('.price-option:checked').data('price')) || 0;
+                var partySize = parseInt($form.find('#partySizeInput').val(), 10) || 0;
+                var total = price * partySize;
+                $('#bookingPricePreview').text('{{ $general->cur_sym }}' + total.toFixed(2));
+            }
+
+            $form.on('change', '.price-option', updatePreview);
+            $form.on('input', '#partySizeInput', updatePreview);
+            updatePreview();
+        })(jQuery);
     </script>
 @endpush

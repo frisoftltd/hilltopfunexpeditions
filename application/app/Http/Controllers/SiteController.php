@@ -127,7 +127,7 @@ class SiteController extends Controller
     public function tourPackageDetails($id, $slug)
     {
         $pageTitle = 'Tour Details';
-        $tourPackage = TourPackage::with(['reviews', 'reviews.user', 'wishlists', 'tour_package_images', 'packagePrices.priceCategory'])->findOrFail($id);
+        $tourPackage = TourPackage::with(['reviews', 'reviews.user', 'wishlists', 'tour_package_images', 'packagePrices.priceCategory', 'tour_bookings'])->findOrFail($id);
         $tourPackage->view += 1;
         $tourPackage->save();
 
