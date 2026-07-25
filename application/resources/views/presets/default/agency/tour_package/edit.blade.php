@@ -6,9 +6,7 @@
     $exclusionsList = old('exclusions', $tourPackage->exclusions ? collect($tourPackage->exclusions)->pluck('feature')->all() : []);
     $exclusionIconsList = old('exclusion_icons', $tourPackage->exclusions ? collect($tourPackage->exclusions)->pluck('icon')->all() : []);
     $itineraryList = old('itinerary', $tourPackage->itinerary ?? []);
-    $departuresList = old('departures', []);
     $itineraryNextIndex = empty($itineraryList) ? 0 : max(array_keys($itineraryList)) + 1;
-    $departuresNextIndex = empty($departuresList) ? 0 : max(array_keys($departuresList)) + 1;
 @endphp
 @section('content')
     <div class="row justify-content-center">
@@ -141,7 +139,7 @@
                                     <input type="number" min="1" name="duration_nights"
                                         class="form-control form--control" placeholder="@lang('e.g. 4')"
                                         value="{{ $tourPackage->duration_nights }}" required>
-                                    <small class="text-muted">@lang('Used to compute each departure\'s end date.')</small>
+                                    <small class="text-muted">@lang('Used to compute the tourist\'s trip end date at booking time.')</small>
                                 </div>
                             </div>
                         </div>
@@ -460,58 +458,26 @@
 
                     <div class="mb-5">
                         <div class="d-flex justify-content-between mb-3">
-                            <h5 class="mb-0">@lang('Add New Departures')</h5>
-                            <button type="button" class="btn btn--base btn-md pill addDepartureRow">
-                                <i class="fa fa-plus"></i> @lang('Add Departure')
-                            </button>
+                            <h5 class="mb-0">@lang('Prices')</h5>
                         </div>
-                        <p class="text-muted">@lang('Existing departures are managed in the Departures table below. Add rows here for brand new ones - they\'ll be created when you click Update.')</p>
-                        <div id="departuresContainer">
-                            @foreach ($departuresList as $index => $dep)
-                                <div class="row align-items-end departure-row mb-3 pb-3 border-bottom">
-                                    <div class="col-md-3">
-                                        <div class="form-group">
-                                            <label class="mb-2 form--label">@lang('Start Date')</label>
-                                            <input type="date" class="form-control form--control"
-                                                name="departures[{{ $index }}][start_date]"
-                                                value="{{ $dep['start_date'] ?? '' }}"
-                                                min="{{ now()->toDateString() }}" required>
-                                        </div>
-                                    </div>
-                                    <div class="col-md-2">
-                                        <div class="form-group">
-                                            <label class="mb-2 form--label">@lang('Total Seats')</label>
-                                            <input type="number" min="1" class="form-control form--control"
-                                                name="departures[{{ $index }}][seats_total]"
-                                                value="{{ $dep['seats_total'] ?? '' }}" required>
-                                        </div>
-                                    </div>
-                                    <div class="col-md-6">
-                                        <div class="row">
-                                            @foreach ($priceCategories as $category)
-                                                <div class="col-md-6 mb-2">
-                                                    <label class="mb-1 form--label">{{ $category->name }}</label>
-                                                    <div class="input-group input-group-sm">
-                                                        <input type="number" step="0.01" min="0" class="form-control form--control"
-                                                            name="departures[{{ $index }}][prices][{{ $category->id }}][price]"
-                                                            value="{{ $dep['prices'][$category->id]['price'] ?? '' }}"
-                                                            placeholder="@lang('Price')" required>
-                                                        <input type="number" step="0.01" min="0" max="100" class="form-control form--control"
-                                                            name="departures[{{ $index }}][prices][{{ $category->id }}][discount]"
-                                                            value="{{ $dep['prices'][$category->id]['discount'] ?? '' }}"
-                                                            placeholder="@lang('Disc %')">
-                                                    </div>
-                                                </div>
-                                            @endforeach
-                                        </div>
-                                    </div>
-                                    <div class="col-md-1">
-                                        <button type="button" class="btn btn--danger btn-sm remove-departure-row"><i class="la la-trash"></i></button>
+                        <div class="row">
+                            @foreach ($priceCategories as $category)
+                                @php $existingPrice = $tourPackage->packagePrices->firstWhere('price_category_id', $category->id); @endphp
+                                <div class="col-md-6 mb-3">
+                                    <label class="mb-1 form--label">{{ $category->name }}</label>
+                                    <div class="input-group input-group-sm">
+                                        <input type="number" step="0.01" min="0" class="form-control form--control"
+                                            name="prices[{{ $category->id }}][price]"
+                                            value="{{ old("prices.{$category->id}.price", $existingPrice->price ?? '') }}"
+                                            placeholder="@lang('Price')" required>
+                                        <input type="number" step="0.01" min="0" max="100" class="form-control form--control"
+                                            name="prices[{{ $category->id }}][discount]"
+                                            value="{{ old("prices.{$category->id}.discount", $existingPrice->discount ?? '') }}"
+                                            placeholder="@lang('Disc %')">
                                     </div>
                                 </div>
                             @endforeach
                         </div>
-                        <p class="text-muted mb-0" id="noDepartureRows" @if (count($departuresList)) style="display:none" @endif>@lang('No new departures staged.')</p>
                         @if ($priceCategories->isEmpty())
                             <p class="text-danger mb-0">@lang('No active price categories yet - ask the site admin to add one if you want to set prices now.')</p>
                         @endif
@@ -523,184 +489,10 @@
                 </form>
             </div>
 
-            <div class="base--card mt-4">
-                <div class="d-flex justify-content-between align-items-center mb-3">
-                    <h5 class="mb-0">@lang('Departures')</h5>
-                    <button type="button" class="btn btn--base btn-md pill addDepartureModal"><i
-                            class="fa fa-plus"></i> @lang('Add Departure')</button>
-                </div>
-                <div class="table-responsive">
-                    <table class="table table--light style--two">
-                        <thead>
-                            <tr>
-                                <th>@lang('Start Date')</th>
-                                <th>@lang('End Date')</th>
-                                <th>@lang('Seats')</th>
-                                <th>@lang('Prices')</th>
-                                <th>@lang('Status')</th>
-                                <th>@lang('Action')</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            @forelse ($tourPackage->departures as $departure)
-                                <tr>
-                                    <td>{{ $departure->start_date->format('M d, Y') }}</td>
-                                    <td>{{ $departure->end_date?->format('M d, Y') ?? '—' }}</td>
-                                    <td>{{ $departure->seats_booked }} / {{ $departure->seats_total }}
-                                        ({{ $departure->seats_available }} @lang('left'))</td>
-                                    <td>
-                                        @foreach ($departure->departurePrices as $dp)
-                                            <div>{{ $priceCategories->firstWhere('id', $dp->price_category_id)->name ?? '—' }}:
-                                                {{ $general->cur_sym }}{{ $dp->price }}
-                                                @if ($dp->discount)
-                                                    <small class="text-muted">(-{{ $dp->discount }}%)</small>
-                                                @endif
-                                            </div>
-                                        @endforeach
-                                    </td>
-                                    <td>
-                                        @if ($departure->status == 1)
-                                            <span class="badge badge--success">@lang('Active')</span>
-                                        @else
-                                            <span class="badge badge--danger">@lang('Inactive')</span>
-                                        @endif
-                                    </td>
-                                    <td>
-                                        <button type="button" class="btn btn-sm btn-outline--base editDeparture"
-                                            data-url="{{ route('agency.tour.departure.update', $departure->id) }}"
-                                            data-start_date="{{ $departure->start_date->format('Y-m-d') }}"
-                                            data-seats_total="{{ $departure->seats_total }}"
-                                            data-prices="{{ $departure->departurePrices->mapWithKeys(fn($dp) => [$dp->price_category_id => ['price' => $dp->price, 'discount' => $dp->discount]])->toJson() }}">
-                                            <i class="la la-edit"></i>
-                                        </button>
-                                        <form action="{{ route('agency.tour.departure.destroy', $departure->id) }}"
-                                            method="POST" class="d-inline"
-                                            onsubmit="return confirm('@lang('Delete this departure?')');">
-                                            @csrf
-                                            <button type="submit" class="btn btn-sm btn--danger"><i
-                                                    class="la la-trash"></i></button>
-                                        </form>
-                                    </td>
-                                </tr>
-                            @empty
-                                <tr>
-                                    <td class="text-muted text-center" colspan="100%">@lang('No departures yet.')</td>
-                                </tr>
-                            @endforelse
-                        </tbody>
-                    </table>
-                </div>
-            </div>
         </div>
     </div>
 
-    <!-- add departure modal -->
-    <div class="modal fade" id="addDepartureModal" tabindex="-1" role="dialog">
-        <div class="modal-dialog" role="document">
-            <form action="{{ route('agency.tour.departure.store', $tourPackage->id) }}" method="POST">
-                @csrf
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <h5 class="modal-title">@lang('Add Departure')</h5>
-                        <button type="button" class="close btn btn-outline--danger" data-bs-dismiss="modal"><i
-                                class="las la-times"></i></button>
-                    </div>
-                    <div class="modal-body">
-                        <div class="form-group">
-                            <label>@lang('Start Date'):</label>
-                            <input type="date" class="form-control form--control" name="start_date"
-                                min="{{ now()->toDateString() }}" required>
-                        </div>
-                        <div class="form-group">
-                            <label>@lang('Total Seats'):</label>
-                            <input type="number" min="1" class="form-control form--control" name="seats_total"
-                                required>
-                        </div>
-                        <hr>
-                        @foreach ($priceCategories as $category)
-                            <div class="row">
-                                <div class="col-7">
-                                    <div class="form-group">
-                                        <label>{{ $category->name }} @lang('Price'):</label>
-                                        <input type="number" step="0.01" min="0" class="form-control form--control"
-                                            name="prices[{{ $category->id }}][price]" required>
-                                    </div>
-                                </div>
-                                <div class="col-5">
-                                    <div class="form-group">
-                                        <label>@lang('Discount %'):</label>
-                                        <input type="number" step="0.01" min="0" max="100"
-                                            class="form-control form--control"
-                                            name="prices[{{ $category->id }}][discount]">
-                                    </div>
-                                </div>
-                            </div>
-                        @endforeach
-                        @if ($priceCategories->isEmpty())
-                            <p class="text-danger">@lang('No active price categories yet. Ask the site admin to add one.')</p>
-                        @endif
-                    </div>
-                    <div class="modal-footer">
-                        <button type="submit" class="btn btn--base">@lang('Submit')</button>
-                    </div>
-                </div>
-            </form>
-        </div>
-    </div>
-
-    <!-- edit departure modal -->
-    <div class="modal fade" id="editDepartureModal" tabindex="-1" role="dialog">
-        <div class="modal-dialog" role="document">
-            <form action="" method="POST" id="editDepartureForm">
-                @csrf
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <h5 class="modal-title">@lang('Update Departure')</h5>
-                        <button type="button" class="close btn btn-outline--danger" data-bs-dismiss="modal"><i
-                                class="las la-times"></i></button>
-                    </div>
-                    <div class="modal-body">
-                        <div class="form-group">
-                            <label>@lang('Start Date'):</label>
-                            <input type="date" class="form-control form--control" name="start_date" required>
-                        </div>
-                        <div class="form-group">
-                            <label>@lang('Total Seats'):</label>
-                            <input type="number" min="1" class="form-control form--control" name="seats_total"
-                                required>
-                        </div>
-                        <hr>
-                        @foreach ($priceCategories as $category)
-                            <div class="row">
-                                <div class="col-7">
-                                    <div class="form-group">
-                                        <label>{{ $category->name }} @lang('Price'):</label>
-                                        <input type="number" step="0.01" min="0" class="form-control form--control"
-                                            name="prices[{{ $category->id }}][price]"
-                                            data-category="{{ $category->id }}" data-field="price" required>
-                                    </div>
-                                </div>
-                                <div class="col-5">
-                                    <div class="form-group">
-                                        <label>@lang('Discount %'):</label>
-                                        <input type="number" step="0.01" min="0" max="100"
-                                            class="form-control form--control"
-                                            name="prices[{{ $category->id }}][discount]"
-                                            data-category="{{ $category->id }}" data-field="discount">
-                                    </div>
-                                </div>
-                            </div>
-                        @endforeach
-                    </div>
-                    <div class="modal-footer">
-                        <button type="submit" class="btn btn--base">@lang('Submit')</button>
-                    </div>
-                </div>
-            </form>
-        </div>
-    </div>
-
-    {{-- Row templates - kept OUTSIDE any form so their unreplaced __INDEX__
+    {{-- Row template - kept OUTSIDE any form so its unreplaced __INDEX__
          placeholders are never submitted. --}}
     <div id="itineraryDayTemplate" class="d-none">
         <div class="row align-items-start itinerary-day mb-3 pb-3 border-bottom">
@@ -729,43 +521,6 @@
         </div>
     </div>
 
-    <div id="departureRowTemplate" class="d-none">
-        <div class="row align-items-end departure-row mb-3 pb-3 border-bottom">
-            <div class="col-md-3">
-                <div class="form-group">
-                    <label class="mb-2 form--label">@lang('Start Date')</label>
-                    <input type="date" class="form-control form--control" name="departures[__INDEX__][start_date]"
-                        min="{{ now()->toDateString() }}" required>
-                </div>
-            </div>
-            <div class="col-md-2">
-                <div class="form-group">
-                    <label class="mb-2 form--label">@lang('Total Seats')</label>
-                    <input type="number" min="1" class="form-control form--control" name="departures[__INDEX__][seats_total]" required>
-                </div>
-            </div>
-            <div class="col-md-6">
-                <div class="row">
-                    @foreach ($priceCategories as $category)
-                        <div class="col-md-6 mb-2">
-                            <label class="mb-1 form--label">{{ $category->name }}</label>
-                            <div class="input-group input-group-sm">
-                                <input type="number" step="0.01" min="0" class="form-control form--control"
-                                    name="departures[__INDEX__][prices][{{ $category->id }}][price]"
-                                    placeholder="@lang('Price')" required>
-                                <input type="number" step="0.01" min="0" max="100" class="form-control form--control"
-                                    name="departures[__INDEX__][prices][{{ $category->id }}][discount]"
-                                    placeholder="@lang('Disc %')">
-                            </div>
-                        </div>
-                    @endforeach
-                </div>
-            </div>
-            <div class="col-md-1">
-                <button type="button" class="btn btn--danger btn-sm remove-departure-row"><i class="la la-trash"></i></button>
-            </div>
-        </div>
-    </div>
 @endsection
 
 @push('style-lib')
@@ -1077,36 +832,6 @@
     <script>
         (function($) {
             "use strict";
-            $('.addDepartureModal').on('click', function() {
-                $('#addDepartureModal').modal('show');
-            });
-
-            var editModal = $('#editDepartureModal');
-            $(document).on('click', '.editDeparture', function() {
-                var startDate = $(this).data('start_date');
-                var seatsTotal = $(this).data('seats_total');
-                var prices = $(this).data('prices');
-
-                editModal.find('#editDepartureForm').attr('action', $(this).data('url'));
-                editModal.find('input[name=start_date]').val(startDate);
-                editModal.find('input[name=seats_total]').val(seatsTotal);
-
-                editModal.find('input[data-category]').val('');
-                $.each(prices, function(categoryId, data) {
-                    editModal.find('input[data-category="' + categoryId + '"][data-field="price"]').val(data
-                        .price);
-                    editModal.find('input[data-category="' + categoryId + '"][data-field="discount"]').val(
-                        data.discount);
-                });
-
-                editModal.modal('show');
-            });
-        })(jQuery);
-    </script>
-
-    <script>
-        (function($) {
-            "use strict";
             var fileAdded = 0;
             $('.addExclusions').on('click', function() {
                 if (fileAdded >= 20) {
@@ -1165,25 +890,6 @@
     <script>
         (function($) {
             "use strict";
-            var departureIndex = {{ $departuresNextIndex }};
-            $('.addDepartureRow').on('click', function() {
-                var html = $('#departureRowTemplate').html().replace(/__INDEX__/g, departureIndex);
-                $('#departuresContainer').append(html);
-                departureIndex++;
-                $('#noDepartureRows').hide();
-            });
-            $(document).on('click', '.remove-departure-row', function() {
-                $(this).closest('.departure-row').remove();
-                if ($('#departuresContainer .departure-row').length === 0) {
-                    $('#noDepartureRows').show();
-                }
-            });
-        })(jQuery);
-    </script>
-
-    <script>
-        (function($) {
-            "use strict";
             var draftKey = 'travela_draft_agency_tour_edit_{{ $tourPackage->id }}';
             var hasServerErrors = @json($errors->any());
             var $form = $('#tourPackageForm');
@@ -1226,16 +932,12 @@
             function restoreDraft(data) {
                 var byName = groupByName(data);
                 var itineraryNeeded = countDistinctIndex(data, /^itinerary\[(\d+)\]/);
-                var departuresNeeded = countDistinctIndex(data, /^departures\[(\d+)\]/);
                 var highlightsNeeded = (byName['highlights[]'] || []).length;
                 var featuresNeeded = (byName['features[]'] || []).length;
                 var exclusionsNeeded = (byName['exclusions[]'] || []).length;
 
                 while ($('#itineraryContainer .itinerary-day').length < itineraryNeeded) {
                     $('.addItineraryDay').trigger('click');
-                }
-                while ($('#departuresContainer .departure-row').length < departuresNeeded) {
-                    $('.addDepartureRow').trigger('click');
                 }
                 while ($('#fileUploadsContainer .elements').length < highlightsNeeded) {
                     $('.addHighlights').trigger('click');
