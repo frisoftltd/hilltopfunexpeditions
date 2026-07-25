@@ -452,9 +452,30 @@
                             @if ($tourPackage->packagePrices->isEmpty())
                                 <p class="text-danger mb-0">@lang('Pricing for this tour is not set yet.')</p>
                             @else
-                                <form method="POST" action="{{ route('user.tour.package.booking.now') }}" id="bookingWidgetForm">
+                                <form method="POST" action="{{ Auth::check() ? route('user.tour.package.booking.now') : route('guest.tour.package.booking.now') }}" id="bookingWidgetForm">
                                     @csrf
                                     <input type="hidden" value="{{ $tourPackage->id }}" name="tour_package_id">
+
+                                    @unless (Auth::check())
+                                        <div class="product--info__item">
+                                            <div class="form-group">
+                                                <label class="mb-2 form--label">@lang('Full Name')</label>
+                                                <input class="form--control" type="text" name="name" value="{{ old('name') }}" required>
+                                            </div>
+                                        </div>
+                                        <div class="product--info__item">
+                                            <div class="form-group">
+                                                <label class="mb-2 form--label">@lang('Email')</label>
+                                                <input class="form--control" type="email" name="email" value="{{ old('email') }}" required>
+                                            </div>
+                                        </div>
+                                        <div class="product--info__item">
+                                            <div class="form-group">
+                                                <label class="mb-2 form--label">@lang('Phone')</label>
+                                                <input class="form--control" type="text" name="phone" value="{{ old('phone') }}" required>
+                                            </div>
+                                        </div>
+                                    @endunless
 
                                     <div class="product--info__item">
                                         <div class="form-group">
