@@ -32,6 +32,35 @@ Route::namespace('User\Auth')->name('user.')->group(function () {
         Route::get('login/{provider}', 'socialLogin')->name('social.login');
         Route::get('login/callback/{provider}', 'callback')->name('social.login.callback');
     });
+
+    // Set-password link sent by guest-checkout notifications - standalone,
+    // no session prerequisite (unlike ForgotPassword/ResetPassword above).
+    Route::controller('SetPasswordController')->prefix('set-password')->group(function () {
+        Route::get('{token}', 'show')->name('set.password');
+        Route::post('/', 'update')->name('set.password.update');
+    });
+});
+
+// Guest checkout - deliberately OUTSIDE auth/check.status/registration.complete.
+// A tourist who isn't logged in submits name/email/phone alongside the
+// booking widget's date/party-size/category; GuestBookingController
+// resolves (or creates) the account and hands off into the same
+// deposit/gateway controller actions the logged-in group below uses -
+// same controllers, distinct URLs/route names so neither group shadows
+// the other.
+Route::prefix('guest')->name('guest.')->group(function () {
+    Route::namespace('User')->controller('GuestBookingController')->group(function () {
+        Route::post('booking-now', 'bookingNow')->name('tour.package.booking.now');
+        Route::get('deposit/success', 'depositSuccess')->name('deposit.success');
+    });
+
+    Route::controller('Gateway\PaymentController')->group(function () {
+        Route::any('deposit', 'deposit')->name('deposit');
+        Route::post('deposit/insert', 'depositInsert')->name('deposit.insert');
+        Route::get('deposit/confirm', 'depositConfirm')->name('deposit.confirm');
+        Route::get('deposit/manual', 'manualDepositConfirm')->name('deposit.manual.confirm');
+        Route::post('deposit/manual', 'manualDepositUpdate')->name('deposit.manual.update');
+    });
 });
 
 Route::middleware('auth')->name('user.')->group(function () {

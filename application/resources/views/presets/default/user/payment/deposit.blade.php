@@ -3,7 +3,7 @@
     <div class="row mb-4 justify-content-center">
         <div class="col-lg-6">
             <div class="base--card">
-                <form action="{{route('user.deposit.insert')}}" method="post">
+                <form action="{{ Auth::check() ? route('user.deposit.insert') : route('guest.deposit.insert') }}" method="post">
                     @csrf
                     <input type="hidden" name="method_code">
                     <input type="hidden" name="currency">

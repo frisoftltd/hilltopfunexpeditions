@@ -5,7 +5,7 @@
 <div class="row mb-4 justify-content-center">
     <div class="col-lg-8">
         <div class="base--card">
-            <form action="{{ route('user.deposit.manual.update') }}" method="POST" enctype="multipart/form-data">
+            <form action="{{ Auth::check() ? route('user.deposit.manual.update') : route('guest.deposit.manual.update') }}" method="POST" enctype="multipart/form-data">
                 @csrf
                 <div class="row">
                     <div class="col-md-12 text-center">
