@@ -43,7 +43,7 @@ class BookingController extends Controller
     public function bookingDetails($id)
     {
         $pageTitle = 'Tour & Booking Details';
-        $bookingDetails = TourBooking::with(['user','owner','admin', 'tour_package','tour_package.category','departure'])
+        $bookingDetails = TourBooking::with(['user','owner','admin', 'tour_package','tour_package.category'])
             ->where('id', $id)
             ->where('owner_id', auth('agency')->id())
             ->where('owner_type', 'agency')
@@ -65,7 +65,7 @@ class BookingController extends Controller
             $bookingTourPackages  = $bookingTourPackages->with('tour_bookings.deposit')
                 ->where('title', 'like', "%$search%");
         }
-        return $bookingTourPackages->with('tour_bookings.deposit', 'tour_bookings.user', 'tour_bookings.owner', 'tour_bookings.departure', 'TourPackagePrimaryImage', 'activeDepartures.departurePrices')->orderBy('id', 'desc')->paginate(getPaginate());
+        return $bookingTourPackages->with('tour_bookings.deposit', 'tour_bookings.user', 'tour_bookings.owner', 'TourPackagePrimaryImage', 'packagePrices')->orderBy('id', 'desc')->paginate(getPaginate());
     }
 
 

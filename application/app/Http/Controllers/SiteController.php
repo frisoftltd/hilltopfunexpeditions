@@ -29,34 +29,6 @@ class SiteController extends Controller
         $pageTitle = 'Home';
         $sections = Page::where('tempname', $this->activeTemplate)->where('slug', '/')->first();
 
-        // Auto status transition, based on departures rather than
-        // tour_packages.tour_start/tour_end (frozen since the departures
-        // redesign, and subject to that column's ON UPDATE
-        // current_timestamp() corruption before that).
-        $now = now();
-        $allTourPackages = TourPackage::whereIn('status', [1, 2, 3])->with('departures')->get();
-        foreach ($allTourPackages as $tourPackage) {
-            $departures = $tourPackage->departures->where('status', 1);
-            if ($departures->isEmpty()) {
-                continue;
-            }
-
-            $effectiveEnd = fn ($departure) => ($departure->end_date ?? $departure->start_date)->copy()->endOfDay();
-
-            $inProgress = $departures->contains(
-                fn ($departure) => $departure->start_date->lte($now) && $effectiveEnd($departure)->gte($now)
-            );
-            $allPast = $departures->every(fn ($departure) => $effectiveEnd($departure)->lt($now));
-
-            if ($inProgress) {
-                $tourPackage->status = 2;
-                $tourPackage->save();
-            } elseif ($allPast) {
-                $tourPackage->status = 3;
-                $tourPackage->save();
-            }
-        }
-
         return view($this->activeTemplate . 'home', compact('pageTitle', 'sections'));
     }
 
@@ -155,11 +127,11 @@ class SiteController extends Controller
     public function tourPackageDetails($id, $slug)
     {
         $pageTitle = 'Tour Details';
-        $tourPackage = TourPackage::with(['reviews', 'reviews.user', 'wishlists', 'tour_package_images', 'activeDepartures.departurePrices.priceCategory'])->findOrFail($id);
+        $tourPackage = TourPackage::with(['reviews', 'reviews.user', 'wishlists', 'tour_package_images', 'packagePrices.priceCategory'])->findOrFail($id);
         $tourPackage->view += 1;
         $tourPackage->save();
 
-        $tourPackages = TourPackage::with(['reviews', 'reviews.user', 'wishlists', 'tour_package_images', 'TourPackagePrimaryImage', 'activeDepartures.departurePrices'])
+        $tourPackages = TourPackage::with(['reviews', 'reviews.user', 'wishlists', 'tour_package_images', 'TourPackagePrimaryImage', 'packagePrices'])
             ->where('id', '!=', $id)
             ->inRandomOrder()
             ->limit(3)
@@ -178,16 +150,19 @@ class SiteController extends Controller
                 $query->whereIn('status',[1,2,3]);
             }])
             ->get();
-        $query = TourPackage::with(['reviews', 'reviews.user', 'wishlists', 'tour_package_images', 'TourPackagePrimaryImage', 'activeDepartures.departurePrices'])
+        $query = TourPackage::with(['reviews', 'reviews.user', 'wishlists', 'tour_package_images', 'TourPackagePrimaryImage', 'packagePrices'])
             ->whereIn('status',[1,2,3]);
         $page = Page::where('tempname', $this->activeTemplate)->where('slug', 'browse')->first();
         $sections = $page->secs;
         $destinationSearch = request()->query('destination');
         $categorySearch = request()->query('category_id');
-        $monthSearch = request()->query('month');
-        $travelersSearch = (int) request()->query('travelers');
+        // month/travelers no longer filter anything - tours have no fixed
+        // departures or seat caps to match against. The picker UI stays as
+        // a pass-through: whatever the tourist picked here is carried along
+        // (as a query string) to prefill the booking widget on whichever
+        // tour details page they land on, purely informational at search time.
 
-        if ($destinationSearch || $categorySearch || $monthSearch || $travelersSearch) {
+        if ($destinationSearch || $categorySearch) {
             if ($destinationSearch) {
                 $query->where(function ($q) use ($destinationSearch) {
                     $q->where('address', 'LIKE', "%{$destinationSearch}%")
@@ -198,18 +173,6 @@ class SiteController extends Controller
 
             if ($categorySearch) {
                 $query->where('category_id', $categorySearch);
-            }
-
-            if ($monthSearch || $travelersSearch) {
-                $query->whereHas('departures', function ($q) use ($monthSearch, $travelersSearch) {
-                    $q->active()->where('start_date', '>=', now()->toDateString());
-                    if ($monthSearch) {
-                        $q->whereRaw("DATE_FORMAT(start_date, '%Y-%m') = ?", [$monthSearch]);
-                    }
-                    if ($travelersSearch) {
-                        $q->whereRaw('seats_total - seats_booked >= ?', [$travelersSearch]);
-                    }
-                });
             }
 
             $tourPackages = $query->orderBy('id', 'desc')->paginate(getPaginate(9));
@@ -254,7 +217,7 @@ class SiteController extends Controller
         $priceMin = $request->input('priceMin');
         $priceMax = $request->input('priceMax');
 
-        $query = TourPackage::with(['reviews', 'reviews.user', 'wishlists', 'tour_package_images', 'TourPackagePrimaryImage', 'activeDepartures.departurePrices'])->whereIn('status', [1,2,3])->orderBy('id', 'desc')->limit(9)->latest();
+        $query = TourPackage::with(['reviews', 'reviews.user', 'wishlists', 'tour_package_images', 'TourPackagePrimaryImage', 'packagePrices'])->whereIn('status', [1,2,3])->orderBy('id', 'desc')->limit(9)->latest();
         if (!empty($searchKey) && strlen($searchKey) >= 2) {
             $query->where('title', 'LIKE', "%{$searchKey}%");
         }
@@ -267,8 +230,12 @@ class SiteController extends Controller
         }
 
         if (!empty($priceMin) && !empty($priceMax)) {
-
-            $query->whereBetween('price', [$priceMin, $priceMax]);
+            // tour_packages.price is a frozen legacy column the current form
+            // never writes (see package_prices) - match on any category's
+            // price falling in range instead
+            $query->whereHas('packagePrices', function ($q) use ($priceMin, $priceMax) {
+                $q->whereBetween('price', [$priceMin, $priceMax]);
+            });
         }
 
         $tourPackages = $query->get();

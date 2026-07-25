@@ -2,6 +2,8 @@
 
 namespace App\Traits;
 
+use App\Models\PackagePrice;
+use App\Models\PriceCategory;
 use App\Models\TourPackage;
 use App\Models\TourPackageImage;
 use Illuminate\Support\Facades\DB;
@@ -12,8 +14,6 @@ use App\Http\Requests\TourPackageRequest;
 
 trait TourService
 {
-    use TourDepartureService;
-
     protected $data;
 
     public function store(TourPackageRequest $request)
@@ -89,7 +89,7 @@ trait TourService
 
             $tourPackage->save();
 
-            $this->createDeparturesForPackage($tourPackage, $request->departures ?? []);
+            $this->savePackagePrices($tourPackage, $request->prices ?? [], PriceCategory::active()->get());
 
             DB::commit();
             $notify[] = ['success', 'Tour Package created successfully'];
@@ -197,7 +197,7 @@ trait TourService
 
         $tourPackage->save();
 
-        $this->createDeparturesForPackage($tourPackage, $request->departures ?? []);
+        $this->savePackagePrices($tourPackage, $request->prices ?? [], PriceCategory::active()->get());
 
         DB::commit();
         $notify[] = ['success', 'Tour Package updated successfully'];
@@ -227,6 +227,33 @@ trait TourService
         return back()->withNotify($notify);
     }
 
+
+    private function savePackagePrices(TourPackage $tourPackage, array $prices, $categories): void
+    {
+        foreach ($prices as $categoryId => $data) {
+            if (!$categories->contains('id', (int) $categoryId)) {
+                continue;
+            }
+
+            PackagePrice::updateOrCreate(
+                ['tour_package_id' => $tourPackage->id, 'price_category_id' => $categoryId],
+                [
+                    'price' => $this->nullIfBlank($data['price'] ?? null),
+                    'discount' => $this->nullIfBlank($data['discount'] ?? null),
+                ]
+            );
+        }
+    }
+
+    /**
+     * An empty ('') form field is present-but-blank, not absent - `?? null`
+     * doesn't catch it. Left uncorrected, MySQL strict mode rejects '' for a
+     * numeric column outright.
+     */
+    private function nullIfBlank($value)
+    {
+        return ($value === null || $value === '') ? null : $value;
+    }
 
     public function tourPackageImageDelete(Request $request)
     {

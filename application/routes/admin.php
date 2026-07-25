@@ -170,14 +170,6 @@ Route::middleware('admin')->group(function () {
         Route::post('status-change/{id}', 'statusChange')->name('status.change');
     });
 
-    // Tour Departures (managed inline on the tour package edit page)
-    Route::controller('TourDepartureController')->name('tour.departure.')->prefix('tour-departure')->group(function () {
-        Route::post('store/{tourPackageId}', 'store')->name('store');
-        Route::post('update/{id}', 'update')->name('update');
-        Route::post('delete/{id}', 'destroy')->name('destroy');
-    });
-
-
     //Booking Controller
     Route::controller('BookingController')->name('tour.package.booking.')->group(function () {
         Route::get('/booking-list', 'bookingTourPackageList')->name('index');

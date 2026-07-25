@@ -68,13 +68,12 @@ class TourPackageRequest extends FormRequest
                 'itinerary.*.title' => 'required_with:itinerary|string',
                 'itinerary.*.description' => 'nullable|string',
 
-                // Departures staged alongside the package itself
-                'departures' => 'nullable|array',
-                'departures.*.start_date' => 'required_with:departures|date|after_or_equal:today',
-                'departures.*.seats_total' => 'required_with:departures|integer|min:1',
-                'departures.*.prices' => 'required_with:departures|array',
-                'departures.*.prices.*.price' => 'required|numeric|min:0',
-                'departures.*.prices.*.discount' => 'nullable|numeric|min:0|max:100',
+                // Per-category prices - tours have no fixed departures, so
+                // this is the package's only pricing (one row per active
+                // PriceCategory, keyed by category id)
+                'prices' => 'nullable|array',
+                'prices.*.price' => 'required|numeric|min:0',
+                'prices.*.discount' => 'nullable|numeric|min:0|max:100',
 
             ];
         if ($this->method() == "PUT" && request()->old_tour_package_images) {
