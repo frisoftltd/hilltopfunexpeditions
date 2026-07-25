@@ -13,7 +13,7 @@ class TourBooking extends Model
     protected $fillable = [
         'user_id', 'owner_id', 'owner_type', 'price', 'discount',
         'tour_package_id', 'price_category_id',
-        'start_date', 'party_size', 'status',
+        'start_date', 'party_size', 'status', 'phone', 'guest_signup',
     ];
 
     protected $casts = [
