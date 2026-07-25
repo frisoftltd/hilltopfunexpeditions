@@ -11,7 +11,7 @@
                                     <th>@lang('SI')</th>
                                     <th>@lang('Username')</th>
                                     <th>@lang('Full Name')</th>
-                                    <th>@lang('Seats')</th>
+                                    <th>@lang('Party Size')</th>
                                     <th>@lang('Price')</th>
                                     <th>@lang('Email')</th>
                                     <th>@lang('Phone')</th>
@@ -39,8 +39,8 @@
                                             </span>
                                         </td>
                                    
-                                        <td data-label="@lang('Take Seat')">
-                                            <span class="fw-bold">{{ $item->seat }}</span>
+                                        <td data-label="@lang('Party Size')">
+                                            <span class="fw-bold">{{ $item->party_size }}</span>
                                         </td>
                                         <td data-label="@lang('Price')">
                                             <span class="fw-bold">{{ $general->cur_sym . $item->price }}</span>

@@ -18,7 +18,7 @@
                         <tr>
                             <th>@lang('SI')</th>
                             <th>@lang('Full Name')</th>
-                            <th>@lang('Take Seat')</th>
+                            <th>@lang('Party Size')</th>
                             <th>@lang('Price')</th>
                             <th>@lang('Email')</th>
                             <th>@lang('Phone')</th>
@@ -36,8 +36,8 @@
                                     {{ $item->user->fullname }}
                                 </td>
 
-                                <td class="text-center" data-label="@lang('Take Seat')">
-                                    {{ $item->seat }}
+                                <td class="text-center" data-label="@lang('Party Size')">
+                                    {{ $item->party_size }}
                                 </td>
 
                                 <td class="text-center" data-label="@lang('Price')">

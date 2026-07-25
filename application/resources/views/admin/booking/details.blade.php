@@ -29,8 +29,8 @@
                         </li>
                     @endif
                     <li class="list-group-item d-flex justify-content-between align-items-center">
-                        @lang('Seats Booked'):
-                        <span class="fw-bold">{{ __($bookingDetails?->seat) }}</span>
+                        @lang('Party Size'):
+                        <span class="fw-bold">{{ __($bookingDetails?->party_size) }}</span>
                     </li>
 
                     <li class="list-group-item d-flex justify-content-between align-items-center">
@@ -46,12 +46,12 @@
                     <li class="list-group-item d-flex justify-content-between align-items-center">
                         @lang('Start Date'):
                         <span
-                            class="fw-bold">{{ $bookingDetails?->departure ? showDateTime($bookingDetails->departure->start_date, 'd-m-Y') : '—' }}</span>
+                            class="fw-bold">{{ $bookingDetails?->start_date ? showDateTime($bookingDetails->start_date, 'd-m-Y') : '—' }}</span>
                     </li>
                     <li class="list-group-item d-flex justify-content-between align-items-center">
                         @lang('End Date'):
                         <span
-                            class="fw-bold">{{ $bookingDetails?->departure?->end_date ? showDateTime($bookingDetails->departure->end_date, 'd-m-Y') : '—' }}</span>
+                            class="fw-bold">{{ $bookingDetails?->end_date ? showDateTime($bookingDetails->end_date, 'd-m-Y') : '—' }}</span>
                     </li>
                     <li class="list-group-item d-flex justify-content-between align-items-center">
                         @lang('Stay Day/Nights'):
@@ -112,8 +112,8 @@
                     </li>
 
                     <li class="list-group-item d-flex justify-content-between align-items-center">
-                        @lang('Number of Seats'):
-                        <span class="fw-bold">{{ $bookingDetails->seat }}</span>
+                        @lang('Party Size'):
+                        <span class="fw-bold">{{ $bookingDetails->party_size }}</span>
                     </li>
 
                     <li class="list-group-item d-flex justify-content-between align-items-center">
@@ -125,11 +125,11 @@
                         @lang('Get Discount'):
                         <span class="fw-bold badge badge--success">{{ $bookingDetails->discount ?? 0 }}%</span>
                     </li>
-                    @if ($bookingDetails?->user_proposal_date)
+                    @if ($bookingDetails?->start_date)
                         <li class="list-group-item d-flex justify-content-between align-items-center">
-                            @lang('Departure Date'):
+                            @lang('Tour Start Date'):
                             <span
-                                class="fw-bold">{{ showDateTime($bookingDetails?->user_proposal_date, 'd-m-Y') }}</span>
+                                class="fw-bold">{{ showDateTime($bookingDetails?->start_date, 'd-m-Y') }}</span>
                         </li>
                     @endif
 

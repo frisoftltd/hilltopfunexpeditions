@@ -26,7 +26,7 @@ class UserController extends Controller
     {
         $pageTitle = 'Dashboard';
         $user =  auth()->user();
-        $myBookings =  TourBooking::with('tour_package', 'departure')->userAll()->paginate(getPaginate());
+        $myBookings =  TourBooking::with('tour_package')->userAll()->paginate(getPaginate());
         $widget['total_tour_package'] =  TourBooking::where('user_id', $user->id)->count();
         $widget['total_pending_tour_package'] =  TourBooking::userPending()->count();
         $widget['total_approved_tour_package'] =  TourBooking::UserApproved()->count();

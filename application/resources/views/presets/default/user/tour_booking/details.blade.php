@@ -92,8 +92,8 @@
                             </li>
 
                             <li class="list-group-item p-0 border-0 d-flex justify-content-between align-items-center">
-                                @lang('Number of Seats'):
-                                <span class="fw--500">{{ $bookingDetails->seat }}</span>
+                                @lang('Party Size'):
+                                <span class="fw--500">{{ $bookingDetails->party_size }}</span>
                             </li>
 
                             <li class="list-group-item p-0 border-0 d-flex justify-content-between align-items-center">
@@ -105,11 +105,11 @@
                                 @lang('Get Discount'):
                                 <span class="fw--500 badge badge--success">{{ $bookingDetails->discount ?? 0 }}%</span>
                             </li>
-                            @if ($bookingDetails?->user_proposal_date)
+                            @if ($bookingDetails?->start_date)
                                 <li class="list-group-item p-0 border-0 d-flex justify-content-between align-items-center">
-                                    @lang('Departure Date'):
+                                    @lang('Tour Start Date'):
                                     <span
-                                        class="fw--500">{{ showDateTime($bookingDetails?->user_proposal_date, 'd-m-Y') }}</span>
+                                        class="fw--500">{{ showDateTime($bookingDetails?->start_date, 'd-m-Y') }}</span>
                                 </li>
                             @endif
 

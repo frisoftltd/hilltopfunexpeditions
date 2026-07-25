@@ -178,7 +178,7 @@
                                 </td>
                                 <td class="text-center" data-label="@lang('Tour Date')">
                                     <i class="fa-regular fa-clock"></i>
-                                    {{ $item->departure ? showDateTime($item->departure->start_date) : '—' }}
+                                    {{ $item->start_date ? showDateTime($item->start_date) : '—' }}
                                 </td>
                                 <td class="text-center" data-label="@lang('Stay Day & Nights')">
                                     {{ __($item->tour_package->day_nights) }}
