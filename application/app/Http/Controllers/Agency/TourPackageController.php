@@ -110,7 +110,7 @@ class TourPackageController extends Controller
                 }
             });
         }
-        return $tourPackages->with('category','TourPackagePrimaryImage','agency','packagePrices')
+        return $tourPackages->with('category','TourPackagePrimaryImage','agency','packagePrices','tour_bookings')
         ->where('user_type','agency')
         ->where('user_id',auth('agency')->id())
         ->orderBy('id', 'desc')

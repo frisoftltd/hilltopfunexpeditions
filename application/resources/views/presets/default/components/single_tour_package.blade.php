@@ -1,9 +1,13 @@
+@php
+    $travelersQuery = request()->query('travelers');
+    $detailsQueryExtra = $travelersQuery ? ['travelers' => $travelersQuery] : [];
+@endphp
 @forelse ($tourPackages as $item)
     <div
         class="col-md-4 col-sm-6">
         <div class="tour-card radius--20 position-relative bg--white">
             <div class="tour-card__thumb">
-                <a href="{{ route('tour.package.details', [$item->id, slug($item->title)]) }}">
+                <a href="{{ route('tour.package.details', array_merge([$item->id, slug($item->title)], $detailsQueryExtra)) }}">
                     <img class="fit--img"
                         src="{{ getImage(getFilePath('tourPackageImage') . '/thumb_' . $item->TourPackagePrimaryImage->image) }}"
                         alt="Tour Image">
@@ -52,7 +56,7 @@
                     <p class="fs--14">({{ $item->average_rating }})</p>
                 </div>
 
-                <a href="{{ route('tour.package.details', [$item->id, slug($item->title)]) }}">
+                <a href="{{ route('tour.package.details', array_merge([$item->id, slug($item->title)], $detailsQueryExtra)) }}">
                     <h6 class="tour-card__title fs--20 fw--600" title="{{ $item->title }}">
                         {{ __(strLimit($item->title, 20)) }}
                     </h6>
@@ -63,14 +67,14 @@
                         @if ($item->from_price !== null)
                             <h6 class="fs--20 fw--600 mb-0 body--font">@lang('From') {{ $general->cur_sym }}{{ $item->from_price }}
                             </h6>
-                            <span class="text--black7 fs--14">{{ $item->departures_count }} @lang('departures')</span>
+                            <span class="text--black7 fs--14">@lang('Available anytime')</span>
                         @else
-                            <span class="text--black7 fs--14">@lang('No upcoming departures')</span>
+                            <span class="text--black7 fs--14">@lang('Pricing not set yet')</span>
                         @endif
                     </div>
 
                     <div class="tour-card__btn-wrap">
-                        <a href="{{ route('tour.package.details', [$item->id, slug($item->title)]) }}"
+                        <a href="{{ route('tour.package.details', array_merge([$item->id, slug($item->title)], $detailsQueryExtra)) }}"
                             class="text--base"><i class="fa-solid fa-arrow-right-long"></i> @lang('Book')</a>
                     </div>
                 </div>

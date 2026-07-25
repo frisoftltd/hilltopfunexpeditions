@@ -25,7 +25,7 @@ class AgencyController extends Controller
     {
         $pageTitle = 'Dashboard';
         $agency =  agency();
-        $myBooked =  TourPackage::with('tour_bookings.deposit', 'tour_bookings.user', 'tour_bookings.owner', 'TourPackagePrimaryImage', 'activeDepartures.departurePrices')->where('user_id',auth('agency')->id())->where('user_type','agency')->paginate(getPaginate());
+        $myBooked =  TourPackage::with('tour_bookings.deposit', 'tour_bookings.user', 'tour_bookings.owner', 'TourPackagePrimaryImage', 'packagePrices')->where('user_id',auth('agency')->id())->where('user_type','agency')->paginate(getPaginate());
      
         $widget['total_tour_package'] =  TourPackage::where('user_type','agency')->where('user_id', auth('agency')->id())->count();
         $widget['total_approved_tour_package'] =  TourPackage::agencyApproved()->count();

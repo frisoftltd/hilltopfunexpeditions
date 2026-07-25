@@ -59,7 +59,7 @@
                                     <th>@lang('Image')</th>
                                     <th>@lang('Category')</th>
                                     <th>@lang('From Price')</th>
-                                    <th>@lang('Seats')</th>
+                                    <th>@lang('Bookings')</th>
                                     <th>@lang('Country')</th>
                                     <th>@lang('Tour Status')</th>
                                     <th>@lang('Action')</th>
@@ -91,12 +91,12 @@
                                         <td>{{ __($item->category->name) }}</td>
                                         <td>
                                             @if ($item->from_price !== null)
-                                                {{ $general->cur_sym }}{{ showAmount($item->from_price) }} ({{ $item->departures_count }})
+                                                {{ $general->cur_sym }}{{ showAmount($item->from_price) }}
                                             @else
                                                 &mdash;
                                             @endif
                                         </td>
-                                        <td> {{ $item->activeDepartures->sum('seats_total') }}</td>
+                                        <td> {{ $item->tour_bookings->where('status', 1)->sum('party_size') }}</td>
                                         <td> {{ $item->country }}</td>
 
                                         <td>

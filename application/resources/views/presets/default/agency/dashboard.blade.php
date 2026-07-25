@@ -191,10 +191,8 @@
                             <th>@lang('SI')</th>
                             <th>@lang('Image')</th>
                             <th>@lang('Tour Package Title')</th>
-                            <th>@lang('Next Departure')</th>
-                            <th>@lang('Departures')</th>
-                            <th>@lang('Total seats')</th>
-                            <th>@lang('Available seats')</th>
+                            <th>@lang('Next Booking')</th>
+                            <th>@lang('Bookings')</th>
                             <th>@lang('Tour Status')</th>
                             <th>@lang('Booking Status')</th>
                             <th>@lang('Action')</th>
@@ -215,18 +213,12 @@
                                 <td class="text-center" data-label="@lang('Tour Package Title')">
                                     {{ __($item->title) }}
                                 </td>
-                                <td class="text-center" data-label="@lang('Next Departure')">
+                                <td class="text-center" data-label="@lang('Next Booking')">
                                     <i class="fa-regular fa-clock"></i>
-                                    {{ $item->activeDepartures->first()?->start_date?->format('M d, Y') ?? '—' }}
+                                    {{ $item->tour_bookings->where('status', 1)->where('start_date', '>=', now())->sortBy('start_date')->first()?->start_date?->format('M d, Y') ?? '—' }}
                                 </td>
-                                <td class="text-center" data-label="@lang('Departures')">
-                                    {{ $item->departures_count }}
-                                </td>
-                                <td class="text-center" data-label="@lang('Total seats')">
-                                    {{ $item->activeDepartures->sum('seats_total') }}
-                                </td>
-                                <td class="text-center" data-label="@lang('Available seats')">
-                                    {{ $item->activeDepartures->sum('seats_total') - $item->activeDepartures->sum('seats_booked') }}
+                                <td class="text-center" data-label="@lang('Bookings')">
+                                    {{ $item->tour_bookings->where('status', 1)->sum('party_size') }}
                                 </td>
 
                                 <td class="text-center" data-label="@lang('Tour Status')">

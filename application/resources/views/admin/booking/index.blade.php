@@ -12,7 +12,7 @@
                                     <th>@lang('SI')</th>
                                     <th>@lang('Image')</th>
                                     <th>@lang('Tour Name')</th>
-                                    <th>@lang('Next Departure')</th>
+                                    <th>@lang('Next Booking')</th>
                                     <th>@lang('Tour Status')</th>
                                     <th>@lang('Booking Status')</th>
                                     <th>@lang('Action')</th>
@@ -34,8 +34,8 @@
                                         <td data-label="@lang('Tour Name')">
                                             <span class="fw-bold">{{ __(strLimit($item->title, 35)) }}</span>
                                         </td>
-                                        <td data-label="@lang('Next Departure')">
-                                            <span class="fw-bold">{{ $item->activeDepartures->first()?->start_date?->format('M d, Y') ?? '—' }}</span>
+                                        <td data-label="@lang('Next Booking')">
+                                            <span class="fw-bold">{{ $item->tour_bookings->where('status', 1)->where('start_date', '>=', now())->sortBy('start_date')->first()?->start_date?->format('M d, Y') ?? '—' }}</span>
                                         </td>
 
 

@@ -1,6 +1,6 @@
 @php
     $popularTourContent = getContent('popular_tour.content', true);
-    $tourPackages = App\Models\TourPackage::with('TourPackagePrimaryImage', 'wishlists', 'activeDepartures.departurePrices')
+    $tourPackages = App\Models\TourPackage::with('TourPackagePrimaryImage', 'wishlists', 'packagePrices')
         ->whereIn('status', [1, 2, 3])
         ->withCount('tour_bookings')
         ->orderByDesc('tour_bookings_count')
@@ -99,9 +99,9 @@
                         @if ($item->from_price !== null)
                             <h6 class="fs--20 fw--600 mb-0 body--font">@lang('From') {{ $general->cur_sym }}{{ $item->from_price }}
                             </h6>
-                            <span class="text--black7 fs--14">{{ $item->departures_count }} @lang('departures')</span>
+                            <span class="text--black7 fs--14">@lang('Available anytime')</span>
                         @else
-                            <span class="text--black7 fs--14">@lang('No upcoming departures')</span>
+                            <span class="text--black7 fs--14">@lang('Pricing not set yet')</span>
                         @endif
                     </div>
 
