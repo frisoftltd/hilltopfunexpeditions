@@ -262,17 +262,15 @@ class PaymentController extends Controller
         $setPasswordUrl = self::generateSetPasswordLink($user);
         $template = $tourBooking->guest_signup === 'new' ? 'GUEST_BOOKING_WELCOME' : 'GUEST_BOOKING_EXISTING_ACCOUNT';
 
-        // fullname/logo_url aren't in the notify() global shortcodes (those
-        // are site_name/site_currency/currency_symbol only) - the template
-        // body needs its own copy of these, computed here at send time
-        // rather than baked into the stored template, since asset() depends
-        // on the environment it runs in.
+        // fullname isn't in the notify() global shortcodes (those are
+        // site_name/site_currency/currency_symbol/logo_url) - this template
+        // body needs its own copy, since it's not part of the site's global
+        // email wrapper here.
         notify($user, $template, [
             'fullname' => $user->fullname,
             'tour_title' => $tourBooking->tour_package->title,
             'price' => showAmount($tourBooking->price),
             'set_password_url' => $setPasswordUrl,
-            'logo_url' => asset(getFilePath('logoIcon') . '/logo.png'),
         ]);
     }
 

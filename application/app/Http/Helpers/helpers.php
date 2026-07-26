@@ -233,6 +233,11 @@ function notify($user, $templateName, $shortCodes = null, $sendVia = null, $crea
         'site_name' => $general->site_name,
         'site_currency' => $general->cur_text,
         'currency_symbol' => $general->cur_sym,
+        // Used by the branded header now wrapped around every email (see
+        // the rebrand-global-email-template migration) - global rather than
+        // per-call, so it resolves for every notify() caller, not just the
+        // ones that happen to pass it explicitly.
+        'logo_url' => asset(getFilePath('logoIcon') . '/logo.png'),
     ];
 
     if (gettype($user) == 'array') {
