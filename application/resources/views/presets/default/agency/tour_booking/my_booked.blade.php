@@ -40,7 +40,7 @@
                                     {{ $item->tour_bookings->where('status', 1)->where('start_date', '>=', now())->sortBy('start_date')->first()?->start_date?->format('M d, Y') ?? '—' }}
                                 </td>
                                 <td class="text-center" data-label="@lang('Bookings')">
-                                    {{ $item->tour_bookings->where('status', 1)->sum('party_size') }}
+                                    {{ $item->tour_bookings->where('status', '!=', 3)->sum('party_size') }}
                                 </td>
 
                                 <td class="text-center" data-label="@lang('Tour Status')">

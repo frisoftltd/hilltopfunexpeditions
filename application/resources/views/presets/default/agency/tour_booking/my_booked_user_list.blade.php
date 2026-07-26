@@ -18,6 +18,7 @@
                         <tr>
                             <th>@lang('SI')</th>
                             <th>@lang('Full Name')</th>
+                            <th>@lang('Price Category')</th>
                             <th>@lang('Party Size')</th>
                             <th>@lang('Price')</th>
                             <th>@lang('Email')</th>
@@ -36,6 +37,10 @@
                                     {{ $item->user->fullname }}
                                 </td>
 
+                                <td class="text-center" data-label="@lang('Price Category')">
+                                    {{ $item->priceCategory->name ?? '—' }}
+                                </td>
+
                                 <td class="text-center" data-label="@lang('Party Size')">
                                     {{ $item->party_size }}
                                 </td>
@@ -48,7 +53,7 @@
                                     {{ $item->user->email }}
                                 </td>
                                 <td data-label="@lang('Phone')">
-                                    {{ $item->user->mobile }}
+                                    {{ $item->phone ?? $item->user->mobile }}
                                 </td>
 
 
