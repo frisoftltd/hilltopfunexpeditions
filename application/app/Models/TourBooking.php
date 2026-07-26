@@ -14,6 +14,7 @@ class TourBooking extends Model
         'user_id', 'owner_id', 'owner_type', 'price', 'discount',
         'tour_package_id', 'price_category_id',
         'start_date', 'party_size', 'status', 'phone', 'guest_signup',
+        'agency_status',
     ];
 
     protected $casts = [
@@ -167,5 +168,18 @@ class TourBooking extends Model
         return '<span class="badge badge--warning">' . trans('Awaiting Payment') . '</span>';
     }
 
-    
+    /**
+     * agency_status is the owning agency's own review layer, independent of
+     * the payment status above: null = pending review, 1 = approved,
+     * 2 = declined.
+     */
+    public function agencyStatusBadge()
+    {
+        if ($this->agency_status == 1) {
+            return '<span class="badge badge--success">' . trans('Approved') . '</span>';
+        } elseif ($this->agency_status == 2) {
+            return '<span class="badge badge--danger">' . trans('Declined') . '</span>';
+        }
+        return '<span class="badge badge--warning">' . trans('Pending Review') . '</span>';
+    }
 }
