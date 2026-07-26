@@ -455,3 +455,76 @@ li.language { display: none !important; }
     font-weight: 600;
     cursor: pointer;
 }
+
+/* ---- Tour details "Book This Tour" widget - denser layout ---- */
+.booking-widget .product--info__item {
+    padding-bottom: 0;
+    margin-bottom: 14px;
+    border-bottom: none;
+}
+.booking-widget .form--label {
+    margin-bottom: 6px;
+    font-size: 13px;
+}
+.booking-widget .form--control {
+    padding: 8px 12px;
+}
+.booking-widget .form--check {
+    margin-bottom: 4px !important;
+}
+.booking-widget .form--check .form-check-label {
+    font-size: 14px;
+    line-height: 22px;
+}
+
+/* Desktop: if the (now much shorter) widget is still taller than the
+   viewport, scroll inside the sticky sidebar instead of running off-screen. */
+@media (min-width: 992px) {
+    .booking-widget {
+        max-height: calc(100vh - 110px);
+        overflow-y: auto;
+    }
+}
+
+/* Mobile: booking sits below all tour content, so surface a fixed
+   "Book This Tour" bar that jumps straight to #bookingWidget. */
+.mobile-booking-cta {
+    display: none;
+}
+@media (max-width: 991.98px) {
+    .mobile-booking-cta {
+        display: flex;
+        position: fixed;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        z-index: 1030;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+        background: #fff;
+        box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.12);
+        padding: 10px 16px;
+        padding-bottom: calc(10px + env(safe-area-inset-bottom));
+    }
+    .mobile-booking-cta__info {
+        display: flex;
+        flex-direction: column;
+        line-height: 1.2;
+    }
+    .mobile-booking-cta__label {
+        font-size: 11px;
+        color: #888;
+    }
+    .mobile-booking-cta__price {
+        font-size: 16px;
+        font-weight: 700;
+    }
+    .mobile-booking-cta__btn {
+        white-space: nowrap;
+        flex-shrink: 0;
+    }
+    body.has-mobile-booking-cta {
+        padding-bottom: 74px;
+    }
+}

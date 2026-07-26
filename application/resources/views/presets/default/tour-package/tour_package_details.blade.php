@@ -446,9 +446,9 @@
                     </div>
                 </div>
                 <div class="col-lg-4">
-                    <div class="product--info__wrap  position-sticky">
-                        <h6 class="fs--20 fw--600 mb-3">@lang('Book This Tour')</h6>
-                        <div class="bg--white radius--20 p-4 mb-4">
+                    <div class="product--info__wrap booking-widget position-sticky" id="bookingWidget">
+                        <h6 class="fs--20 fw--600 mb-2">@lang('Book This Tour')</h6>
+                        <div class="bg--white radius--20 p-3">
                             @if ($tourPackage->packagePrices->isEmpty())
                                 <p class="text-danger mb-0">@lang('Pricing for this tour is not set yet.')</p>
                             @else
@@ -506,7 +506,7 @@
                                         @endforeach
                                     </div>
 
-                                    <div class="product--info__item border-0 pb-2">
+                                    <div class="product--info__item">
                                         <div class="form-group">
                                             <label class="mb-2 form--label">@lang('Travelers')</label>
                                             <input class="form--control" type="number" min="1" step="1"
@@ -532,6 +532,18 @@
                     </div>
                 </div>
             </div>
+        </div>
+
+        <!-- Mobile-only sticky "Book This Tour" CTA - jumps to #bookingWidget above -->
+        <div class="mobile-booking-cta d-lg-none">
+            @if ($tourPackage->packagePrices->isNotEmpty())
+                <div class="mobile-booking-cta__info">
+                    <span class="mobile-booking-cta__label">@lang('From')</span>
+                    <span class="mobile-booking-cta__price">{{ $general->cur_sym }}{{ showAmount($tourPackage->packagePrices->min('final_price')) }}</span>
+                </div>
+            @endif
+            <a href="#bookingWidget" class="btn btn--base pills mobile-booking-cta__btn">@lang('Book This Tour')
+                <i class="fa-solid fa-arrow-right-long"></i></a>
         </div>
     </section>
 
@@ -673,5 +685,24 @@
             $form.on('input', '#partySizeInput', updatePreview);
             updatePreview();
         })(jQuery);
+    </script>
+
+    <script>
+        (function() {
+            "use strict";
+            document.body.classList.add('has-mobile-booking-cta');
+
+            var ctaBtn = document.querySelector('.mobile-booking-cta__btn');
+            if (!ctaBtn) {
+                return;
+            }
+            ctaBtn.addEventListener('click', function(e) {
+                var target = document.getElementById('bookingWidget');
+                if (target) {
+                    e.preventDefault();
+                    target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                }
+            });
+        })();
     </script>
 @endpush
