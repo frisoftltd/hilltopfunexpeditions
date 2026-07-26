@@ -125,7 +125,12 @@
 
                     <li class="list-group-item p-0 border-0 d-flex justify-content-between align-items-center">
                         @lang('Phone'):
-                        <span class="fw--500">{{ $bookingDetails->user?->mobile }}</span>
+                        <span class="fw--500">{{ $bookingDetails->phone ?? $bookingDetails->user?->mobile }}</span>
+                    </li>
+
+                    <li class="list-group-item p-0 border-0 d-flex justify-content-between align-items-center">
+                        @lang('Price Category'):
+                        <span class="fw--500">{{ $bookingDetails->priceCategory->name ?? '—' }}</span>
                     </li>
 
                     <li class="list-group-item p-0 border-0 d-flex justify-content-between align-items-center">
@@ -156,7 +161,26 @@
                             echo $bookingDetails->statusPaymentBadge();
                         @endphp</span>
                     </li>
+
+                    <li class="list-group-item p-0 border-0 d-flex justify-content-between align-items-center">
+                        @lang('Review Status'):
+                        <span class="fw--500">@php echo $bookingDetails->agencyStatusBadge() @endphp</span>
+                    </li>
                 </ul>
+
+                @if (is_null($bookingDetails->agency_status))
+                    <div class="d-flex gap--12">
+                        <form action="{{ route('agency.tour.package.booking.approve', $bookingDetails->id) }}" method="POST" class="flex-fill">
+                            @csrf
+                            <button type="submit" class="btn btn--success w--100 pills">@lang('Approve')</button>
+                        </form>
+                        <form action="{{ route('agency.tour.package.booking.decline', $bookingDetails->id) }}" method="POST" class="flex-fill">
+                            @csrf
+                            <input type="hidden" name="reason" value="">
+                            <button type="submit" class="btn btn--danger w--100 pills">@lang('Decline')</button>
+                        </form>
+                    </div>
+                @endif
             </div>
         </div>
     </div>

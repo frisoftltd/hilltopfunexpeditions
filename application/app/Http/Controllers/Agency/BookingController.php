@@ -43,12 +43,61 @@ class BookingController extends Controller
     public function bookingDetails($id)
     {
         $pageTitle = 'Tour & Booking Details';
-        $bookingDetails = TourBooking::with(['user','owner','admin', 'tour_package','tour_package.category'])
+        $bookingDetails = TourBooking::with(['user', 'owner', 'admin', 'tour_package', 'tour_package.category', 'priceCategory'])
             ->where('id', $id)
             ->where('owner_id', auth('agency')->id())
             ->where('owner_type', 'agency')
             ->first();
         return view($this->activeTemplate . 'agency.tour_booking.details', compact('pageTitle', 'bookingDetails'));
+    }
+
+    /**
+     * Agency's own review layer (tour_bookings.agency_status) - independent
+     * of the payment status. Reachable regardless of current payment state,
+     * since an already-paid booking can still be declined (refund handled
+     * manually outside the system).
+     */
+    public function approve($id)
+    {
+        $bookingDetails = TourBooking::with(['user', 'tour_package'])
+            ->where('id', $id)
+            ->where('owner_id', auth('agency')->id())
+            ->where('owner_type', 'agency')
+            ->firstOrFail();
+
+        $bookingDetails->agency_status = 1;
+        $bookingDetails->save();
+
+        notify($bookingDetails->user, 'BOOKING_APPROVED_BY_AGENCY', [
+            'tour_title' => $bookingDetails->tour_package->title,
+        ]);
+
+        $notify[] = ['success', 'Booking approved successfully'];
+        return back()->withNotify($notify);
+    }
+
+    public function decline(Request $request, $id)
+    {
+        $request->validate([
+            'reason' => 'nullable|string|max:255',
+        ]);
+
+        $bookingDetails = TourBooking::with(['user', 'tour_package'])
+            ->where('id', $id)
+            ->where('owner_id', auth('agency')->id())
+            ->where('owner_type', 'agency')
+            ->firstOrFail();
+
+        $bookingDetails->agency_status = 2;
+        $bookingDetails->save();
+
+        notify($bookingDetails->user, 'BOOKING_DECLINED', [
+            'tour_title' => $bookingDetails->tour_package->title,
+            'reason' => $request->reason ?: 'Not specified',
+        ]);
+
+        $notify[] = ['success', 'Booking declined successfully'];
+        return back()->withNotify($notify);
     }
 
     protected function tourPackageData($scope = null)
@@ -72,14 +121,14 @@ class BookingController extends Controller
     public function userList(Request $request, $id)
     {
         $pageTitle = 'User Booking-List';
-        $tourBookings = TourBooking::with('user', 'tour_package')->where('tour_package_id', $id)->where('owner_id', auth('agency')->id())
+        $tourBookings = TourBooking::with('user', 'tour_package', 'priceCategory')->where('tour_package_id', $id)->where('owner_id', auth('agency')->id())
             ->where('owner_type', 'agency')
             ->orderBy('id', 'desc')
             ->paginate(getPaginate());
 
         if ($request->search) {
             $search = $request->search;
-            $tourBookings  = TourBooking::with('tour_package', 'user')
+            $tourBookings  = TourBooking::with('tour_package', 'user', 'priceCategory')
                 ->whereHas('user', function ($query) use ($search) {
                     $query->where('firstname', 'like', "%$search%")->orWhere('lastname','like',"%$search%")->orWhere('username','like',"%$search%");
                 })->where('owner_id', auth('agency')->id())

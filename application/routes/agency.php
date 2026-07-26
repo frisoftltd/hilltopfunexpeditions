@@ -105,7 +105,8 @@ Route::middleware('agency')->name('agency.')->group(function () {
                 Route::get('canceled', 'canceled')->name('canceled');
                 Route::get('/booking-user-list/{id}', 'userList')->name('user.list');
                 Route::get('/booking-details/{id}', 'bookingDetails')->name('details');
-                
+                Route::post('/booking-approve/{id}', 'approve')->name('approve');
+                Route::post('/booking-decline/{id}', 'decline')->name('decline');
 
             });
 
