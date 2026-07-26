@@ -1,4 +1,4 @@
-@extends($activeTemplate . 'layouts.user.master')
+@extends($activeTemplate . (Auth::check() ? 'layouts.user.master' : 'layouts.frontend'))
 @section('content')
 <div class="row mb-4 justify-content-center">
     <div class="col-lg-6">
