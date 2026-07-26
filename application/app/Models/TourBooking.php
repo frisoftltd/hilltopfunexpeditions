@@ -126,41 +126,45 @@ class TourBooking extends Model
 
     public function scopeUserPending()
     {
-        return $this->where('status', 0)
-
+        return $this->where('status', 2)
         ->where('user_id', auth()->id());
     }
 
     public function scopeUserCanceled()
     {
-        return $this->where('status', 2)->where('user_id', auth()->id());
+        return $this->where('status', 3)->where('user_id', auth()->id());
     }
 
 
+    /**
+     * Real status vocabulary, as actually set by Gateway\PaymentController:
+     * 0 = booking created, payment not completed yet (depositInsert());
+     * 1 = paid (online gateway success, userDataUpdate());
+     * 2 = pending confirmation (manual/bank-transfer submitted, manualDepositUpdate());
+     * 3 = rejected by admin (Admin\DepositController).
+     */
     public function statusBadge($status)
     {
-        $html = '';
-        if ($this->status == 1) {
-            $html = '<span class="badge badge--success">' . trans('Active') . '</span>';
-        } elseif ($this->status == 0) {
-            $html = '<span class="badge badge--warning">' . trans('Processing') . '</span>';
-        } elseif ($this->status == 2) {
-            $html = '<span class="badge badge--danger">' . trans('Canceled') . '</span>';
-        } 
-        return $html;
+        if ($status == 1) {
+            return '<span class="badge badge--success">' . trans('Paid') . '</span>';
+        } elseif ($status == 2) {
+            return '<span class="badge badge--warning">' . trans('Pending Confirmation') . '</span>';
+        } elseif ($status == 3) {
+            return '<span class="badge badge--danger">' . trans('Rejected') . '</span>';
+        }
+        return '<span class="badge badge--warning">' . trans('Awaiting Payment') . '</span>';
     }
 
     public function scopeStatusPaymentBadge()
     {
-        $html = '';
-        if ($this->status == 2) {
-            $html = '<span class="badge badge--warning">' . trans('Pending') . '</span>';
-        } elseif ($this->status == 1) {
-            $html = '<span class="badge badge--success">' . trans('Approved') . '</span>';
+        if ($this->status == 1) {
+            return '<span class="badge badge--success">' . trans('Paid') . '</span>';
+        } elseif ($this->status == 2) {
+            return '<span class="badge badge--warning">' . trans('Pending Confirmation') . '</span>';
         } elseif ($this->status == 3) {
-            $html = '<span class="badge badge--danger">' . trans('Canceled') . '</span>';
-        } 
-        return $html;
+            return '<span class="badge badge--danger">' . trans('Rejected') . '</span>';
+        }
+        return '<span class="badge badge--warning">' . trans('Awaiting Payment') . '</span>';
     }
 
     

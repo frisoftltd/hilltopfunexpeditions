@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\User;
 
 use App\Http\Controllers\Controller;
+use App\Models\Deposit;
 use App\Traits\BookingSessionService;
 use App\Traits\GuestAccountResolver;
 use Illuminate\Http\Request;
@@ -47,14 +48,20 @@ class GuestBookingController extends Controller
     }
 
     /**
-     * Guest-side equivalent of user.deposit.history - gatewayRedirectUrl(true)
-     * sends a logged-out payment flow here instead, since a guest (especially
-     * the existing-account case, which never gets Auth::login()'d) has no
-     * dashboard to show a history list on.
+     * Guest-side equivalent of the dashboard landing - gatewayRedirectUrl(true)
+     * sends a logged-out payment flow here instead, since the existing-account
+     * guest case never gets Auth::login()'d and so has no dashboard to land on.
+     * Looks the booking up via session('Track') (set by depositInsert() for
+     * both the online and manual paths) so this page can show the tourist
+     * their actual booking status without needing an authenticated session.
      */
     public function depositSuccess()
     {
         $pageTitle = 'Booking Confirmed';
-        return view($this->activeTemplate . 'user.payment.guest_success', compact('pageTitle'));
+        $deposit = Deposit::with('tour_booking.tour_package')
+            ->where('trx', session('Track'))
+            ->latest()
+            ->first();
+        return view($this->activeTemplate . 'user.payment.guest_success', compact('pageTitle', 'deposit'));
     }
 }

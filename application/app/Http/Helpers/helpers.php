@@ -372,17 +372,21 @@ function getContent($dataKeys, $singleQuery = false, $limit = null, $orderById =
 /**
  * Central redirect target for the whole deposit/gateway flow (wallet
  * top-ups and tour-booking checkout alike) - every gateway ProcessController's
- * ipn() uses this. Guest checkout can reach this flow logged out (an
- * existing account attached to a booking never gets Auth::login()'d - see
- * App\Traits\GuestAccountResolver), so this has to resolve to the guest
- * route group instead of the auth-gated one in that case, or the final
- * success/failure redirect would hit the login wall.
+ * ipn() uses this, plus manualDepositUpdate()'s pending-confirmation
+ * redirect. $type=true is the post-submit "done" landing: an
+ * authenticated user (including a just-created guest account, which is
+ * auto-logged-in) lands on their dashboard where the new booking shows
+ * up with its actual status (paid or pending); a logged-out guest
+ * (existing account attached to the booking, which never gets
+ * Auth::login()'d - see App\Traits\GuestAccountResolver) can't reach the
+ * dashboard, so goes to the guest confirmation page instead - both
+ * paths otherwise hit the login wall.
  */
 function gatewayRedirectUrl($type = false)
 {
     $loggedIn = auth()->check();
     if ($type) {
-        return $loggedIn ? 'user.deposit.history' : 'guest.deposit.success';
+        return $loggedIn ? 'user.home' : 'guest.deposit.success';
     } else {
         return $loggedIn ? 'user.deposit' : 'guest.deposit';
     }
