@@ -239,17 +239,34 @@ class PaymentController extends Controller
                 'phone' => $tourBooking->phone ?? $tourBooking->user->mobile
             ]);
 
-            if ($tourBooking->guest_signup) {
-                $setPasswordUrl = self::generateSetPasswordLink($user);
-                $template = $tourBooking->guest_signup === 'new' ? 'GUEST_BOOKING_WELCOME' : 'GUEST_BOOKING_EXISTING_ACCOUNT';
-
-                notify($user, $template, [
-                    'tour_title' => $tourBooking->tour_package->title,
-                    'price' => showAmount($tourBooking->price),
-                    'set_password_url' => $setPasswordUrl,
-                ]);
+            // Manual payments already send this from manualDepositUpdate() at
+            // submission time, since admin approval (the only way $isManual
+            // is true here) can be arbitrarily delayed or never happen at
+            // all - the guest shouldn't wait on that to get their account
+            // welcome/set-password email. Guard here so approval doesn't
+            // send a second one with a fresh (link-invalidating) token.
+            if ($tourBooking->guest_signup && !$isManual) {
+                self::sendGuestSignupNotification($user, $tourBooking);
             }
         }
+    }
+
+    /**
+     * Shared by userDataUpdate() (online-gateway success) and
+     * manualDepositUpdate() (manual/bank-transfer submission) - the guest
+     * account is created at booking time regardless of payment method, so
+     * both paths need to fire this, just at different moments.
+     */
+    protected static function sendGuestSignupNotification($user, $tourBooking)
+    {
+        $setPasswordUrl = self::generateSetPasswordLink($user);
+        $template = $tourBooking->guest_signup === 'new' ? 'GUEST_BOOKING_WELCOME' : 'GUEST_BOOKING_EXISTING_ACCOUNT';
+
+        notify($user, $template, [
+            'tour_title' => $tourBooking->tour_package->title,
+            'price' => showAmount($tourBooking->price),
+            'set_password_url' => $setPasswordUrl,
+        ]);
     }
 
     public function manualDepositConfirm()
@@ -272,7 +289,7 @@ class PaymentController extends Controller
     public function manualDepositUpdate(Request $request)
     {
         $track = session()->get('Track');
-        $data = Deposit::with('gateway', 'tour_booking')->where('status', 0)->where('trx', $track)->first();
+        $data = Deposit::with('gateway', 'tour_booking.tour_package')->where('status', 0)->where('trx', $track)->first();
         if (!$data) {
             return to_route(gatewayRedirectUrl());
         }
@@ -309,6 +326,16 @@ class PaymentController extends Controller
             'rate' => showAmount($data->rate),
             'trx' => $data->trx
         ]);
+
+        // The account exists as soon as the guest submits, regardless of
+        // payment method - manual payments sit pending until an admin
+        // reviews them, which could be indefinite, so this can't wait for
+        // that approval step the way the online-gateway path waits for
+        // userDataUpdate(). See userDataUpdate()'s matching !$isManual
+        // guard, which skips re-sending this on approval.
+        if ($data->tour_booking->guest_signup) {
+            self::sendGuestSignupNotification($data->user, $data->tour_booking);
+        }
 
         $notify[] = ['success', 'You have payment request has been taken'];
         return to_route(gatewayRedirectUrl(true))->withNotify($notify);
