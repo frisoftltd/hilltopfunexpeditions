@@ -528,3 +528,18 @@ li.language { display: none !important; }
         padding-bottom: 74px;
     }
 }
+
+/* Fix: main.css's .btn--success sets text color to the same hue as its
+   background (color: hsl(var(--success)) on a hsl(var(--success)) bg),
+   making the label invisible - every sibling .btn--* variant (danger,
+   base, base-two) uses white text against its colored background
+   instead. Affects every "approve"-style button site-wide (KYC,
+   deposits, withdrawals, agency booking review), not just one page. */
+.btn--success {
+    color: hsl(var(--white));
+}
+.btn--success:hover,
+.btn--success:active,
+.btn--success:focus {
+    color: hsl(var(--white)) !important;
+}
