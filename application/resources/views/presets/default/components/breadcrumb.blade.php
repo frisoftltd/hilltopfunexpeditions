@@ -1,5 +1,5 @@
 <!-- Breadcrumb Start Here -->
-<div class="breadcrumb m-0">
+<div class="breadcrumb m-0 {{ Route::is('browse') ? 'breadcrumb--compact' : '' }}">
     <div class="bg--thumb-one position-absolute">
         <img src="{{ asset($activeTemplateTrue . 'images/shape/shape-1.png')  }}" alt="@lang('image')">
     </div>

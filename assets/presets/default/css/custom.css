@@ -581,3 +581,18 @@ li.language { display: none !important; }
     flex-shrink: 0;
     min-width: 100px;
 }
+
+/* Browse page ("Choose Your Tour") header - the shared .breadcrumb
+   component (used site-wide on every non-home page) has a very tall
+   145px/80px top/bottom padding and a 48px heading, which reads as
+   oversized and overly spacious specifically here. Scoped to this one
+   page only (breadcrumb.blade.php adds this class when Route::is(
+   'browse')) rather than changing .breadcrumb/.breadcrumb--title
+   globally, since every other page's header is unaffected by this
+   request. */
+.breadcrumb--compact {
+    padding: 60px 0 30px 0;
+}
+.breadcrumb--compact .breadcrumb--title {
+    font-size: 28px;
+}

@@ -19,7 +19,7 @@
     <link rel="stylesheet" href="{{asset($activeTemplateTrue . 'css/magnific-popup.css')}}">
     <link rel="stylesheet" href="{{asset('assets/admin/css/select2.min.css')}}">
     <link rel="stylesheet" href="{{asset($activeTemplateTrue . 'css/main.css')}}">
-    <link rel="stylesheet" href="{{asset($activeTemplateTrue . 'css/custom.css?v=1785147632')}}">
+    <link rel="stylesheet" href="{{asset($activeTemplateTrue . 'css/custom.css?v=1785150578')}}">
 
     @stack('style-lib')
     @stack('style')
@@ -56,7 +56,7 @@
     <script src="{{ asset($activeTemplateTrue . 'js/gsap.min.js') }}"></script>
     <script src="{{ asset($activeTemplateTrue . 'js/gsap-scroll-trigger.js') }}"></script>
     
-    <script src="{{ asset($activeTemplateTrue . 'js/main.js') }}"></script>
+    <script src="{{ asset($activeTemplateTrue . 'js/main.js?v=1785150386') }}"></script>
 
     @stack('script-lib')
     @stack('script')

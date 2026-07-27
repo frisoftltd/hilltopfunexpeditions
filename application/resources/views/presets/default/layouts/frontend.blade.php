@@ -24,7 +24,7 @@
     <link rel="stylesheet" href="{{ asset('assets/admin/css/datepicker.min.css') }}">
 
     <link rel="stylesheet" href="{{ asset($activeTemplateTrue . 'css/main.css') }}">
-    <link rel="stylesheet" href="{{ asset($activeTemplateTrue . 'css/custom.css?v=1785147632') }}">
+    <link rel="stylesheet" href="{{ asset($activeTemplateTrue . 'css/custom.css?v=1785150578') }}">
 
     @stack('style-lib')
     @stack('style')
@@ -65,7 +65,7 @@
 
     <script src="{{ asset('assets/admin/js/select2.min.js') }}"></script>
     <script src="{{ asset('assets/admin/js/datepicker.min.js') }}"></script>
-    <script src="{{ asset($activeTemplateTrue . 'js/main.js') }}"></script>
+    <script src="{{ asset($activeTemplateTrue . 'js/main.js?v=1785150386') }}"></script>
 
     @stack('script-lib')
     @stack('script')
