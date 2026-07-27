@@ -10,6 +10,12 @@
     $pages = App\Models\Page::where('tempname', $activeTemplate)
         ->whereRaw('LOWER(TRIM(name)) != ?', ['tours'])
         ->get();
+    // Home is itself a Page record (slug '/') mixed into the same
+    // collection, ordered wherever its row id happens to fall - pulled
+    // out here so nav order is deliberately Home, Tours, then the rest,
+    // instead of whatever order rows were created in.
+    $homePage = $pages->firstWhere('slug', '/');
+    $pages = $pages->reject(fn($page) => $page->slug === '/');
     $currentLang = $languages->firstWhere('code', session('lang', 'en'));
 
 @endphp
@@ -38,6 +44,14 @@
                 <div class="menu--wrap d-flex align-items-center gap--72">
                     <div class="menu-list-wrapper">
                         <ul class="main-menu">
+                            @if ($homePage)
+                                <li>
+                                    <a class="{{ Request::url() == url($homePage->slug) ? 'active' : '' }}"
+                                        href="{{ route('pages', [$homePage->slug]) }}">
+                                        {{ __($homePage->name) }}
+                                    </a>
+                                </li>
+                            @endif
                             <li>
                                 <a class="{{ Request::routeIs('browse') ? 'active' : '' }}"
                                     href="{{ route('browse') }}">
@@ -141,6 +155,14 @@
             @endauth
         </div>
         <ul class="side-Nav">
+            @if ($homePage)
+                <li>
+                    <a class="{{ Request::url() == url($homePage->slug) ? 'active' : '' }}"
+                        href="{{ route('pages', [$homePage->slug]) }}" aria-current="page">
+                        {{ __($homePage->name) }}
+                    </a>
+                </li>
+            @endif
             @foreach ($pages as $page)
                 <li>
                     <a class="{{ Request::url() == url($page->slug) ? 'active' : '' }}"
