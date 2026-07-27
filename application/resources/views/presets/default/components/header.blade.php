@@ -2,7 +2,6 @@
     $languages = App\Models\Language::all();
     $pages = App\Models\Page::where('tempname', $activeTemplate)->get();
     $currentLang = $languages->firstWhere('code', session('lang', 'en'));
-    $navCategories = App\Models\Category::where('status', 1)->get();
 
 @endphp
 
@@ -30,24 +29,12 @@
                 <div class="menu--wrap d-flex align-items-center gap--72">
                     <div class="menu-list-wrapper">
                         <ul class="main-menu">
-                            @if ($navCategories->isNotEmpty())
-                                <li class="dropdown">
-                                    <a class="dropdown-toggle {{ Request::routeIs('browse') ? 'active' : '' }}"
-                                        href="javascript:void(0)" data-bs-toggle="dropdown" aria-expanded="false">
-                                        @lang('Tours')
-                                    </a>
-                                    <ul class="dropdown-menu">
-                                        @foreach ($navCategories as $category)
-                                            <li>
-                                                <a class="dropdown-item"
-                                                    href="{{ route('browse', ['category_id' => $category->id]) }}">
-                                                    {{ __($category->name) }}
-                                                </a>
-                                            </li>
-                                        @endforeach
-                                    </ul>
-                                </li>
-                            @endif
+                            <li>
+                                <a class="{{ Request::routeIs('browse') ? 'active' : '' }}"
+                                    href="{{ route('browse') }}">
+                                    @lang('Tours')
+                                </a>
+                            </li>
                             @foreach ($pages as $page)
                                 <li>
                                     <a class="{{ Request::url() == url($page->slug) ? 'active' : '' }}"
