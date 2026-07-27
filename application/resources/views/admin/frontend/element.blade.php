@@ -109,7 +109,7 @@
                                 <label>{{ __(keyToTitle($selectName)) }}</label>
                                 <select class="form-control" name="{{ $selectName }}" required>
                                     @foreach ($content->options as $selectItemKey => $selectOption)
-                                    <option value="{{ $selectItemKey }}" @if ($data->data_values->$selectName ==
+                                    <option value="{{ $selectItemKey }}" @if (($data?->data_values->$selectName ?? '') ==
                                         $selectItemKey) selected @endif>
                                         {{ __($selectOption) }}</option>
                                     @endforeach

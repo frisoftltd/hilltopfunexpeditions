@@ -28,7 +28,7 @@
                                                         <div class="thumb">
                                                             <div class="avatar-preview">
                                                                 <div class="profilePicPreview"
-                                                                    style="background-image: url({{ getImage('assets/images/frontend/' . $key . '/' . $content->data_values->$imgKey, $section->content->images->$imgKey->size) }})">
+                                                                    style="background-image: url({{ getImage('assets/images/frontend/' . $key . '/' . ($content->data_values->$imgKey ?? ''), $section->content->images->$imgKey->size) }})">
                                                                     <button type="button" class="remove-image"><i
                                                                             class="fa fa-times"></i></button>
                                                                 </div>
@@ -75,14 +75,14 @@
                                                 <div class="col-md-12">
                                                     <div class="form-group">
                                                         <label>{{ __(keyToTitle($k)) }}</label>
-                                                        <textarea rows="10" class="form-control" name="{{ $k }}" required>{{ $content->data_values->$k }}</textarea>
+                                                        <textarea rows="10" class="form-control" name="{{ $k }}" required>{{ $content->data_values->$k ?? '' }}</textarea>
                                                     </div>
                                                 </div>
                                             @elseif($item == 'textarea-rich')
                                                 <div class="col-md-12">
                                                     <div class="form-group">
                                                         <label>{{ __(keyToTitle($k)) }}</label>
-                                                        <textarea rows="10" class="form-control trumEdit" name="{{ $k }}">{{ $content->data_values->$k }}</textarea>
+                                                        <textarea rows="10" class="form-control trumEdit" name="{{ $k }}">{{ $content->data_values->$k ?? '' }}</textarea>
                                                     </div>
                                                 </div>
                                             @elseif($k == 'select')
@@ -95,7 +95,7 @@
                                                         <select class="form-control" name="{{ $selectName }}">
                                                             @foreach ($item->options as $selectItemKey => $selectOption)
                                                                 <option value="{{ $selectItemKey }}"
-                                                                    @if ($content->data_values->$selectName == $selectItemKey) selected @endif>
+                                                                    @if (($content->data_values->$selectName ?? '') == $selectItemKey) selected @endif>
                                                                     {{ $selectOption }}</option>
                                                             @endforeach
                                                         </select>
