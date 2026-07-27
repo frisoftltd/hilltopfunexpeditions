@@ -21,7 +21,7 @@
                             <th>@lang('Next Booking')</th>
                             <th>@lang('Bookings')</th>
                             <th>@lang('Tour Status')</th>
-                            <th>@lang('Booking Status')</th>
+                            <th>@lang('Total Bookings')</th>
                             <th>@lang('Action')</th>
                         </tr>
                     </thead>
@@ -46,8 +46,8 @@
                                 <td class="text-center" data-label="@lang('Tour Status')">
                                     @php echo ($item->statusBadge($item->status)) @endphp
                                 </td>
-                                <td class="text-center" data-label="@lang('Status')">
-                                    @php echo ($item->tourPositionBadge()) @endphp
+                                <td class="text-center" data-label="@lang('Total Bookings')">
+                                    {{ $item->tour_bookings->count() }}
                                 </td>
 
                                 <td data-label="@lang('Action')">

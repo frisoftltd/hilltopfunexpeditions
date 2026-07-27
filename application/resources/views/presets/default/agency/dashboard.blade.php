@@ -194,7 +194,7 @@
                             <th>@lang('Next Booking')</th>
                             <th>@lang('Bookings')</th>
                             <th>@lang('Tour Status')</th>
-                            <th>@lang('Booking Status')</th>
+                            <th>@lang('Total Bookings')</th>
                             <th>@lang('Action')</th>
                         </tr>
                     </thead>
@@ -218,14 +218,14 @@
                                     {{ $item->tour_bookings->where('status', 1)->where('start_date', '>=', now())->sortBy('start_date')->first()?->start_date?->format('M d, Y') ?? '—' }}
                                 </td>
                                 <td class="text-center" data-label="@lang('Bookings')">
-                                    {{ $item->tour_bookings->where('status', 1)->sum('party_size') }}
+                                    {{ $item->tour_bookings->where('status', '!=', 3)->sum('party_size') }}
                                 </td>
 
                                 <td class="text-center" data-label="@lang('Tour Status')">
                                     @php echo ($item->statusBadge($item->status)) @endphp
                                 </td>
-                                <td class="text-center" data-label="@lang('Status')">
-                                    @php echo ($item->tourPositionBadge()) @endphp
+                                <td class="text-center" data-label="@lang('Total Bookings')">
+                                    {{ $item->tour_bookings->count() }}
                                 </td>
 
                                 <td data-label="@lang('Action')">
