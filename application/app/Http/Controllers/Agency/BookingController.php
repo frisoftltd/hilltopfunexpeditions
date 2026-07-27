@@ -79,7 +79,7 @@ class BookingController extends Controller
     public function decline(Request $request, $id)
     {
         $request->validate([
-            'reason' => 'nullable|string|max:255',
+            'reason' => 'nullable|string|max:1000',
         ]);
 
         $bookingDetails = TourBooking::with(['user', 'tour_package'])
@@ -89,6 +89,7 @@ class BookingController extends Controller
             ->firstOrFail();
 
         $bookingDetails->agency_status = 2;
+        $bookingDetails->decline_reason = $request->reason;
         $bookingDetails->save();
 
         notify($bookingDetails->user, 'BOOKING_DECLINED', [

@@ -174,20 +174,29 @@
                         @lang('Review Status'):
                         <span class="fw--500">@php echo $bookingDetails->agencyStatusBadge() @endphp</span>
                     </li>
+
+                    @if ($bookingDetails->agency_status == 2 && $bookingDetails->decline_reason)
+                        <li class="list-group-item p-0 border-0 d-flex justify-content-between align-items-center">
+                            @lang('Decline Reason'):
+                            <span class="fw--500">{{ $bookingDetails->decline_reason }}</span>
+                        </li>
+                    @endif
                 </ul>
 
                 @if (is_null($bookingDetails->agency_status))
-                    <div class="d-flex gap--12">
-                        <form action="{{ route('agency.tour.package.booking.approve', $bookingDetails->id) }}" method="POST" class="flex-fill">
-                            @csrf
-                            <button type="submit" class="btn btn--success w--100 pills" style="color: #ffffff !important;">@lang('Approve')</button>
-                        </form>
-                        <form action="{{ route('agency.tour.package.booking.decline', $bookingDetails->id) }}" method="POST" class="flex-fill">
-                            @csrf
-                            <input type="hidden" name="reason" value="">
-                            <button type="submit" class="btn btn--danger w--100 pills">@lang('Decline')</button>
-                        </form>
-                    </div>
+                    <form action="{{ route('agency.tour.package.booking.approve', $bookingDetails->id) }}" method="POST" class="mb-3">
+                        @csrf
+                        <button type="submit" class="btn btn--success w--100 pills" style="color: #ffffff !important;">@lang('Approve')</button>
+                    </form>
+                    <form action="{{ route('agency.tour.package.booking.decline', $bookingDetails->id) }}" method="POST">
+                        @csrf
+                        <div class="form-group mb-2">
+                            <label class="form--label">@lang('Decline Reason (optional)')</label>
+                            <textarea name="reason" class="form--control form-control" rows="2" maxlength="1000"
+                                placeholder="@lang('Let the tourist know why, if you want to')"></textarea>
+                        </div>
+                        <button type="submit" class="btn btn--danger w--100 pills">@lang('Decline')</button>
+                    </form>
                 @endif
             </div>
         </div>
