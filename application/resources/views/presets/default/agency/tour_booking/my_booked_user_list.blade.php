@@ -37,8 +37,8 @@
                     </div>
                 </div>
             </form>
-            <div class="base--card radius--20">
-                <table class="table table--responsive--lg">
+            <div class="base--card radius--20 table-responsive">
+                <table class="table table--responsive--lg booking-user-list-table">
                     <thead>
                         <tr>
                             <th>@lang('SI')</th>
@@ -59,7 +59,8 @@
                             <tr>
                                 <td data-label="@lang('SI')"><span>{{ $loop->iteration }}</span></td>
 
-                                <td class="text-center" data-label="@lang('Full Name')">
+                                <td class="text-center col-truncate" data-label="@lang('Full Name')"
+                                    title="{{ $item->user->fullname }}">
                                     {{ $item->user->fullname }}
                                 </td>
 
@@ -75,7 +76,8 @@
                                     {{ $general->cur_sym . $item->price }}
                                 </td>
 
-                                <td class="text-center" data-label="@lang('Email')">
+                                <td class="text-center col-truncate" data-label="@lang('Email')"
+                                    title="{{ $item->user->email }}">
                                     {{ $item->user->email }}
                                 </td>
                                 <td data-label="@lang('Phone')">

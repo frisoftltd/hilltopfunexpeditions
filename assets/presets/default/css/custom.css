@@ -549,3 +549,22 @@ li.language { display: none !important; }
 .btn--warning:focus {
     color: hsl(var(--white)) !important;
 }
+
+/* Agency booking-user-list table - Email/Full Name were wrapping onto
+   multiple lines at normal laptop width, making rows tall and the
+   table hard to scan. Phone is never truncated (nowrap only - hiding
+   digits of a number someone needs to call would be actively harmful);
+   Email/Full Name get a capped width + ellipsis, with the full value
+   still in a title attribute for a hover tooltip and still selectable/
+   copyable in the DOM (CSS-only clipping, not a server-side cut). The
+   card wrapper gained .table-responsive so the table can scroll
+   horizontally instead of breaking page layout if a row still needs
+   more room than the viewport has. */
+.booking-user-list-table td {
+    white-space: nowrap;
+}
+.booking-user-list-table .col-truncate {
+    max-width: 180px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}

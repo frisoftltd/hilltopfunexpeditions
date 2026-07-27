@@ -19,7 +19,7 @@
     <link rel="stylesheet" href="{{asset($activeTemplateTrue . 'css/magnific-popup.css')}}">
     <link rel="stylesheet" href="{{asset('assets/admin/css/select2.min.css')}}">
     <link rel="stylesheet" href="{{asset($activeTemplateTrue . 'css/main.css')}}">
-    <link rel="stylesheet" href="{{asset($activeTemplateTrue . 'css/custom.css?v=1785145692')}}">
+    <link rel="stylesheet" href="{{asset($activeTemplateTrue . 'css/custom.css?v=1785146971')}}">
 
     @stack('style-lib')
     @stack('style')

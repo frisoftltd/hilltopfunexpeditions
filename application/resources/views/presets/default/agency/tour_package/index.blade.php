@@ -32,7 +32,7 @@
 
     <div class="row gy-4 mb-4">
         <div class="col-lg-12">
-            <div class="base--card radius--20">
+            <div class="base--card radius--20 table-responsive">
                 <table class="table table--responsive--lg">
                     <thead>
                         <tr>

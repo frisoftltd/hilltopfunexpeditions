@@ -24,7 +24,7 @@
     <link rel="stylesheet" href="{{ asset('assets/admin/css/datepicker.min.css') }}">
 
     <link rel="stylesheet" href="{{ asset($activeTemplateTrue . 'css/main.css') }}">
-    <link rel="stylesheet" href="{{ asset($activeTemplateTrue . 'css/custom.css?v=1785145692') }}">
+    <link rel="stylesheet" href="{{ asset($activeTemplateTrue . 'css/custom.css?v=1785146971') }}">
 
     @stack('style-lib')
     @stack('style')
