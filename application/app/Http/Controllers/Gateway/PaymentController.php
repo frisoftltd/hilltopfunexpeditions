@@ -231,38 +231,17 @@ class PaymentController extends Controller
                 'tour_stay' => $tourBooking->tour_package->day_nights,
             ]);
 
-            // Diagnostic for the "agency never gets TOUR_BOOKED" report -
-            // logs exactly who this resolves to before sending, and never
-            // lets a failure here (e.g. owner_id/owner_type pointing at a
-            // deleted or mismatched record) break the tourist's own
-            // payment-success flow, which everything above this point
-            // already completed successfully.
-            try {
-                $ownerName = ($tourBooking->owner_type == "agency") ? Agency::findOrFail($tourBooking->owner_id) : Admin::findOrFail($tourBooking->owner_id);
-
-                Log::info('Sending TOUR_BOOKED notification', [
-                    'tour_booking_id' => $tourBooking->id,
-                    'owner_type' => $tourBooking->owner_type,
-                    'owner_id' => $tourBooking->owner_id,
-                    'resolved_recipient_class' => get_class($ownerName),
-                    'resolved_recipient_id' => $ownerName->id,
-                    'resolved_recipient_email' => $ownerName->email,
-                ]);
-
-                notify($ownerName, 'TOUR_BOOKED', [
-                    'tour_title' => $tourBooking->tour_package->title,
-                    'first_name' => $tourBooking->user->firstname,
-                    'last_name' => $tourBooking->user->lastname,
-                    'email' => $tourBooking->user->email,
-                    'phone' => $tourBooking->phone ?? $tourBooking->user->mobile
-                ]);
-            } catch (\Exception $e) {
-                Log::error('TOUR_BOOKED notification failed', [
-                    'tour_booking_id' => $tourBooking->id,
-                    'owner_type' => $tourBooking->owner_type,
-                    'owner_id' => $tourBooking->owner_id,
-                    'exception' => $e->getMessage(),
-                ]);
+            // Manual payments already send TOUR_BOOKED from
+            // manualDepositUpdate() at submission time (see
+            // sendTourBookedNotification() below) - same reasoning as the
+            // guest_signup guard right below: admin approval (the only way
+            // $isManual is true here) can be arbitrarily delayed or never
+            // happen, and the agency's own review workflow needs to know
+            // about a booking as soon as it's submitted, not once its
+            // payment is separately approved. Guard here so approval
+            // doesn't send a second one.
+            if (!$isManual) {
+                self::sendTourBookedNotification($tourBooking);
             }
 
             // Manual payments already send this from manualDepositUpdate() at
@@ -274,6 +253,53 @@ class PaymentController extends Controller
             if ($tourBooking->guest_signup && !$isManual) {
                 self::sendGuestSignupNotification($user, $tourBooking);
             }
+        }
+    }
+
+    /**
+     * Shared by userDataUpdate() (online-gateway success) and
+     * manualDepositUpdate() (manual/bank-transfer submission) - notifies
+     * whoever owns the tour package (agency or admin) that a booking came
+     * in. Fires at submission time for manual payments rather than waiting
+     * for admin approval of the deposit (see the !$isManual guard in
+     * userDataUpdate()) - the agency's own approve/decline review is
+     * independent of payment status, so they need to know about the
+     * booking immediately, the same way GUEST_BOOKING_WELCOME couldn't
+     * wait on deposit approval either.
+     *
+     * Diagnostic logging kept from the "agency never gets TOUR_BOOKED"
+     * investigation - logs exactly who this resolves to before sending,
+     * and never lets a failure here (e.g. owner_id/owner_type pointing at
+     * a deleted or mismatched record) break the caller's own flow.
+     */
+    protected static function sendTourBookedNotification($tourBooking)
+    {
+        try {
+            $ownerName = ($tourBooking->owner_type == "agency") ? Agency::findOrFail($tourBooking->owner_id) : Admin::findOrFail($tourBooking->owner_id);
+
+            Log::info('Sending TOUR_BOOKED notification', [
+                'tour_booking_id' => $tourBooking->id,
+                'owner_type' => $tourBooking->owner_type,
+                'owner_id' => $tourBooking->owner_id,
+                'resolved_recipient_class' => get_class($ownerName),
+                'resolved_recipient_id' => $ownerName->id,
+                'resolved_recipient_email' => $ownerName->email,
+            ]);
+
+            notify($ownerName, 'TOUR_BOOKED', [
+                'tour_title' => $tourBooking->tour_package->title,
+                'first_name' => $tourBooking->user->firstname,
+                'last_name' => $tourBooking->user->lastname,
+                'email' => $tourBooking->user->email,
+                'phone' => $tourBooking->phone ?? $tourBooking->user->mobile
+            ]);
+        } catch (\Exception $e) {
+            Log::error('TOUR_BOOKED notification failed', [
+                'tour_booking_id' => $tourBooking->id,
+                'owner_type' => $tourBooking->owner_type,
+                'owner_id' => $tourBooking->owner_id,
+                'exception' => $e->getMessage(),
+            ]);
         }
     }
 
@@ -320,7 +346,7 @@ class PaymentController extends Controller
     public function manualDepositUpdate(Request $request)
     {
         $track = session()->get('Track');
-        $data = Deposit::with('gateway', 'tour_booking.tour_package')->where('status', 0)->where('trx', $track)->first();
+        $data = Deposit::with('gateway', 'tour_booking.tour_package', 'tour_booking.user')->where('status', 0)->where('trx', $track)->first();
         if (!$data) {
             return to_route(gatewayRedirectUrl());
         }
@@ -367,6 +393,16 @@ class PaymentController extends Controller
         if ($data->tour_booking->guest_signup) {
             self::sendGuestSignupNotification($data->user, $data->tour_booking);
         }
+
+        // Same reasoning as guest_signup above: TOUR_BOOKED used to live
+        // only in userDataUpdate(), which manual payments don't reach
+        // until (and unless) an admin separately approves the deposit -
+        // confirmed via a real test booking that produced zero log
+        // entries for the notification at all, meaning that code path
+        // simply never ran. The agency's own approve/decline review
+        // (agency_status) needs to know about the booking as soon as it's
+        // submitted, not once its payment happens to get reviewed too.
+        self::sendTourBookedNotification($data->tour_booking);
 
         $notify[] = ['success', 'You have payment request has been taken'];
         return to_route(gatewayRedirectUrl(true))->withNotify($notify);
