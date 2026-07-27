@@ -163,6 +163,12 @@
                     </a>
                 </li>
             @endif
+            <li>
+                <a class="{{ Request::routeIs('browse') ? 'active' : '' }}"
+                    href="{{ route('browse') }}" aria-current="page">
+                    @lang('Tours')
+                </a>
+            </li>
             @foreach ($pages as $page)
                 <li>
                     <a class="{{ Request::url() == url($page->slug) ? 'active' : '' }}"
