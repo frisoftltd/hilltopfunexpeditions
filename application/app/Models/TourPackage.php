@@ -101,16 +101,6 @@ class TourPackage extends Model
         return $this->where('status', 0);
     }
 
-    public function scopeRunning()
-    {
-        return $this->where('status', 2);
-    }
-    
-    public function scopeExpired()
-    {
-        return $this->where('status', 3);
-    }
-
     public function scopeAdminAll($query)
     {
         return $query->where('user_type', 'admin')->where('user_id', auth('admin')->id());
@@ -153,53 +143,17 @@ class TourPackage extends Model
         return $this->where('status', 0)->where('user_type', 'agency')->where('user_id', auth('agency')->id());
     }
 
+    /**
+     * Tours have no departures/seat caps and are always bookable once
+     * live - status is a plain on/off switch, not a lifecycle. 1 = Active
+     * (visible/bookable, see SiteController::tourPackageList()), anything
+     * else = Inactive (hidden from search).
+     */
     public function statusBadge($status)
     {
-        $html = '';
-        if ($this->status == 1) {
-            $html = '<span class="badge badge--success">' . trans('Active') . '</span>';
-        } elseif ($this->status == 2) {
-            $html = '<span class="badge badge--success">' . trans('Running') . '</span>';
-        } elseif ($this->status == 3) {
-            $html = '<span class="badge badge--danger">' . trans('Expired') . '</span>';
-        } else {
-            $html = '<span class="badge badge--warning">' . trans('Pending') . '</span>';
+        if ($status == 1) {
+            return '<span class="badge badge--success">' . trans('Active') . '</span>';
         }
-        return $html;
-    }
-
-
-    public function statusTourPositionBadge($status)
-    {
-        $html = '';
-        if ($this->person_capability <= $this->booking_person) {
-            $html = '<span class="badge badge--success">' . trans('House Full') . '</span>';
-        } elseif ($this->person_capability > $this->booking_person) {
-            $html = '<span class="badge badge--success">' . trans('Seats Available') . '</span>';
-        }
-
-        return $html;
-    }
-
-    public function tourPositionBadge()
-    {
-        $html = '';
-        if ($this->person_capability <= $this->booking_person) {
-            $html = '<span class="badge badge--success">' . trans('Completed') . '</span>';
-        } elseif ($this->person_capability > $this->booking_person) {
-            $html = '<span class="badge badge--success">' . trans('Seats Available') . '</span>';
-        }
-        return $html;
-    }
-
-    public function adminTourPositionBadge()
-    {
-        $html = '';
-        if ($this->person_capability <= $this->booking_person) {
-            $html = '<span class="badge badge--success">' . trans('Completed') . '</span>';
-        } elseif ($this->person_capability > $this->booking_person) {
-            $html = '<span class="badge badge--success">' . trans('Seats Available') . '</span>';
-        }
-        return $html;
+        return '<span class="badge badge--warning">' . trans('Inactive') . '</span>';
     }
 }
