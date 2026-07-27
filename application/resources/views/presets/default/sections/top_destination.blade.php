@@ -1,6 +1,6 @@
 @php
     $topDestinationContent = getContent('top_destination.content', true);
-    $topDestinations = App\Models\Location::where('status', 1)->limit(5)->orderBy('id', 'asc')->get();
+    $topDestinations = App\Models\Location::where('status', 1)->orderBy('id', 'asc')->get();
 @endphp
 <section class="location--section py-100 position-relative">
     <div class="bg--element position-absolute">
@@ -30,7 +30,7 @@
 
         <div class="row">
             <div class="col-lg-12">
-                <div class="location--card__wrap d-flex gap--20 flex-wrap justify-content-center">
+                <div class="location--card__wrap location-slider">
                     @foreach ($topDestinations ?? [] as $item)
                         <a href="{{ route('browse', ['destination' => $item->name]) }}"
                             class="location__card radius--20 overflow-hidden position-relative {{ $loop->iteration == 3 ? 'active' : '' }}">

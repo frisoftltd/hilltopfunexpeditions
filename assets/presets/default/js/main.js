@@ -230,6 +230,25 @@
     ],
   });
 
+  // location cards slider ("Locations to Explore") - cards keep their
+  // own fixed width (main.css .location__card), so variableWidth lets
+  // slick fit as many as the viewport allows instead of forcing a slide
+  // count that would fight that fixed width.
+  $(".location-slider").slick({
+    dots: false,
+    infinite: true,
+    speed: 300,
+    variableWidth: true,
+    slidesToScroll: 1,
+    arrows: true,
+    autoplay: true,
+    autoplaySpeed: 3000,
+    prevArrow:
+      '<button type="button" class="slick-prev"><i class="fas fa-chevron-left"></i></button>',
+    nextArrow:
+      '<button type="button" class="slick-next"><i class="fas fa-chevron-right"></i></button>',
+  });
+
   // toggle show hide password
   $(".toggle-password-change").on("click", function () {
     var targetId = $(this).data("target");
