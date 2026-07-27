@@ -9,6 +9,13 @@
     $itineraryNextIndex = empty($itineraryList) ? 0 : max(array_keys($itineraryList)) + 1;
 @endphp
 @section('content')
+    <div class="row mb-3">
+        <div class="col-lg-12">
+            <a href="{{ route('agency.tour.package.my.list') }}" class="btn btn-md btn--base pills">
+                <i class="la la-arrow-left"></i> @lang('Back to Tour Package List')
+            </a>
+        </div>
+    </div>
     <div class="row justify-content-center">
         <div class="col-lg-12">
             <div class="base--card">

@@ -519,6 +519,12 @@
 
 @endsection
 
+@push('breadcrumb-plugins')
+    <a href="{{ route('admin.tour.package.index') }}" class="btn btn-sm btn--primary">
+        <i class="la la-arrow-left"></i> @lang('Back to Tour Package List')
+    </a>
+@endpush
+
 @push('style')
 <style>
     .ck.ck-editor__main>.ck-editor__editable {
