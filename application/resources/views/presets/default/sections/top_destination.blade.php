@@ -32,7 +32,7 @@
             <div class="col-lg-12">
                 <div class="location--card__wrap d-flex gap--20 flex-wrap justify-content-center">
                     @foreach ($topDestinations ?? [] as $item)
-                        <a href="{{ route('browse') }}?lati={{ $item->latitude }}&longi={{ $item->longitude }}"
+                        <a href="{{ route('browse', ['destination' => $item->name]) }}"
                             class="location__card radius--20 overflow-hidden position-relative {{ $loop->iteration == 3 ? 'active' : '' }}">
                             <div class="location__card-thumb position-relative w--100 h--100">
                                 <img class="fit--img" src="{{ getImage(getFilePath('location') . '/' . $item->image) }}"
