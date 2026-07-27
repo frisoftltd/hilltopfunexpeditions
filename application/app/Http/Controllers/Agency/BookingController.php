@@ -120,22 +120,50 @@ class BookingController extends Controller
 
     public function userList(Request $request, $id)
     {
+        return $this->userBookingList($request, $id);
+    }
+
+    public function userListPending(Request $request, $id)
+    {
+        return $this->userBookingList($request, $id, 'pending');
+    }
+
+    public function userListApproved(Request $request, $id)
+    {
+        return $this->userBookingList($request, $id, 'approved');
+    }
+
+    public function userListDeclined(Request $request, $id)
+    {
+        return $this->userBookingList($request, $id, 'declined');
+    }
+
+    /**
+     * Mirrors tourPackageData()'s scope-per-tab pattern, but filtering
+     * individual bookings by agency_status (the agency's own review layer)
+     * instead of the package-level status - so past decisions (approved/
+     * declined) stay reachable instead of disappearing once reviewed.
+     */
+    protected function userBookingList(Request $request, $id, $reviewFilter = null)
+    {
         $pageTitle = 'User Booking-List';
-        $tourBookings = TourBooking::with('user', 'tour_package', 'priceCategory')->where('tour_package_id', $id)->where('owner_id', auth('agency')->id())
+
+        $tourBookings = TourBooking::with('user', 'tour_package', 'priceCategory')
+            ->where('tour_package_id', $id)
+            ->where('owner_id', auth('agency')->id())
             ->where('owner_type', 'agency')
+            ->when($reviewFilter === 'pending', fn ($query) => $query->whereNull('agency_status'))
+            ->when($reviewFilter === 'approved', fn ($query) => $query->where('agency_status', 1))
+            ->when($reviewFilter === 'declined', fn ($query) => $query->where('agency_status', 2))
+            ->when($request->search, function ($query) use ($request) {
+                $search = $request->search;
+                $query->whereHas('user', function ($query) use ($search) {
+                    $query->where('firstname', 'like', "%$search%")->orWhere('lastname', 'like', "%$search%")->orWhere('username', 'like', "%$search%");
+                });
+            })
             ->orderBy('id', 'desc')
             ->paginate(getPaginate());
 
-        if ($request->search) {
-            $search = $request->search;
-            $tourBookings  = TourBooking::with('tour_package', 'user', 'priceCategory')
-                ->whereHas('user', function ($query) use ($search) {
-                    $query->where('firstname', 'like', "%$search%")->orWhere('lastname','like',"%$search%")->orWhere('username','like',"%$search%");
-                })->where('owner_id', auth('agency')->id())
-                ->where('owner_type', 'agency')
-                ->orderBy('id', 'desc')
-                ->paginate(getPaginate());
-        }
-        return view($this->activeTemplate . 'agency.tour_booking.my_booked_user_list', compact('pageTitle', 'tourBookings'));
+        return view($this->activeTemplate . 'agency.tour_booking.my_booked_user_list', compact('pageTitle', 'tourBookings', 'id'));
     }
 }

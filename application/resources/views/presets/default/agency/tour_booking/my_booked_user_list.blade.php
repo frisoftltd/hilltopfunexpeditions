@@ -2,6 +2,24 @@
 @section('content')
     <div class="row gy-4 mb-4">
         <div class="col-lg-12">
+            <ul class="custom--tabs buy-sell d-flex flex-wrap gap--4 z--1 mb-4" role="tablist">
+                <li class="nav-item">
+                    <a href="{{ route('agency.tour.package.booking.user.list', $id) }}"
+                        class="btn nav-link pills {{ Route::is('agency.tour.package.booking.user.list') ? 'active' : '' }}">@lang('All')</a>
+                </li>
+                <li class="nav-item">
+                    <a href="{{ route('agency.tour.package.booking.user.list.pending', $id) }}"
+                        class="btn nav-link pills {{ Route::is('agency.tour.package.booking.user.list.pending') ? 'active' : '' }}">@lang('Pending')</a>
+                </li>
+                <li class="nav-item">
+                    <a href="{{ route('agency.tour.package.booking.user.list.approved', $id) }}"
+                        class="btn nav-link pills {{ Route::is('agency.tour.package.booking.user.list.approved') ? 'active' : '' }}">@lang('Approved')</a>
+                </li>
+                <li class="nav-item">
+                    <a href="{{ route('agency.tour.package.booking.user.list.declined', $id) }}"
+                        class="btn nav-link pills {{ Route::is('agency.tour.package.booking.user.list.declined') ? 'active' : '' }}">@lang('Declined')</a>
+                </li>
+            </ul>
             <form action="" method="GET">
                 <div class="mb-3 d-flex justify-content-end w-25 ms-auto">
                     <div class="input-group">
@@ -24,6 +42,7 @@
                             <th>@lang('Email')</th>
                             <th>@lang('Phone')</th>
                             <th>@lang('Payment Status')</th>
+                            <th>@lang('Review Status')</th>
                             <th>@lang('Action')</th>
 
                         </tr>
@@ -61,6 +80,9 @@
                                     @php
                                         echo ($item->statusPaymentBadge())
                                     @endphp
+                                </td>
+                                <td data-label="@lang('Review Status')">
+                                    @php echo $item->agencyStatusBadge() @endphp
                                 </td>
                                 <td data-label="@lang('Action')">
                                     <a class="btn btn-md btn--base detailBtn action--btn" title="@lang('User List')"href="{{ route('agency.tour.package.booking.details', $item->id) }}">
