@@ -1,7 +1,10 @@
 @php
     $whatWeDoContent = getContent('what_we_do.content', true);
-    $travelerItems = $whatWeDoContent->data_values->traveler_items ?? [];
-    $operatorItems = $whatWeDoContent->data_values->operator_items ?? [];
+    $whatWeDoValues = $whatWeDoContent->data_values ?? null;
+    $whatWeDoTitle = $whatWeDoValues->title ?? '';
+    $whatWeDoHeading = $whatWeDoValues->heading ?? '';
+    $travelerItems = $whatWeDoValues->traveler_items ?? [];
+    $operatorItems = $whatWeDoValues->operator_items ?? [];
 @endphp
 <section class="what-we-do--section py-100 position-relative section--bg">
     <div class="container">
@@ -10,9 +13,9 @@
                 <div class="section-content mb-50">
                     <div class="title-wrap">
                         <h6 class="heading third--font text-center fs--32 fw--700 text--base mb-0">
-                            {{ __($whatWeDoContent->data_values->title) }}</h6>
+                            {{ __($whatWeDoTitle) }}</h6>
                         <h2 class="title text-center mb-3 fs--40 fw--800 wow animate__animated animate__fadeInUp splite-text"
-                            data-splitting data-wow-delay="0.2s">{{ __($whatWeDoContent->data_values->heading) }}</h2>
+                            data-splitting data-wow-delay="0.2s">{{ __($whatWeDoHeading) }}</h2>
                     </div>
                 </div>
             </div>
