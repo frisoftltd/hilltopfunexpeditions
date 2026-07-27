@@ -66,6 +66,11 @@
                                                 </a>
                                             @endif
 
+                                            <a class="btn btn--sm btn--primary detailBtn" title="@lang('Edit Package')"
+                                                href="{{ route('admin.tour.package.edit', $item->id) }}">
+                                                <i class="fas fa-edit"></i>
+                                            </a>
+
                                         </td>
                                     </tr>
                                 @empty

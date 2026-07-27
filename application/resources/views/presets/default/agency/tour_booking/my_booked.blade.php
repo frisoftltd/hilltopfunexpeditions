@@ -55,6 +55,10 @@
                                         href="{{ route('agency.tour.package.booking.user.list', $item->id) }}">
                                         <i class="la la-eye"></i>
                                     </a>
+                                    <a class="btn btn-md btn--base detailBtn action--btn" title="@lang('Edit Package')"
+                                        href="{{ route('agency.tour.package.edit', $item->id) }}">
+                                        <i class="fas fa-edit"></i>
+                                    </a>
                                 </td>
                             </tr>
                         @empty

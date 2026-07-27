@@ -145,3 +145,9 @@
     </div>
     <x-confirmation-modal />
 @endsection
+
+@push('breadcrumb-plugins')
+    <a href="{{ route('admin.tour.package.edit', $bookingDetails->tour_package_id) }}" class="btn btn-sm btn--primary">
+        <i class="fas fa-edit"></i> @lang('Edit Package')
+    </a>
+@endpush

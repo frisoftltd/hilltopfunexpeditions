@@ -1,10 +1,14 @@
 @extends($activeTemplate . 'layouts.agency.master')
 @section('content')
 <div class="row mb-3">
-    <div class="col-lg-12">
+    <div class="col-lg-12 d-flex gap--12">
         <a href="{{ route('agency.tour.package.booking.user.list', $bookingDetails->tour_package_id) }}"
             class="btn btn-md btn--base pills">
             <i class="la la-arrow-left"></i> @lang('Back to List')
+        </a>
+        <a href="{{ route('agency.tour.package.edit', $bookingDetails->tour_package_id) }}"
+            class="btn btn-md btn--base pills">
+            <i class="fas fa-edit"></i> @lang('Edit Package')
         </a>
     </div>
 </div>
