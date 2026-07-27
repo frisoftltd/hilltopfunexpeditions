@@ -60,7 +60,7 @@
                         <h6 class="title fw--700 text-end text--white">
                             {{ __($ourBestOfferContent->data_values->right_heading) }}</h6>
                         <div class="btn--wrap float-end">
-                                     <a href="{{$ourBestOfferContent->data_values->left_button_url}}"
+                                     <a href="{{$ourBestOfferContent->data_values->right_button_url}}"
                                 class="btn btn--dark btn--lg pills">{{ __($ourBestOfferContent->data_values->right_button_name) }}</a>
                         </div>
                     </div>
