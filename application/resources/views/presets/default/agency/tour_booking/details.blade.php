@@ -1,5 +1,13 @@
 @extends($activeTemplate . 'layouts.agency.master')
 @section('content')
+<div class="row mb-3">
+    <div class="col-lg-12">
+        <a href="{{ route('agency.tour.package.booking.user.list', $bookingDetails->tour_package_id) }}"
+            class="btn btn-md btn--base pills">
+            <i class="la la-arrow-left"></i> @lang('Back to List')
+        </a>
+    </div>
+</div>
 <div class="row justify-content-center gy-4">
     <div class="col-lg-6">
 
