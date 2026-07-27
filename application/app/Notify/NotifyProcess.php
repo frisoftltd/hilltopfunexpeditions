@@ -5,6 +5,7 @@ namespace App\Notify;
 use App\Models\AdminNotification;
 use App\Models\NotificationLog;
 use App\Models\NotificationTemplate;
+use Illuminate\Support\Facades\Log;
 
 class NotifyProcess{
 
@@ -185,7 +186,21 @@ class NotifyProcess{
 	    }
 
         //Check email enable
-        if (!$this->template && $this->templateName) return false;
+        if (!$this->template && $this->templateName) {
+            // Silent by design elsewhere (no exception, no error log) -
+            // this is the one place that records why a notify() call sent
+            // nothing at all: either no row exists for this act, or one
+            // does but its status column (email_status/sms_status) is off.
+            // Diagnostic for the TOUR_BOOKED-not-arriving report - kept
+            // generic since every notify() call funnels through here.
+            Log::warning('Notification template not found or disabled for act', [
+                'act' => $this->templateName,
+                'status_field' => $this->statusField,
+                'recipient_class' => $this->user ? get_class($this->user) : null,
+                'recipient_id' => $this->user->id ?? null,
+            ]);
+            return false;
+        }
 
         //set subject to property
         $this->getSubject();

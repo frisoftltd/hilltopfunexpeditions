@@ -17,6 +17,7 @@ use App\Models\AdminNotification;
 use App\Http\Controllers\Controller;
 use App\Traits\SetPasswordLinkGenerator;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Session;
 
 class PaymentController extends Controller
@@ -230,14 +231,39 @@ class PaymentController extends Controller
                 'tour_stay' => $tourBooking->tour_package->day_nights,
             ]);
 
-            $ownerName = ($tourBooking->owner_type == "agency") ? Agency::findOrFail($tourBooking->owner_id) : Admin::findOrFail($tourBooking->owner_id);
-            notify($ownerName, 'TOUR_BOOKED', [
-                'tour_title' => $tourBooking->tour_package->title,
-                'first_name' => $tourBooking->user->firstname,
-                'last_name' => $tourBooking->user->lastname,
-                'email' => $tourBooking->user->email,
-                'phone' => $tourBooking->phone ?? $tourBooking->user->mobile
-            ]);
+            // Diagnostic for the "agency never gets TOUR_BOOKED" report -
+            // logs exactly who this resolves to before sending, and never
+            // lets a failure here (e.g. owner_id/owner_type pointing at a
+            // deleted or mismatched record) break the tourist's own
+            // payment-success flow, which everything above this point
+            // already completed successfully.
+            try {
+                $ownerName = ($tourBooking->owner_type == "agency") ? Agency::findOrFail($tourBooking->owner_id) : Admin::findOrFail($tourBooking->owner_id);
+
+                Log::info('Sending TOUR_BOOKED notification', [
+                    'tour_booking_id' => $tourBooking->id,
+                    'owner_type' => $tourBooking->owner_type,
+                    'owner_id' => $tourBooking->owner_id,
+                    'resolved_recipient_class' => get_class($ownerName),
+                    'resolved_recipient_id' => $ownerName->id,
+                    'resolved_recipient_email' => $ownerName->email,
+                ]);
+
+                notify($ownerName, 'TOUR_BOOKED', [
+                    'tour_title' => $tourBooking->tour_package->title,
+                    'first_name' => $tourBooking->user->firstname,
+                    'last_name' => $tourBooking->user->lastname,
+                    'email' => $tourBooking->user->email,
+                    'phone' => $tourBooking->phone ?? $tourBooking->user->mobile
+                ]);
+            } catch (\Exception $e) {
+                Log::error('TOUR_BOOKED notification failed', [
+                    'tour_booking_id' => $tourBooking->id,
+                    'owner_type' => $tourBooking->owner_type,
+                    'owner_id' => $tourBooking->owner_id,
+                    'exception' => $e->getMessage(),
+                ]);
+            }
 
             // Manual payments already send this from manualDepositUpdate() at
             // submission time, since admin approval (the only way $isManual
