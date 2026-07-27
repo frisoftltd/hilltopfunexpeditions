@@ -126,12 +126,16 @@ trait TourService
 
     public function update(TourPackageRequest $request, $id)
     {
-        $tourPackage =  TourPackage::with('category')->where('id', $id)->first();
+        // Fetched again below (unconditionally, every call) with a
+        // different eager-load that also goes unused in this method -
+        // neither relation is actually read here, so one plain lookup
+        // covers both the existence check and the update itself.
+        $tourPackage = TourPackage::find($id);
         if(!$tourPackage){
             $notify[] = ['error', 'Your tour package id is not valid'];
             return back()->withNotify($notify);
         }
-      
+
         DB::beginTransaction();
         $request->merge([
             'country'   => $request->country   ?: 'Rwanda',
@@ -169,7 +173,6 @@ trait TourService
             $request->exclusions ?? []
         );
 
-        $tourPackage = TourPackage::with('tour_package_images')->findOrFail($id);
         $purifier = new \HTMLPurifier();
         $tourPackage->title = $request->tour_title;
         $tourPackage->address = $request->address;
