@@ -1,5 +1,12 @@
 @extends($activeTemplate . 'layouts.agency.master')
 @section('content')
+    <div class="row mb-3">
+        <div class="col-lg-12">
+            <a href="{{ route('agency.tour.package.booking.my.list') }}" class="btn btn-md btn--base pills">
+                <i class="la la-arrow-left"></i> @lang('Back to Package List')
+            </a>
+        </div>
+    </div>
     <div class="row gy-4 mb-4">
         <div class="col-lg-12">
             <ul class="custom--tabs buy-sell d-flex flex-wrap gap--4 z--1 mb-4" role="tablist">
