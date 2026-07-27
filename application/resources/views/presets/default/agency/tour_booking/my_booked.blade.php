@@ -51,13 +51,9 @@
                                 </td>
 
                                 <td data-label="@lang('Action')">
-                                    <a class="btn btn-md btn--base detailBtn action--btn" title="@lang('Details')"
-                                        href="{{ route('tour.package.details', [$item->id, slug($item->title)]) }}">
+                                    <a class="btn btn-md btn--base detailBtn action--btn" title="@lang('Bookings for this Package')"
+                                        href="{{ route('agency.tour.package.booking.user.list', $item->id) }}">
                                         <i class="la la-eye"></i>
-                                    </a>
-
-                                    <a class="btn btn-md btn--base detailBtn action--btn" title="@lang('User List')"href="{{ route('agency.tour.package.booking.user.list', $item->id) }}">
-                                        <i class="la la-users"></i>
                                     </a>
                                 </td>
                             </tr>
