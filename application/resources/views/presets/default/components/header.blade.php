@@ -1,6 +1,15 @@
 @php
     $languages = App\Models\Language::all();
-    $pages = App\Models\Page::where('tempname', $activeTemplate)->get();
+    // Excludes a leftover "Tours" CMS page - predates the dedicated
+    // route('browse')-based Tours nav item above and duplicated it,
+    // but its own slug never matches the active browse URL, so it
+    // never picked up the active-state underline the real one does -
+    // that mismatch is what made it look like a stray, unstyled entry.
+    // Filtered here rather than deleting the Page record itself, since
+    // that's a content decision, not a template bug.
+    $pages = App\Models\Page::where('tempname', $activeTemplate)
+        ->whereRaw('LOWER(TRIM(name)) != ?', ['tours'])
+        ->get();
     $currentLang = $languages->firstWhere('code', session('lang', 'en'));
 
 @endphp
