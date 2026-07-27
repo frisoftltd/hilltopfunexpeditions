@@ -180,7 +180,7 @@
                     <div class="d-flex gap--12">
                         <form action="{{ route('agency.tour.package.booking.approve', $bookingDetails->id) }}" method="POST" class="flex-fill">
                             @csrf
-                            <button type="submit" class="btn btn--success w--100 pills">@lang('Approve')</button>
+                            <button type="submit" class="btn btn--success w--100 pills" style="color: #ffffff !important;">@lang('Approve')</button>
                         </form>
                         <form action="{{ route('agency.tour.package.booking.decline', $bookingDetails->id) }}" method="POST" class="flex-fill">
                             @csrf
