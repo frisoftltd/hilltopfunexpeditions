@@ -77,6 +77,15 @@
                                         class="btn btn--base btn--sm pills"><i
                                             class="fas fa-edit"></i>
                                     </a>
+                                    <form action="{{ route('agency.tour.package.status.change', $item->id) }}"
+                                        method="POST" class="d-inline-block">
+                                        @csrf
+                                        <button type="submit"
+                                            class="btn btn--sm pills {{ $item->status == 1 ? 'btn--warning' : 'btn--success' }}"
+                                            title="@lang('Toggle Active/Inactive')">
+                                            {{ $item->status == 1 ? __('Deactivate') : __('Activate') }}
+                                        </button>
+                                    </form>
                                 </td>
                             </tr>
                         @empty

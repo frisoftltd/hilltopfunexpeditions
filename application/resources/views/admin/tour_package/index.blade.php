@@ -113,7 +113,17 @@
                                                 <a href="{{ route('admin.tour.package.edit', $item->id) }}"
                                                     class="btn btn--primary btn-sm">
                                                     <i class="fas fa-edit"></i></a>
-                                           
+
+                                                <form action="{{ route('admin.tour.package.status.change', $item->id) }}"
+                                                    method="POST" class="d-inline-block align-middle">
+                                                    @csrf
+                                                    <label class="switch m-0" title="@lang('Active') / @lang('Inactive')">
+                                                        <input type="checkbox" class="toggle-switch"
+                                                            {{ $item->status == 1 ? 'checked' : '' }}
+                                                            onchange="this.form.submit()">
+                                                        <span class="slider round"></span>
+                                                    </label>
+                                                </form>
                                             @endif
                                         </td>
                                     </tr>

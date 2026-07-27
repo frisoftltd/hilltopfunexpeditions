@@ -529,17 +529,23 @@ li.language { display: none !important; }
     }
 }
 
-/* Fix: main.css's .btn--success sets text color to the same hue as its
-   background (color: hsl(var(--success)) on a hsl(var(--success)) bg),
-   making the label invisible - every sibling .btn--* variant (danger,
-   base, base-two) uses white text against its colored background
-   instead. Affects every "approve"-style button site-wide (KYC,
-   deposits, withdrawals, agency booking review), not just one page. */
-.btn--success {
+/* Fix: main.css's .btn--success and .btn--warning both set text color to
+   the same hue as their own background (e.g. color: hsl(var(--success))
+   on a hsl(var(--success)) bg), making the label invisible - every
+   sibling .btn--* variant (danger, base, base-two) uses white text
+   against its colored background instead. .btn--success was found first
+   (agency booking review's Approve button); .btn--warning has the
+   identical bug, caught here before the Tour Package Activate/Deactivate
+   toggle would have shipped a second invisible button. */
+.btn--success,
+.btn--warning {
     color: hsl(var(--white));
 }
 .btn--success:hover,
 .btn--success:active,
-.btn--success:focus {
+.btn--success:focus,
+.btn--warning:hover,
+.btn--warning:active,
+.btn--warning:focus {
     color: hsl(var(--white)) !important;
 }
