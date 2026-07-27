@@ -105,26 +105,28 @@
                                             @endphp
                                         </td>
                                         <td>
-                                            <a href="{{ route('tour.package.details', [$item->id, slug($item->title)]) }}"
-                                                class="btn btn--primary btn-sm">
-                                                <i class="fas fa-eye"></i></a>
-
-                                            @if ($item->user_type == 'admin')
-                                                <a href="{{ route('admin.tour.package.edit', $item->id) }}"
+                                            <div class="d-flex align-items-center flex-nowrap gap-2">
+                                                <a href="{{ route('tour.package.details', [$item->id, slug($item->title)]) }}"
                                                     class="btn btn--primary btn-sm">
-                                                    <i class="fas fa-edit"></i></a>
+                                                    <i class="fas fa-eye"></i></a>
 
-                                                <form action="{{ route('admin.tour.package.status.change', $item->id) }}"
-                                                    method="POST" class="d-inline-block align-middle">
-                                                    @csrf
-                                                    <label class="switch m-0" title="@lang('Active') / @lang('Inactive')">
-                                                        <input type="checkbox" class="toggle-switch"
-                                                            {{ $item->status == 1 ? 'checked' : '' }}
-                                                            onchange="this.form.submit()">
-                                                        <span class="slider round"></span>
-                                                    </label>
-                                                </form>
-                                            @endif
+                                                @if ($item->user_type == 'admin')
+                                                    <a href="{{ route('admin.tour.package.edit', $item->id) }}"
+                                                        class="btn btn--primary btn-sm">
+                                                        <i class="fas fa-edit"></i></a>
+
+                                                    <form action="{{ route('admin.tour.package.status.change', $item->id) }}"
+                                                        method="POST" class="d-inline-block">
+                                                        @csrf
+                                                        <label class="switch m-0" title="@lang('Active') / @lang('Inactive')">
+                                                            <input type="checkbox" class="toggle-switch"
+                                                                {{ $item->status == 1 ? 'checked' : '' }}
+                                                                onchange="this.form.submit()">
+                                                            <span class="slider round"></span>
+                                                        </label>
+                                                    </form>
+                                                @endif
+                                            </div>
                                         </td>
                                     </tr>
                                 @empty
