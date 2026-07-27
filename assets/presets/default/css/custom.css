@@ -568,3 +568,16 @@ li.language { display: none !important; }
     overflow: hidden;
     text-overflow: ellipsis;
 }
+
+/* Tour Package list Activate/Deactivate button (agency) - inside a
+   flex-nowrap row that fixed the two-buttons-on-separate-lines issue,
+   but the button itself could still shrink narrower than "Deactivate"
+   (the longer of the two labels) and wrap its own text internally.
+   flex-shrink: 0 stops the flex row from squeezing it, min-width sizes
+   it to fit that label without wrapping. Admin's equivalent control is
+   a checkbox/switch with no text label, so it has nothing to wrap. */
+.status-toggle-btn {
+    white-space: nowrap;
+    flex-shrink: 0;
+    min-width: 100px;
+}

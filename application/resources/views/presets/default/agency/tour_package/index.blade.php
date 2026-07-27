@@ -82,7 +82,7 @@
                                             method="POST" class="d-inline-block">
                                             @csrf
                                             <button type="submit"
-                                                class="btn btn--sm pills {{ $item->status == 1 ? 'btn--warning' : 'btn--success' }}"
+                                                class="btn btn--sm pills status-toggle-btn {{ $item->status == 1 ? 'btn--warning' : 'btn--success' }}"
                                                 title="@lang('Toggle Active/Inactive')">
                                                 {{ $item->status == 1 ? __('Deactivate') : __('Activate') }}
                                             </button>
