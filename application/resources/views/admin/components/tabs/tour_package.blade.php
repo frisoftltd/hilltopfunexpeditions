@@ -31,27 +31,15 @@
             <li class="nav-item">
                 <a class="nav-link {{ Request::routeIs('admin.tour.package.active') ? 'active' : '' }}"
                     href="{{route('admin.tour.package.active')}}">@lang('Active')
-                   
+
                 </a>
             </li>
 
             <li class="nav-item">
-                <a class="nav-link {{ Request::routeIs('admin.tour.package.running') ? 'active' : '' }}"
-                    href="{{route('admin.tour.package.running')}}">@lang('Running')
-                   
+                <a class="nav-link {{ Request::routeIs('admin.tour.package.pending') ? 'active' : '' }}"
+                    href="{{route('admin.tour.package.pending')}}">@lang('Inactive')
                 </a>
             </li>
-
-            
-            <li class="nav-item">
-                <a class="nav-link {{ Request::routeIs('admin.tour.package.expired') ? 'active' : '' }}"
-                    href="{{route('admin.tour.package.expired')}}">@lang('Expired')
-                    
-                    
-                </a>
-            </li>
-          
-          
         </ul>
     </div>
 </div>

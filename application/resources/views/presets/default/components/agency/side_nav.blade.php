@@ -16,12 +16,12 @@
 
 
 
-        <li class="sidebar-menu-list__item has-dropdown {{ isActiveRoute('agency.tour.package.my.list') ||isActiveRoute('agency.tour.package.create')||isActiveRoute('agency.tour.package.pending') || isActiveRoute('agency.tour.package.active') || isActiveRoute('agency.tour.package.running') || isActiveRoute('agency.tour.package.expired') ? 'active' : '' }}">
+        <li class="sidebar-menu-list__item has-dropdown {{ isActiveRoute('agency.tour.package.my.list') ||isActiveRoute('agency.tour.package.create')||isActiveRoute('agency.tour.package.pending') || isActiveRoute('agency.tour.package.active') ? 'active' : '' }}">
             <a href="javascript:void(0)" class="sidebar-menu-list__link">
                 <span class="icon"><i class="fa-solid fa-plane"></i></span>
                 <span class="text">@lang('Tour Package')</span>
             </a>
-            <div class="sidebar-submenu {{ isActiveRoute('agency.tour.package.my.list') ||isActiveRoute('agency.tour.package.create')||isActiveRoute('agency.tour.package.pending') ||isActiveRoute('agency.tour.package.active')  ||isActiveRoute('agency.tour.package.running') ||isActiveRoute('agency.tour.package.expired') ? 'd-block' : '' }}">
+            <div class="sidebar-submenu {{ isActiveRoute('agency.tour.package.my.list') ||isActiveRoute('agency.tour.package.create')||isActiveRoute('agency.tour.package.pending') ||isActiveRoute('agency.tour.package.active') ? 'd-block' : '' }}">
                 <ul class="sidebar-submenu-list">
                     <li class="sidebar-submenu-list__item">
                         <a href="{{ route('agency.tour.package.my.list') }}" class="sidebar-submenu-list__link {{ Route::is('agency.tour.package.my.list') ? 'active' : '' }}">@lang('All List')</a>
@@ -33,10 +33,7 @@
                         <a href="{{ route('agency.tour.package.active') }}" class="sidebar-submenu-list__link {{ Route::is('agency.tour.package.active') ? 'active' : '' }}">@lang('Active')</a>
                     </li>
                     <li class="sidebar-submenu-list__item">
-                        <a href="{{ route('agency.tour.package.running') }}" class="sidebar-submenu-list__link {{ Route::is('agency.tour.package.running') ? 'active' : '' }}">@lang('Running')</a>
-                    </li>
-                    <li class="sidebar-submenu-list__item">
-                        <a href="{{ route('agency.tour.package.expired') }}" class="sidebar-submenu-list__link {{ Route::is('agency.tour.package.expired') ? 'active' : '' }}">@lang('Expired')</a>
+                        <a href="{{ route('agency.tour.package.pending') }}" class="sidebar-submenu-list__link {{ Route::is('agency.tour.package.pending') ? 'active' : '' }}">@lang('Inactive')</a>
                     </li>
                 </ul>
             </div>

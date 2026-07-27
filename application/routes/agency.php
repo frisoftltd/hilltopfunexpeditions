@@ -83,7 +83,7 @@ Route::middleware('agency')->name('agency.')->group(function () {
                 Route::post('store', 'store')->name('store')->middleware('agency.kyc');
                 Route::get('edit/{id}', 'edit')->name('edit')->middleware('agency.kyc');
                 Route::put('update/{id}', 'update')->name('update')->middleware('agency.kyc');
-                Route::get('status-change/{id}', 'statusChange')->name('status.change')->middleware('agency.kyc');
+                Route::post('status-change/{id}', 'statusChange')->name('status.change')->middleware('agency.kyc');
                 Route::post('delete/{id}', 'delete')->name('delete')->middleware('agency.kyc');
                 Route::get('my-tour', 'myList')->name('my.list');
                 Route::get('agency-tour', 'allAgency')->name('all.agency');
@@ -91,8 +91,6 @@ Route::middleware('agency')->name('agency.')->group(function () {
                 Route::post('image', 'tourPackageImageDelete')->name('image.delete');
                 Route::get('active', 'active')->name('active');
                 Route::get('pending', 'pending')->name('pending');
-                Route::get('expired', 'expired')->name('expired');
-                Route::get('running', 'running')->name('running');
             });
 
 

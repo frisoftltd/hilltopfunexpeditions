@@ -57,25 +57,9 @@ class TourPackageController extends Controller
 
     public function pending()
     {
-        $pageTitle = 'Pending Tour Package';
+        $pageTitle = 'Inactive Tour Package';
         $categories = Category::where('status', 1)->latest()->get();
         $tourPackages = $this->tourPackageData('pending');
-        return view($this->activeTemplate . 'agency.tour_package.index', compact('pageTitle', 'categories', 'tourPackages'));
-    }
-
-    public function running()
-    {
-        $pageTitle = 'Running Tour Package';
-        $categories = Category::where('status', 1)->latest()->get();
-        $tourPackages = $this->tourPackageData('running');
-        return view($this->activeTemplate . 'agency.tour_package.index', compact('pageTitle', 'categories', 'tourPackages'));
-    }
-
-    public function expired()
-    {
-        $pageTitle = 'Expired Tour Package';
-        $categories = Category::where('status', 1)->latest()->get();
-        $tourPackages = $this->tourPackageData('expired');
         return view($this->activeTemplate . 'agency.tour_package.index', compact('pageTitle', 'categories', 'tourPackages'));
     }
 

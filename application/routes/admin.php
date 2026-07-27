@@ -149,17 +149,14 @@ Route::middleware('admin')->group(function () {
         Route::post('store', 'store')->name('store');
         Route::get('edit/{id}', 'edit')->name('edit');
         Route::put('update/{id}', 'update')->name('update');
-        Route::get('status-change/{id}', 'statusChange')->name('status.change');
+        Route::post('status-change/{id}', 'statusChange')->name('status.change');
         Route::post('delete/{id}', 'delete')->name('delete');
         Route::get('my-tour', 'myList')->name('my.list');
         Route::get('agency-tour', 'allAgency')->name('all.agency');
         Route::get('search', 'search')->name('search');
         Route::post('image', 'tourPackageImageDelete')->name('image.delete');
         Route::get('pending', 'pending')->name('pending');
-        Route::get('cancelled', 'cancelled')->name('cancelled');
         Route::get('active', 'active')->name('active');
-        Route::get('expired', 'expired')->name('expired');
-        Route::get('running', 'running')->name('running');
     });
 
     // Price Categories
