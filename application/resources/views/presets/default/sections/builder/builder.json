@@ -161,6 +161,34 @@
             "modal": false
         }
     },
+    "team_bio": {
+        "builder": true,
+        "name": "Team Bio Section",
+        "content": {
+            "title": "text",
+            "heading": "text",
+            "sub_heading": "text",
+            "founder_name": "text",
+            "founder_role": "text",
+            "founder_bio": "textarea",
+            "images": {
+                "founder_image": {
+                    "size": "400x400"
+                }
+            }
+        }
+    },
+    "vision_mission": {
+        "builder": true,
+        "name": "Vision & Mission Section",
+        "content": {
+            "title": "text",
+            "heading": "text",
+            "sub_heading": "text",
+            "vision_text": "textarea",
+            "mission_text": "textarea"
+        }
+    },
     "faq": {
         "builder": true,
         "name": "FAQ Section",

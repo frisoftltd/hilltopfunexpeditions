@@ -100,6 +100,10 @@ trait FileInfo
             'path'   =>'assets/images/frontend/about_me',
         ];
 
+        $data['teamBio'] = [
+            'path'   =>'assets/images/frontend/team_bio',
+        ];
+
         $data['location'] = [
             'path'      =>'assets/images/frontend/location',
             'size'      =>'1024x680',
