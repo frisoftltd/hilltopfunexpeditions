@@ -59,7 +59,8 @@
                                     <th>@lang('Image')</th>
                                     <th>@lang('Category')</th>
                                     <th>@lang('From Price')</th>
-                                    <th>@lang('Bookings')</th>
+                                    <th>@lang('Confirmed')</th>
+                                    <th>@lang('Pending')</th>
                                     <th>@lang('Country')</th>
                                     <th>@lang('Tour Status')</th>
                                     <th>@lang('Action')</th>
@@ -96,7 +97,8 @@
                                                 &mdash;
                                             @endif
                                         </td>
-                                        <td> {{ $item->tour_bookings->where('status', 1)->sum('party_size') }}</td>
+                                        <td> {{ $item->confirmed_bookings_count }}</td>
+                                        <td> {{ $item->pending_bookings_count }}</td>
                                         <td> {{ $item->country }}</td>
 
                                         <td>

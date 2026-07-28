@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Constants\BookingStatus;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
@@ -59,6 +60,28 @@ class TourPackage extends Model
     public function packagePrices()
     {
         return $this->hasMany(PackagePrice::class);
+    }
+
+    /**
+     * Counts read off the already-loaded tour_bookings relation (no new
+     * query) so list views eager-loading 'tour_bookings' stay N+1 safe.
+     */
+    public function getConfirmedBookingsCountAttribute()
+    {
+        return $this->tour_bookings
+            ->where('status', BookingStatus::PAID)
+            ->where('agency_status', BookingStatus::AGENCY_APPROVED)
+            ->count();
+    }
+
+    public function getPendingBookingsCountAttribute()
+    {
+        $live = $this->tour_bookings
+            ->where('status', '!=', BookingStatus::REJECTED)
+            ->where('agency_status', '!=', BookingStatus::AGENCY_DECLINED)
+            ->count();
+
+        return $live - $this->confirmed_bookings_count;
     }
 
     public function getFromPriceAttribute()
