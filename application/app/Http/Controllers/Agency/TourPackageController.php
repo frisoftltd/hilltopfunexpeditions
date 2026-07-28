@@ -39,7 +39,7 @@ class TourPackageController extends Controller
         $categories = Category::where('status', 1)->latest()->get();
         $priceCategories = PriceCategory::active()->ordered()->get();
         $locations = Location::where('status', 1)->get();
-        $tourPackage =  TourPackage::with(['category', 'packagePrices'])->where('user_type','agency')->where('user_id',auth('agency')->id())->first();
+        $tourPackage =  TourPackage::with(['category', 'packagePrices'])->where('id',$id)->where('user_type','agency')->where('user_id',auth('agency')->id())->first();
         if(!$tourPackage){
             $notify[] = ['error', 'Your tour package id is not valid'];
             return back()->withNotify($notify);

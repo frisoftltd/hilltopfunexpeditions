@@ -87,6 +87,12 @@
                                                 {{ $item->status == 1 ? __('Deactivate') : __('Activate') }}
                                             </button>
                                         </form>
+                                        <button title="@lang('Delete')" type="button"
+                                            class="btn btn--sm pills btn--danger confirmationBtn"
+                                            data-question="@lang('Are you sure to delete this tour package?')"
+                                            data-action="{{ route('agency.tour.package.delete', $item->id) }}">
+                                            <i class="fas fa-trash"></i>
+                                        </button>
                                     </div>
                                 </td>
                             </tr>

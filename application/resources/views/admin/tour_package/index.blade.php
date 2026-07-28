@@ -125,6 +125,13 @@
                                                             <span class="slider round"></span>
                                                         </label>
                                                     </form>
+
+                                                    <button title="@lang('Delete')" type="button"
+                                                        class="btn btn--danger btn-sm confirmationBtn"
+                                                        data-question="@lang('Are you sure to delete this tour package?')"
+                                                        data-action="{{ route('admin.tour.package.delete', $item->id) }}">
+                                                        <i class="fas fa-trash"></i>
+                                                    </button>
                                                 @endif
                                             </div>
                                         </td>

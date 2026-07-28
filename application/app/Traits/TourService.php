@@ -283,6 +283,19 @@ trait TourService
       
         try {
             $tourPackage = TourPackage::with('tour_package_images')->findOrFail($id);
+
+            $hasUpcomingBookings = $tourPackage->tour_bookings()
+                ->where('status', '!=', 3)
+                ->where(function ($query) {
+                    $query->whereNull('start_date')->orWhereDate('start_date', '>=', now()->toDateString());
+                })
+                ->exists();
+
+            if ($hasUpcomingBookings) {
+                $notify[] = ['error', 'Cannot delete: this package has upcoming bookings.'];
+                return back()->withNotify($notify);
+            }
+
             foreach($tourPackage->tour_package_images ?? [] as $item){
                 fileManager()->removeFile(getFilePath('tourPackageImage') . '/' . $item->image);
                 if (file_exists(getFilePath('tourPackageImage') . '/thumb_' . $item->image)) {
