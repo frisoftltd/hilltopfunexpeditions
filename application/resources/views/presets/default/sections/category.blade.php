@@ -1,5 +1,5 @@
 @php
-    $categories = App\Models\Category::where('status',1)->latest()->inRandomOrder()->take(6)->get();
+    $categories = App\Models\Category::where('status',1)->inRandomOrder()->take(6)->get();
 @endphp
 <section class="feature--section section--bg py-100 z--1">
     <div class="container">
