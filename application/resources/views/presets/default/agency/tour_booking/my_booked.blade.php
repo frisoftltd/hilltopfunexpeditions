@@ -35,9 +35,22 @@
                                 <td class="text-center" data-label="@lang('Tour Package Title')">
                                     {{ __($item->title)}}
                                 </td>
+                                @php
+                                    $nextBooking = $item->tour_bookings->where('status', 1)->where('start_date', '>=', now())->sortBy('start_date')->first();
+                                    $nextBookingEnd = $nextBooking?->start_date && $item->duration_nights !== null
+                                        ? $nextBooking->start_date->copy()->addDays($item->duration_nights)
+                                        : null;
+                                @endphp
                                 <td class="text-center" data-label="@lang('Next Booking')">
                                     <i class="fa-regular fa-clock"></i>
-                                    {{ $item->tour_bookings->where('status', 1)->where('start_date', '>=', now())->sortBy('start_date')->first()?->start_date?->format('M d, Y') ?? '—' }}
+                                    @if ($nextBooking?->start_date)
+                                        {{ $nextBooking->start_date->format('M d') }}
+                                        @if ($nextBookingEnd)
+                                            – {{ $nextBookingEnd->format('M d, Y') }}
+                                        @endif
+                                    @else
+                                        —
+                                    @endif
                                 </td>
                                 <td class="text-center" data-label="@lang('Bookings')">
                                     {{ $item->tour_bookings->where('status', '!=', 3)->sum('party_size') }}

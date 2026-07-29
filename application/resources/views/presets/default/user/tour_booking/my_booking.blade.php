@@ -33,7 +33,14 @@
                         </td>
                         <td class="text-center" data-label="@lang('Tour Date')">
                             <i class="fa-regular fa-clock"></i>
-                            {{ $item->start_date ? showDateTime($item->start_date) : '—' }}
+                            @if ($item->start_date)
+                                {{ showDateTime($item->start_date, 'M d') }}
+                                @if ($item->end_date)
+                                    – {{ showDateTime($item->end_date, 'M d, Y') }}
+                                @endif
+                            @else
+                                —
+                            @endif
                         </td>
                         <td class="text-center" data-label="@lang('Stay Day & Nights')">
                             {{ __($item->tour_package->day_nights) }}

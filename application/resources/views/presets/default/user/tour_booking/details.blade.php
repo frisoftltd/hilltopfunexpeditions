@@ -116,6 +116,13 @@
                                     <span
                                         class="fw--500">{{ showDateTime($bookingDetails?->start_date, 'd-m-Y') }}</span>
                                 </li>
+                                @if ($bookingDetails?->end_date)
+                                    <li class="list-group-item p-0 border-0 d-flex justify-content-between align-items-center">
+                                        @lang('Tour End Date'):
+                                        <span
+                                            class="fw--500">{{ showDateTime($bookingDetails->end_date, 'd-m-Y') }}</span>
+                                    </li>
+                                @endif
                             @endif
 
                             <li class="list-group-item p-0 border-0 d-flex justify-content-between align-items-center">

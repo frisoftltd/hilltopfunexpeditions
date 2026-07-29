@@ -51,7 +51,14 @@
                                 </td>
 
                                 <td class="text-center" data-label="@lang('Booking Date')">
-                                    {{ $item->start_date?->format('M d, Y') ?? '—' }}
+                                    @if ($item->start_date)
+                                        {{ $item->start_date->format('M d') }}
+                                        @if ($item->end_date)
+                                            – {{ $item->end_date->format('M d, Y') }}
+                                        @endif
+                                    @else
+                                        —
+                                    @endif
                                 </td>
 
                                 <td data-label="@lang('Payment Status')">

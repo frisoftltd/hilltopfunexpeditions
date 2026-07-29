@@ -34,8 +34,23 @@
                                         <td data-label="@lang('Tour Name')">
                                             <span class="fw-bold">{{ __(strLimit($item->title, 35)) }}</span>
                                         </td>
+                                        @php
+                                            $nextBooking = $item->tour_bookings->where('status', 1)->where('start_date', '>=', now())->sortBy('start_date')->first();
+                                            $nextBookingEnd = $nextBooking?->start_date && $item->duration_nights !== null
+                                                ? $nextBooking->start_date->copy()->addDays($item->duration_nights)
+                                                : null;
+                                        @endphp
                                         <td data-label="@lang('Next Booking')">
-                                            <span class="fw-bold">{{ $item->tour_bookings->where('status', 1)->where('start_date', '>=', now())->sortBy('start_date')->first()?->start_date?->format('M d, Y') ?? '—' }}</span>
+                                            <span class="fw-bold">
+                                                @if ($nextBooking?->start_date)
+                                                    {{ $nextBooking->start_date->format('M d') }}
+                                                    @if ($nextBookingEnd)
+                                                        – {{ $nextBookingEnd->format('M d, Y') }}
+                                                    @endif
+                                                @else
+                                                    —
+                                                @endif
+                                            </span>
                                         </td>
 
 

@@ -489,7 +489,9 @@
                                         <div class="form-group">
                                             <label class="mb-2 form--label">@lang('Start Date')</label>
                                             <input class="form--control" type="date" name="start_date"
+                                                id="bookingStartDate" data-duration-nights="{{ (int) $tourPackage->duration_nights }}"
                                                 min="{{ now()->toDateString() }}" required>
+                                            <small class="text--black7 d-none" id="bookingEndDatePreview"></small>
                                         </div>
                                     </div>
 
@@ -693,6 +695,38 @@
             $form.on('input', '#partySizeInput', updatePreview);
             updatePreview();
         })(jQuery);
+    </script>
+
+    <script>
+        (function() {
+            "use strict";
+            var startDateInput = document.getElementById('bookingStartDate');
+            var endDatePreview = document.getElementById('bookingEndDatePreview');
+            if (!startDateInput || !endDatePreview) {
+                return;
+            }
+
+            var durationNights = parseInt(startDateInput.getAttribute('data-duration-nights'), 10) || 0;
+
+            startDateInput.addEventListener('change', function() {
+                if (!this.value || durationNights <= 0) {
+                    endDatePreview.classList.add('d-none');
+                    return;
+                }
+
+                var endDate = new Date(this.value);
+                endDate.setDate(endDate.getDate() + durationNights);
+
+                var formatted = endDate.toLocaleDateString(undefined, {
+                    year: 'numeric',
+                    month: 'short',
+                    day: 'numeric'
+                });
+
+                endDatePreview.textContent = "{{ __('Ends:') }} " + formatted;
+                endDatePreview.classList.remove('d-none');
+            });
+        })();
     </script>
 
     <script>
