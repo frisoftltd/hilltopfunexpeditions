@@ -56,6 +56,7 @@ class QuoteRequestController extends Controller
             notify($item->agency, 'QUOTE_REQUEST_REPLY_TO_OWNER', [
                 'tour_title' => $item->tourPackage->title ?? '',
                 'reply_message' => $request->message,
+                'quote_request_url' => route('agency.quote.requests.view', $item->id),
             ]);
         }
 

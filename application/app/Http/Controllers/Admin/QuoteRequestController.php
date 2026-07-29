@@ -51,6 +51,7 @@ class QuoteRequestController extends Controller
         notify($recipient, 'QUOTE_REQUEST_REPLY_TO_TRAVELER', [
             'tour_title' => $item->tourPackage->title ?? '',
             'reply_message' => $request->message,
+            'quote_request_url' => route('user.quote.requests.view', $item->id),
         ]);
 
         $notify[] = ['success', 'Reply sent.'];

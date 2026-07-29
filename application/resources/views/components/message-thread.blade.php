@@ -14,16 +14,6 @@
     <div class="card-body">
         <h5 class="mb-3">@lang('Messages')</h5>
 
-        <form action="{{ $replyUrl }}" method="POST" class="mb-4">
-            @csrf
-            <div class="form-group mb-2">
-                <textarea class="form-control" name="message" rows="3" placeholder="@lang('Write a reply...')" required></textarea>
-            </div>
-            <div class="text-end">
-                <button type="submit" class="btn btn-primary btn-sm">@lang('Send Reply')</button>
-            </div>
-        </form>
-
         @forelse ($quoteRequest->messages as $message)
             <div class="d-flex {{ $message->sender_type == $senderType ? 'justify-content-end' : 'justify-content-start' }} mb-3">
                 <div class="p-3 rounded {{ $message->sender_type == $senderType ? 'bg-primary bg-opacity-10' : 'bg-light' }}" style="max-width: 80%;">
@@ -37,5 +27,15 @@
         @empty
             <p class="text-muted mb-0">@lang('No messages yet.')</p>
         @endforelse
+
+        <form action="{{ $replyUrl }}" method="POST" class="mt-4">
+            @csrf
+            <div class="form-group mb-2">
+                <textarea class="form-control" name="message" rows="3" placeholder="@lang('Write a reply...')" required></textarea>
+            </div>
+            <div class="text-end">
+                <button type="submit" class="btn btn-primary btn-sm">@lang('Send Reply')</button>
+            </div>
+        </form>
     </div>
 </div>
