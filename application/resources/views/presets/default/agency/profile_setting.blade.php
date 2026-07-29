@@ -5,7 +5,11 @@
     <div class="row gy-4 justify-content-center">
         <div class="col-lg-4 ">
             <div class="dashboard_profile-card">
-                <div class="user-profile text-center">
+                <div class="user-profile text-center"
+                    @if ($user->cover_image)
+                        style="background-image: url({{ getImage(getFilePath('coverImage') . '/' . $user->cover_image, getFileSize('coverImage')) }}); background-size: cover; background-position: center;"
+                    @endif
+                >
                     <div class="dashboard_profile_wrap">
                         <div class="profile_photo mb-2">
                             <img src="{{ getImage(getFilePath('agencyProfile') . '/' . $user->image, getFileSize('agencyProfile')) }}"
