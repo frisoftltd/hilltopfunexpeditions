@@ -40,6 +40,9 @@
                         @if ($location)
                             <p class="fs--14 mb-1"><i class="fa-regular fa-compass"></i> {{ $location }}</p>
                         @endif
+                        @if (!empty($agency->languages))
+                            <p class="fs--14 mb-1"><i class="fa-solid fa-language"></i> @lang('Languages Spoken'): {{ implode(', ', $agency->languages) }}</p>
+                        @endif
                         <p class="fs--14">@lang('Member since') {{ showDateTime($agency->created_at, 'M Y') }}</p>
 
                         <button type="button" class="btn btn--base btn--lg w--100 pills mt-2"

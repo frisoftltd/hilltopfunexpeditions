@@ -126,6 +126,18 @@
                     </div>
                     <div class="col-lg-12">
                         <div class="form-group">
+                            <label class="mb-2 form--label">@lang('Languages Spoken')</label>
+                            <select name="languages[]" class="form-control select2-auto-tokenize" multiple="multiple">
+                                @if ($user->languages)
+                                    @foreach ($user->languages as $language)
+                                        <option value="{{ $language }}" selected>{{ __($language) }}</option>
+                                    @endforeach
+                                @endif
+                            </select>
+                        </div>
+                    </div>
+                    <div class="col-lg-12">
+                        <div class="form-group">
                             <label class="mb-2 form--label">@lang('Bio')</label>
                             <textarea class="form-control form--control" name="bio" rows="5"
                                 placeholder="@lang('Tell travelers about your agency')">{{ $user->bio }}</textarea>
@@ -162,5 +174,13 @@
                 reader.readAsDataURL(file);
             }
         });
+
+        (function($) {
+            "use strict";
+            $('.select2-auto-tokenize').select2({
+                tags: true,
+                tokenSeparators: [',']
+            });
+        })(jQuery);
     </script>
 @endpush
