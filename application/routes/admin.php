@@ -292,7 +292,7 @@ Route::middleware('admin')->group(function () {
     Route::controller('QuoteRequestController')->prefix('quote-requests')->name('quote.requests.')->group(function () {
         Route::get('/', 'index')->name('index');
         Route::get('view/{id}', 'view')->name('view');
-        Route::post('respond/{id}', 'markResponded')->name('respond');
+        Route::post('reply/{id}', 'reply')->name('reply');
     });
 
 

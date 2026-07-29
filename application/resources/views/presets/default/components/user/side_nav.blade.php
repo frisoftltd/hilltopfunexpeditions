@@ -68,5 +68,12 @@
                 </ul>
             </div>
         </li>
+
+        <li class="sidebar-menu-list__item">
+            <a href="{{route('user.quote.requests.index')}}" class="sidebar-menu-list__link {{ isActiveRoute('user.quote.requests.') ? 'active' : '' }}">
+                <span class="icon"><i class="fa-solid fa-comments-dollar"></i></span>
+                <span class="text">@lang('Quote Requests')</span>
+            </a>
+        </li>
     </ul>
 </div>

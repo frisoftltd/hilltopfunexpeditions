@@ -1,4 +1,4 @@
-@extends($activeTemplate.'layouts.agency.master')
+@extends($activeTemplate.'layouts.user.master')
 @section('content')
 
 <div class="row gy-4">
@@ -11,16 +11,8 @@
                     <span class="fw--500">{{ $item->tourPackage->title ?? '—' }}</span>
                 </li>
                 <li class="list-group-item p-0 border-0 d-flex justify-content-between align-items-center">
-                    @lang('Full Name'):
-                    <span class="fw--500">{{ $item->name }}</span>
-                </li>
-                <li class="list-group-item p-0 border-0 d-flex justify-content-between align-items-center">
-                    @lang('Email'):
-                    <span class="fw--500">{{ $item->email }}</span>
-                </li>
-                <li class="list-group-item p-0 border-0 d-flex justify-content-between align-items-center">
-                    @lang('Phone'):
-                    <span class="fw--500">{{ $item->phone ?? '—' }}</span>
+                    @lang('Operator'):
+                    <span class="fw--500">{{ $item->agency?->fullname ?? '—' }}</span>
                 </li>
                 <li class="list-group-item p-0 border-0 d-flex justify-content-between align-items-center">
                     @lang('Party Size'):
@@ -45,12 +37,12 @@
             </ul>
 
             @if ($item->message)
-                <h6 class="mb-2">@lang('Message')</h6>
+                <h6 class="mb-2">@lang('Your Message')</h6>
                 <p class="mb-0">{{ $item->message }}</p>
             @endif
         </div>
 
-        <x-message-thread :quote-request="$item" :reply-url="route('agency.quote.requests.reply', $item->id)" sender-type="agency" />
+        <x-message-thread :quote-request="$item" :reply-url="route('user.quote.requests.reply', $item->id)" sender-type="traveler" />
     </div>
 </div>
 

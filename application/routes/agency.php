@@ -58,6 +58,10 @@ Route::middleware('agency')->name('agency.')->group(function () {
                 Route::any('deposit/history', 'depositHistory')->name('deposit.history');
                 Route::get('transactions', 'transactions')->name('transactions');
                 Route::get('attachment-download/{fil_hash}', 'attachmentDownload')->name('attachment.download');
+                //Notifications
+                Route::get('notifications', 'notifications')->name('notifications');
+                Route::get('notification/read/{id}', 'notificationRead')->name('notification.read');
+                Route::get('notifications/read-all', 'readAllNotifications')->name('notifications.readAll');
             });
 
               //KYC
@@ -128,7 +132,7 @@ Route::middleware('agency')->name('agency.')->group(function () {
             Route::controller('QuoteRequestController')->prefix('quote-requests')->name('quote.requests.')->group(function () {
                 Route::get('/', 'index')->name('index');
                 Route::get('view/{id}', 'view')->name('view');
-                Route::post('respond/{id}', 'markResponded')->name('respond');
+                Route::post('reply/{id}', 'reply')->name('reply');
             });
 
             // Withdraw

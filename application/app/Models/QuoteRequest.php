@@ -27,6 +27,11 @@ class QuoteRequest extends Model
         return $this->belongsTo(TourPackage::class);
     }
 
+    public function messages()
+    {
+        return $this->hasMany(QuoteRequestMessage::class)->orderBy('id');
+    }
+
     /**
      * badge--primary/success/warning chosen because they're the only
      * badge classes defined in both admin.css and the frontend theme's

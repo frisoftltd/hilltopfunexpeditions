@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Agency;
 use Carbon\Carbon;
 use App\Models\Form;
 use App\Models\Artwork;
+use App\Models\AdminNotification;
 use App\Models\Deposit;
 use App\Models\OrderItem;
 use App\Lib\FormProcessor;
@@ -226,6 +227,35 @@ class AgencyController extends Controller
         $pageTitle  = 'Artwork Orders';
         $orders = OrderItem::with( ['order','artwork'])->where('agency_id',agencyId())->getSearch(['artwork:title'])->latest()->paginate(getPaginate());
         return view($this->activeTemplate.'agency.orders', compact('pageTitle','orders'));
+    }
+
+    public function notifications()
+    {
+        $pageTitle = 'Notifications';
+        $notifications = AdminNotification::where('agency_id', auth('agency')->id())->orderBy('id', 'desc')->paginate(getPaginate());
+        return view($this->activeTemplate . 'agency.notifications', compact('pageTitle', 'notifications'));
+    }
+
+    public function notificationRead($id)
+    {
+        $notification = AdminNotification::where('agency_id', auth('agency')->id())->findOrFail($id);
+
+        $notification->read_status = 1;
+        $notification->save();
+        $url = $notification->click_url;
+        if ($url == '#') {
+            $url = url()->previous();
+        }
+        return redirect($url);
+    }
+
+    public function readAllNotifications()
+    {
+        AdminNotification::where('agency_id', auth('agency')->id())->where('read_status', 0)->update([
+            'read_status' => 1,
+        ]);
+        $notify[] = ['success', 'Notifications read successfully'];
+        return back()->withNotify($notify);
     }
 
 }

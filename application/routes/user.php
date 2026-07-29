@@ -121,6 +121,13 @@ Route::middleware('auth')->name('user.')->group(function () {
                 Route::post('cancel/{id}', 'cancel')->name('cancel');
             });
 
+            // Quote Requests
+            Route::controller('QuoteRequestController')->prefix('quote-requests')->name('quote.requests.')->group(function () {
+                Route::get('/', 'index')->name('index');
+                Route::get('view/{id}', 'view')->name('view');
+                Route::post('reply/{id}', 'reply')->name('reply');
+            });
+
         });
 
         // Payment

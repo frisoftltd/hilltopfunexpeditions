@@ -126,6 +126,14 @@ class AppServiceProvider extends ServiceProvider
             ]);
         });
 
+        view()->composer('presets.default.components.agency.top_header', function ($view) {
+            $agencyId = auth('agency')->id();
+            $view->with([
+                'agencyNotifications' => AdminNotification::where('agency_id', $agencyId)->where('read_status', 0)->orderBy('id', 'desc')->take(10)->get(),
+                'agencyNotificationCount' => AdminNotification::where('agency_id', $agencyId)->where('read_status', 0)->count(),
+            ]);
+        });
+
         view()->composer('includes.seo', function ($view) {
             $seo = Frontend::where('data_keys', 'seo.data')->first();
             $view->with([
