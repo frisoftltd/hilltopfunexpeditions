@@ -126,7 +126,7 @@ Route::middleware('agency')->name('agency.')->group(function () {
 
             // Withdraw
             Route::controller('WithdrawController')->prefix('withdraw')->name('withdraw')->group(function () {
-                Route::get('/', 'withdrawMoney')->name('.form');
+                Route::get('/', 'withdrawMoney');
                 Route::post('/', 'withdrawStore')->name('.money');
                 Route::get('preview', 'withdrawPreview')->name('.preview');
                 Route::post('preview', 'withdrawSubmit')->name('.submit');
