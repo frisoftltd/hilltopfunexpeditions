@@ -115,6 +115,7 @@ Route::middleware('agency')->name('agency.')->group(function () {
             // ticket
             Route::controller('TicketController')->prefix('ticket')->group(function () {
                 Route::get('all', 'supportTicket')->name('ticket');
+                Route::get('open-list', 'openTicketList')->name('ticket.open.list');
                 Route::get('new', 'openSupportTicket')->name('ticket.open');
                 Route::post('create', 'storeSupportTicket')->name('ticket.store');
                 Route::get('view/{ticket}', 'viewTicket')->name('ticket.view');
@@ -125,7 +126,7 @@ Route::middleware('agency')->name('agency.')->group(function () {
 
             // Withdraw
             Route::controller('WithdrawController')->prefix('withdraw')->name('withdraw')->group(function () {
-                Route::get('/', 'withdrawMoney');
+                Route::get('/', 'withdrawMoney')->name('.form');
                 Route::post('/', 'withdrawStore')->name('.money');
                 Route::get('preview', 'withdrawPreview')->name('.preview');
                 Route::post('preview', 'withdrawSubmit')->name('.submit');

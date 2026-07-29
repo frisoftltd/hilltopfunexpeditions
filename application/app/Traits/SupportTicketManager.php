@@ -28,6 +28,17 @@ trait SupportTicketManager
         return view($this->activeTemplate . $this->userType . '.support.index', compact('supports', 'pageTitle'));
     }
 
+    public function openTicketList()
+    {
+        $user = $this->user;
+        if (!$user) {
+            abort(404);
+        }
+        $pageTitle = "Open Support Tickets";
+        $supports = SupportTicket::where($this->column, $user->id)->where('status', 0)->orderBy('id', 'desc')->paginate(getPaginate());
+        return view($this->activeTemplate . $this->userType . '.support.index', compact('supports', 'pageTitle'));
+    }
+
     public function openSupportTicket()
     {
         $user = $this->user;

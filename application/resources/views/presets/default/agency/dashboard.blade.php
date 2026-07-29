@@ -30,7 +30,7 @@
     <div class="row gy-4 pb-4" id="sortable-container" class="sortable-container">
 
         <div class="col-xxl-3 col-xl-4 col-lg-6 col-sm-6" draggable="true" id="wizard6">
-            <a class="d-block" href="javascript:void(0)">
+            <a class="d-block" href="{{ route('agency.withdraw.form') }}">
                 <div class="wizard-card d-flex flex-column">
                     <div class="content-wrap d-flex align-items-center justify-content-between gap--12">
                         <h6 class="title fw--400 fs--16 mb-0 ">@lang('Balance')</h6>
@@ -65,7 +65,7 @@
         </div>
 
         <div class="col-xxl-3 col-xl-4 col-lg-6 col-sm-6" draggable="true" id="wizard3">
-            <a class="d-block" href="{{ route('agency.tour.package.active') }}">
+            <a class="d-block" href="{{ route('agency.tour.package.pending') }}">
                 <div class="wizard-card d-flex flex-column">
                     <div class="content-wrap d-flex align-items-center justify-content-between gap--12">
                         <h6 class="title fw--400 fs--16 mb-0 ">@lang('Pending Tour Package')</h6>
@@ -82,7 +82,7 @@
         </div>
 
         <div class="col-xxl-3 col-xl-4 col-lg-6 col-sm-6" draggable="true" id="wizard4">
-            <a class="d-block" href="{{ route('agency.tour.package.pending') }}">
+            <a class="d-block" href="{{ route('agency.tour.package.active') }}">
                 <div class="wizard-card d-flex flex-column">
                     <div class="content-wrap d-flex align-items-center justify-content-between gap--12">
                         <h6 class="title fw--400 fs--16 mb-0 ">@lang('Active Tour Package')</h6>
@@ -134,7 +134,7 @@
             </a>
         </div>
         <div class="col-xxl-3 col-xl-4 col-lg-6 col-sm-6" draggable="true" id="wizard7">
-            <a class="d-block" href="{{ route('agency.ticket.open') }}">
+            <a class="d-block" href="{{ route('agency.ticket.open.list') }}">
                 <div class="wizard-card d-flex flex-column">
                     <div class="content-wrap d-flex align-items-center justify-content-between gap--12">
                         <h6 class="title fw--400 fs--16 mb-0 ">@lang('Open Ticket')</h6>
