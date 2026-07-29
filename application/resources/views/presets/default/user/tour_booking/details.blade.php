@@ -1,3 +1,8 @@
+@php
+    $notCancellableStatuses = [App\Constants\BookingStatus::REJECTED, App\Constants\BookingStatus::CANCELLED_BY_TRAVELER];
+    $pastCancelWindow = !$bookingDetails?->start_date || now()->greaterThanOrEqualTo($bookingDetails->start_date->copy()->subHours(24));
+    $canCancel = $bookingDetails && !in_array($bookingDetails->status, $notCancellableStatuses) && !$pastCancelWindow;
+@endphp
 @extends($activeTemplate . 'layouts.user.master')
 @section('content')
     <div class="row justify-content-center gy-4">
@@ -120,8 +125,33 @@
                                 @endphp</span>
                             </li>
                         </ul>
+
+                        @if ($canCancel)
+                            <div class="mt-3">
+                                <button type="button" class="btn btn--danger btn--sm confirmationBtn"
+                                    data-question="@lang('Are you sure you want to cancel this booking?')"
+                                    data-action="{{ route('user.tour.package.booking.cancel', $bookingDetails->id) }}">
+                                    @lang('Cancel Booking')
+                                </button>
+                                <p class="fs--14 mt-2 mb-0">
+                                    @lang('Cancelling will void this booking. Since payments are processed manually, refunds are not automatic —')
+                                    <a href="{{ route('ticket.open') }}">@lang('please open a support ticket to request a refund')</a>.
+                                </p>
+                            </div>
+                        @elseif (!in_array($bookingDetails->status, $notCancellableStatuses))
+                            <div class="mt-3">
+                                <button type="button" class="btn btn--danger btn--sm" disabled>
+                                    @lang('Cancel Booking')
+                                </button>
+                                <p class="fs--14 mt-2 mb-0">
+                                    @lang('Cancellation is only available until 24 hours before the tour start date.')
+                                </p>
+                            </div>
+                        @endif
                     </div>
                 </div>
+
+                <x-confirmation-modal></x-confirmation-modal>
             </div>
         </div>
     </div>

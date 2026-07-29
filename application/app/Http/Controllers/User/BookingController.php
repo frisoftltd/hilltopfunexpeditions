@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers\User;
 
+use App\Constants\BookingStatus;
+use App\Models\Transaction;
 use App\Models\TourBooking;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
@@ -38,6 +40,63 @@ class BookingController extends Controller
             ->where('user_id', auth()->id())
             ->first();
         return view($this->activeTemplate . 'user.tour_booking.details', compact('pageTitle', 'bookingDetails'));
+    }
+
+    /**
+     * Cancel window is enforced here (not just hidden client-side) - 24
+     * hours before start_date. Balance is only reversed when the booking
+     * had actually been credited to the agency (status was PAID at the
+     * time of cancellation) - unpaid/pending-manual bookings never
+     * touched agencies.balance, so there's nothing to reverse there.
+     */
+    public function cancel($id)
+    {
+        $booking = TourBooking::with(['tour_package', 'agency'])
+            ->where('id', $id)
+            ->where('user_id', auth()->id())
+            ->firstOrFail();
+
+        if (in_array($booking->status, [BookingStatus::REJECTED, BookingStatus::CANCELLED_BY_TRAVELER])) {
+            $notify[] = ['error', 'This booking cannot be cancelled.'];
+            return back()->withNotify($notify);
+        }
+
+        if (!$booking->start_date || now()->greaterThanOrEqualTo($booking->start_date->copy()->subHours(24))) {
+            $notify[] = ['error', 'Cancellation is only allowed until 24 hours before the tour start date.'];
+            return back()->withNotify($notify);
+        }
+
+        $wasPaid = $booking->status == BookingStatus::PAID;
+
+        $booking->status = BookingStatus::CANCELLED_BY_TRAVELER;
+        $booking->save();
+
+        if ($wasPaid && $booking->owner_type == 'agency' && $booking->agency) {
+            $agency = $booking->agency;
+            $agency->balance -= $booking->price;
+            $agency->save();
+
+            $transaction = new Transaction();
+            $transaction->user_id = $booking->user_id;
+            $transaction->agency_id = $agency->id;
+            $transaction->amount = $booking->price;
+            $transaction->post_balance = $agency->balance;
+            $transaction->charge = 0;
+            $transaction->trx_type = '-';
+            $transaction->remark = 'booking_cancelled';
+            $transaction->details = 'Balance reversed - booking #' . $booking->id . ' cancelled by traveler';
+            $transaction->trx = getTrx();
+            $transaction->save();
+        }
+
+        if ($booking->owner_type == 'agency' && $booking->agency) {
+            notify($booking->agency, 'BOOKING_CANCELLED_BY_TRAVELER', [
+                'tour_title' => $booking->tour_package->title ?? '',
+            ]);
+        }
+
+        $notify[] = ['success', 'Your booking has been cancelled.'];
+        return back()->withNotify($notify);
     }
 
 

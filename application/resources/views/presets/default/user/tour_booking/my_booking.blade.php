@@ -60,6 +60,19 @@
                                 href="{{ route('user.tour.package.booking.details',$item->id) }}">
                                 <i class="la la-eye"></i>
                             </a>
+
+                            @php
+                                $rowNotCancellableStatuses = [App\Constants\BookingStatus::REJECTED, App\Constants\BookingStatus::CANCELLED_BY_TRAVELER];
+                                $rowPastCancelWindow = !$item->start_date || now()->greaterThanOrEqualTo($item->start_date->copy()->subHours(24));
+                                $rowCanCancel = !in_array($item->status, $rowNotCancellableStatuses) && !$rowPastCancelWindow;
+                            @endphp
+                            @if ($rowCanCancel)
+                                <button type="button" class="btn btn-md btn--danger action--btn confirmationBtn" title="@lang('Cancel Booking')"
+                                    data-question="@lang('Are you sure you want to cancel this booking?')"
+                                    data-action="{{ route('user.tour.package.booking.cancel', $item->id) }}">
+                                    <i class="la la-times"></i>
+                                </button>
+                            @endif
                         </td>
                     </tr>
                 @empty
@@ -80,4 +93,6 @@
         </div>
     </div>
 @endif
+
+<x-confirmation-modal></x-confirmation-modal>
 @endsection

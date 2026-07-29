@@ -9,6 +9,7 @@ class BookingStatus
     const PAID = 1;
     const PENDING_MANUAL = 2;
     const REJECTED = 3;
+    const CANCELLED_BY_TRAVELER = 4;
 
     // tour_bookings.agency_status - agency's own review layer, independent
     // of the payment status above. Pending review is stored as NULL, not 0.

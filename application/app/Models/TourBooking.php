@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Constants\BookingStatus;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -146,24 +147,28 @@ class TourBooking extends Model
      */
     public function statusBadge($status)
     {
-        if ($status == 1) {
+        if ($status == BookingStatus::PAID) {
             return '<span class="badge badge--success">' . trans('Paid') . '</span>';
-        } elseif ($status == 2) {
+        } elseif ($status == BookingStatus::PENDING_MANUAL) {
             return '<span class="badge badge--warning">' . trans('Pending Confirmation') . '</span>';
-        } elseif ($status == 3) {
+        } elseif ($status == BookingStatus::REJECTED) {
             return '<span class="badge badge--danger">' . trans('Rejected') . '</span>';
+        } elseif ($status == BookingStatus::CANCELLED_BY_TRAVELER) {
+            return '<span class="badge badge--secondary">' . trans('Cancelled') . '</span>';
         }
         return '<span class="badge badge--warning">' . trans('Awaiting Payment') . '</span>';
     }
 
     public function scopeStatusPaymentBadge()
     {
-        if ($this->status == 1) {
+        if ($this->status == BookingStatus::PAID) {
             return '<span class="badge badge--success">' . trans('Paid') . '</span>';
-        } elseif ($this->status == 2) {
+        } elseif ($this->status == BookingStatus::PENDING_MANUAL) {
             return '<span class="badge badge--warning">' . trans('Pending Confirmation') . '</span>';
-        } elseif ($this->status == 3) {
+        } elseif ($this->status == BookingStatus::REJECTED) {
             return '<span class="badge badge--danger">' . trans('Rejected') . '</span>';
+        } elseif ($this->status == BookingStatus::CANCELLED_BY_TRAVELER) {
+            return '<span class="badge badge--secondary">' . trans('Cancelled') . '</span>';
         }
         return '<span class="badge badge--warning">' . trans('Awaiting Payment') . '</span>';
     }

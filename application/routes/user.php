@@ -119,6 +119,7 @@ Route::middleware('auth')->name('user.')->group(function () {
                 Route::get('approved', 'approved')->name('approved');
                 Route::get('canceled', 'canceled')->name('canceled');
                 Route::get('booking-details/{id}', 'bookingDetails')->name('details');
+                Route::post('cancel/{id}', 'cancel')->name('cancel');
             });
 
         });
