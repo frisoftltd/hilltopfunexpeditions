@@ -12,10 +12,20 @@ class BookingController extends Controller
 {
     public function bookingTourPackageList(Request $request)
     {
-        $pageTitle = 'My Package-List';
-        $bookingTourPackages = $this->tourPackageData('agencyAll');
+        $pageTitle = 'Tour Bookings';
+        $tourBookings = TourBooking::with('user', 'tour_package', 'priceCategory')
+            ->where('owner_id', auth('agency')->id())
+            ->where('owner_type', 'agency')
+            ->when($request->search, function ($query) use ($request) {
+                $search = $request->search;
+                $query->whereHas('user', function ($query) use ($search) {
+                    $query->where('firstname', 'like', "%$search%")->orWhere('lastname', 'like', "%$search%")->orWhere('username', 'like', "%$search%");
+                });
+            })
+            ->orderBy('id', 'desc')
+            ->paginate(getPaginate());
 
-        return view($this->activeTemplate . 'agency.tour_booking.my_booked', compact('pageTitle', 'bookingTourPackages'));
+        return view($this->activeTemplate . 'agency.tour_booking.all_booked', compact('pageTitle', 'tourBookings'));
     }
 
     public function pending()

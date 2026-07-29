@@ -11,9 +11,17 @@ class BookingController extends Controller
 {
     public function bookingTourPackageList(Request $request)
     {
-        $pageTitle = 'My Tour-List';
-        $bookingTourPackages = $this->tourPackageData('adminAll');
-        return view('admin.booking.index', compact('pageTitle', 'bookingTourPackages'));
+        $pageTitle = 'Tour Bookings';
+        $tourBookings = TourBooking::with('user', 'tour_package')
+            ->when($request->search, function ($query) use ($request) {
+                $search = $request->search;
+                $query->whereHas('user', function ($query) use ($search) {
+                    $query->where('username', 'like', "%$search%");
+                });
+            })
+            ->orderBy('id', 'desc')
+            ->paginate(getPaginate());
+        return view('admin.booking.all_booked', compact('pageTitle', 'tourBookings'));
     }
 
     public function bookingTourPackagePending()
