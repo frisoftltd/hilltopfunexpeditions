@@ -26,10 +26,20 @@ class QuoteRequestController extends Controller
             ->findOrFail($id);
 
         if ($item->status == QuoteRequestStatus::PENDING) {
-            $item->status = QuoteRequestStatus::RESPONDED;
+            $item->status = QuoteRequestStatus::VIEWED;
             $item->save();
         }
 
         return view($this->activeTemplate . 'agency.quote_requests.view', compact('pageTitle', 'item'));
+    }
+
+    public function markResponded($id)
+    {
+        $item = QuoteRequest::where('agency_id', auth('agency')->id())->findOrFail($id);
+        $item->status = QuoteRequestStatus::RESPONDED;
+        $item->save();
+
+        $notify[] = ['success', 'Marked as responded.'];
+        return back()->withNotify($notify);
     }
 }

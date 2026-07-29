@@ -48,6 +48,13 @@
                 <h6 class="mb-2">@lang('Message')</h6>
                 <p class="mb-0">{{ $item->message }}</p>
             @endif
+
+            @if ($item->status != App\Constants\QuoteRequestStatus::RESPONDED)
+                <form action="{{ route('agency.quote.requests.respond', $item->id) }}" method="POST" class="mt-3">
+                    @csrf
+                    <button type="submit" class="btn btn--base btn--sm pills">@lang('Mark as Responded')</button>
+                </form>
+            @endif
         </div>
     </div>
 </div>

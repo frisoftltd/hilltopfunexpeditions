@@ -5,5 +5,6 @@ namespace App\Constants;
 class QuoteRequestStatus
 {
     const PENDING = 0;
-    const RESPONDED = 1;
+    const VIEWED = 1;
+    const RESPONDED = 2;
 }

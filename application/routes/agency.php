@@ -128,6 +128,7 @@ Route::middleware('agency')->name('agency.')->group(function () {
             Route::controller('QuoteRequestController')->prefix('quote-requests')->name('quote.requests.')->group(function () {
                 Route::get('/', 'index')->name('index');
                 Route::get('view/{id}', 'view')->name('view');
+                Route::post('respond/{id}', 'markResponded')->name('respond');
             });
 
             // Withdraw

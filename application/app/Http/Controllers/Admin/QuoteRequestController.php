@@ -21,10 +21,20 @@ class QuoteRequestController extends Controller
         $item = QuoteRequest::with('tourPackage', 'user', 'agency')->findOrFail($id);
 
         if ($item->status == QuoteRequestStatus::PENDING) {
-            $item->status = QuoteRequestStatus::RESPONDED;
+            $item->status = QuoteRequestStatus::VIEWED;
             $item->save();
         }
 
         return view('admin.quote_requests.view', compact('pageTitle', 'item'));
+    }
+
+    public function markResponded($id)
+    {
+        $item = QuoteRequest::findOrFail($id);
+        $item->status = QuoteRequestStatus::RESPONDED;
+        $item->save();
+
+        $notify[] = ['success', 'Marked as responded.'];
+        return back()->withNotify($notify);
     }
 }
