@@ -75,6 +75,15 @@
                         </div>
                     </div>
 
+                    <div class="col-lg-12">
+                        <div class="form-group">
+                            <label class="mb-2 form--label">@lang('Tagline')</label>
+                            <input type="text" class="form-control form--control" name="tagline"
+                                value="{{ $user->tagline }}" maxlength="255"
+                                placeholder="@lang('e.g. Talkative Guide, Rwanda Local')">
+                        </div>
+                    </div>
+
                     <div class="col-lg-6">
                         <div class="form-group">
                             <label class="mb-2 form--label">@lang('Address')</label>

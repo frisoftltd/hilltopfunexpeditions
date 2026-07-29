@@ -1,42 +1,72 @@
+@php
+    $locationParts = array_filter([$agency->address?->city, $agency->address?->country]);
+    $location = implode(', ', $locationParts);
+@endphp
 @extends($activeTemplate . 'layouts.frontend')
 @section('content')
     <section class="profile--section py-100">
         <div class="container">
-            <div class="row">
-                <div class="col-lg-12">
-                    <div class="owner--profile bg--img base--radius mb-40">
-                        <div class="profile--banner radius--16 overflow-hidden">
-                            <img class="fit--img"
-                                src="{{ getImage(getFilePath('coverImage') . '/' . $agency->cover_image, getFileSize('coverImage')) }}"
-                                alt="@lang('Cover Image')">
+            <div class="row gy-4">
+                <div class="col-lg-4">
+                    <div class="base--card radius--20 text-center operator-sidebar position-sticky">
+                        <div class="thumb--wrap radius--50 overflow-hidden mx-auto mb-3">
+                            <img class="fit--img radius--50"
+                                src="{{ getImage(getFilePath('agencyProfile') . '/' . $agency->image, getFileSize('agencyProfile')) }}"
+                                alt="@lang('Image')">
                         </div>
-                        <div class="profile--info d-flex flex-column justify-content-center align-items-center gap--16 mb-4">
-                            <div class="thumb--wrap radius--50 overflow-hidden">
-                                <img class="fit--img radius--50 overflow-hidden"
-                                    src="{{ getImage(getFilePath('agencyProfile') . '/' . $agency->image, getFileSize('agencyProfile')) }}"
-                                    alt="@lang('Image')">
-                            </div>
-                            <div class="d-flex align-items-center gap--8">
-                                <h6 class="name fs--26 fw--700 mb-0">{{ $agency->fullname }}</h6>
-                                @if ($agency->kv == 1)
-                                    <i class="fas fa-circle-check text--base" title="@lang('KYC Verified')"></i>
-                                @endif
-                            </div>
-                            <p class="mb-0">@lang('Member since') {{ showDateTime($agency->created_at, 'M Y') }}</p>
 
-                            @if ($reviewCount > 0)
-                                <div class="d-flex align-items-center gap--8">
-                                    <ul class="rating-wrap d-flex mb-0">
-                                        @php echo calculateIndividualRating($averageRating) @endphp
-                                    </ul>
-                                    <span class="fs--14">{{ number_format($averageRating, 1) }} ({{ $reviewCount }} @lang('reviews'))</span>
-                                </div>
-                            @else
-                                <p class="fs--14 mb-0">@lang('No reviews yet')</p>
+                        <div class="d-flex align-items-center justify-content-center gap--8">
+                            <h6 class="name fs--24 fw--700 mb-0">{{ $agency->fullname }}</h6>
+                            @if ($agency->kv == 1)
+                                <i class="fas fa-circle-check text--base" title="@lang('KYC Verified')"></i>
                             @endif
                         </div>
 
-                        <div class="auth--badge d-flex align-items-center justify-content-center gap--8 flex-wrap mb-4">
+                        @if ($agency->tagline)
+                            <p class="text--base fw--600 mb-2">{{ $agency->tagline }}</p>
+                        @endif
+
+                        @if ($reviewCount > 0)
+                            <div class="d-flex align-items-center justify-content-center gap--8 mb-2">
+                                <ul class="rating-wrap d-flex mb-0">
+                                    @php echo calculateIndividualRating($averageRating) @endphp
+                                </ul>
+                                <span class="fs--14">{{ number_format($averageRating, 1) }} ({{ $reviewCount }} @lang('reviews'))</span>
+                            </div>
+                        @else
+                            <p class="fs--14">@lang('No reviews yet')</p>
+                        @endif
+
+                        @if ($location)
+                            <p class="fs--14 mb-1"><i class="fa-regular fa-compass"></i> {{ $location }}</p>
+                        @endif
+                        <p class="fs--14">@lang('Member since') {{ showDateTime($agency->created_at, 'M Y') }}</p>
+
+                        <a href="#packages" id="bookMeBtn" class="btn btn--base btn--lg w--100 pills mt-2">
+                            @lang('Book Me')
+                        </a>
+                    </div>
+                </div>
+
+                <div class="col-lg-8">
+                    <div class="profile--banner radius--16 overflow-hidden mb-4">
+                        <img class="fit--img w--100"
+                            src="{{ getImage(getFilePath('coverImage') . '/' . $agency->cover_image, getFileSize('coverImage')) }}"
+                            alt="@lang('Cover Image')">
+                    </div>
+
+                    <div class="base--card radius--20 mb-4">
+                        <h6 class="fw--700 mb-3">@lang('Hi there! Nice to meet you')</h6>
+                        @if ($agency->bio)
+                            <div id="bioText" class="bio-clamp mb-2">{{ $agency->bio }}</div>
+                            <a href="javascript:void(0)" id="bioToggle" class="text--base fw--600 d-none">@lang('Read more')</a>
+                        @else
+                            <p class="mb-0">@lang("This operator hasn't added a bio yet.")</p>
+                        @endif
+                    </div>
+
+                    <div class="base--card radius--20 mb-4">
+                        <div class="auth--badge d-flex align-items-center gap--8 flex-wrap">
                             <h5 class="social-share--title mb-0 me-sm-3 me-1 d-inline-block">@lang('Share This'):</h5>
                             <ul class="social-list d-flex gap--12 mb-0">
                                 <li class="social-list--item">
@@ -66,15 +96,8 @@
                         </div>
                     </div>
 
-                    @if ($agency->bio)
-                        <div class="base--card radius--20 mb-40">
-                            <h5 class="mb-3">@lang('About')</h5>
-                            <p class="mb-0">{{ $agency->bio }}</p>
-                        </div>
-                    @endif
-
-                    <div class="mb-40">
-                        <h5 class="mb-3">@lang('Tour Packages')</h5>
+                    <div id="packages" class="mb-4">
+                        <h5 class="mb-3">@lang('Book one of my offers')</h5>
                         <div class="row gy-4">
                             @include($activeTemplate . 'components.single_tour_package')
                         </div>
@@ -122,10 +145,37 @@
     </section>
 @endsection
 
+@push('style')
+    <style>
+        .operator-sidebar {
+            top: 100px;
+        }
+
+        .bio-clamp {
+            display: -webkit-box;
+            -webkit-box-orient: vertical;
+            -webkit-line-clamp: 3;
+            overflow: hidden;
+        }
+
+        .bio-clamp.expanded {
+            -webkit-line-clamp: unset;
+            display: block;
+        }
+
+        @media (max-width: 991px) {
+            .operator-sidebar {
+                position: static;
+            }
+        }
+    </style>
+@endpush
+
 @push('script')
     <script>
         (function() {
             "use strict";
+
             const copyBtn = document.getElementById('copyProfileLink');
             if (copyBtn) {
                 copyBtn.addEventListener('click', function() {
@@ -137,6 +187,31 @@
                             copyBtn.querySelector('i').classList.add('fa-link');
                         }, 2000);
                     });
+                });
+            }
+
+            const bookMeBtn = document.getElementById('bookMeBtn');
+            if (bookMeBtn) {
+                bookMeBtn.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    const target = document.getElementById('packages');
+                    if (target) {
+                        target.scrollIntoView({
+                            behavior: 'smooth'
+                        });
+                    }
+                });
+            }
+
+            const bioText = document.getElementById('bioText');
+            const bioToggle = document.getElementById('bioToggle');
+            if (bioText && bioToggle) {
+                if (bioText.scrollHeight > bioText.clientHeight + 2) {
+                    bioToggle.classList.remove('d-none');
+                }
+                bioToggle.addEventListener('click', function() {
+                    const expanded = bioText.classList.toggle('expanded');
+                    bioToggle.textContent = expanded ? "{{ __('Read less') }}" : "{{ __('Read more') }}";
                 });
             }
         })();
