@@ -27,23 +27,43 @@
                         @endif
 
                         @if ($reviewCount > 0)
-                            <div class="d-flex align-items-center justify-content-center gap--8 mb-2">
-                                <ul class="rating-wrap d-flex mb-0">
+                            <div class="tour-card__star d-flex align-items-center justify-content-center gap--12 mb-3">
+                                <ul class="d-flex mb-0">
                                     @php echo calculateIndividualRating($averageRating) @endphp
                                 </ul>
                                 <span class="fs--14">{{ number_format($averageRating, 1) }} ({{ $reviewCount }} @lang('reviews'))</span>
                             </div>
                         @else
-                            <p class="fs--14">@lang('No reviews yet')</p>
+                            <p class="fs--14 mb-3">@lang('No reviews yet')</p>
                         @endif
 
-                        @if ($location)
-                            <p class="fs--14 mb-1"><i class="fa-regular fa-compass"></i> {{ $location }}</p>
-                        @endif
-                        @if (!empty($agency->languages))
-                            <p class="fs--14 mb-1"><i class="fa-solid fa-language"></i> @lang('Languages Spoken'): {{ implode(', ', $agency->languages) }}</p>
-                        @endif
-                        <p class="fs--14">@lang('Member since') {{ showDateTime($agency->created_at, 'M Y') }}</p>
+                        <div class="sidebar-info-list">
+                            @if ($location)
+                                <div class="d-flex align-items-center justify-content-center gap--8 py-2 border-bottom">
+                                    <i class="fa-regular fa-compass text--base"></i>
+                                    <span class="fs--14">{{ $location }}</span>
+                                </div>
+                            @endif
+
+                            @if (!empty($agency->languages))
+                                <div class="py-2 border-bottom">
+                                    <div class="d-flex align-items-center justify-content-center gap--8 mb-2">
+                                        <i class="fa-solid fa-language text--base"></i>
+                                        <span class="fs--14 fw--600">@lang('Languages Spoken')</span>
+                                    </div>
+                                    <div class="d-flex flex-wrap justify-content-center gap--8">
+                                        @foreach ($agency->languages as $language)
+                                            <span class="language-pill">{{ ucfirst($language) }}</span>
+                                        @endforeach
+                                    </div>
+                                </div>
+                            @endif
+
+                            <div class="d-flex align-items-center justify-content-center gap--8 py-2">
+                                <i class="fa-regular fa-calendar text--base"></i>
+                                <span class="fs--14">@lang('Member since') {{ showDateTime($agency->created_at, 'M Y') }}</span>
+                            </div>
+                        </div>
 
                         <button type="button" class="btn btn--base btn--lg w--100 pills mt-2"
                             data-bs-toggle="modal" data-bs-target="#packagesModal">
@@ -171,6 +191,16 @@
     <style>
         .operator-sidebar {
             top: 100px;
+        }
+
+        .language-pill {
+            display: inline-block;
+            background-color: hsl(var(--base) / 0.12);
+            color: hsl(var(--base-d-500));
+            padding: 4px 14px;
+            border-radius: 20px;
+            font-size: 13px;
+            font-weight: 600;
         }
 
         .bio-clamp {
