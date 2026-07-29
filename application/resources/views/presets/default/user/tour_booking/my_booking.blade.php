@@ -50,29 +50,30 @@
                             @php echo $item->statusBadge($item->status) @endphp
                         </td>
                         <td class="text-center" data-label="@lang('Action')">
-                            <a class="btn btn-md btn--base detailBtn action--btn" title="@lang('Details')"
-                                href="{{ route('tour.package.details', [$item->tour_package->id, slug($item->tour_package->title)]) }}">
-                                <i class="la la-link"></i>
-                            </a>
+                            <div class="d-flex align-items-center justify-content-center gap-2">
+                                <a class="btn btn-md btn--base detailBtn action--btn" title="@lang('Details')"
+                                    href="{{ route('tour.package.details', [$item->tour_package->id, slug($item->tour_package->title)]) }}">
+                                    <i class="la la-link"></i>
+                                </a>
 
+                                <a class="btn btn-md btn--base detailBtn action--btn" title="@lang('Tour Details')"
+                                    href="{{ route('user.tour.package.booking.details',$item->id) }}">
+                                    <i class="la la-eye"></i>
+                                </a>
 
-                            <a class="btn btn-md btn--base detailBtn action--btn" title="@lang('Tour Details')"
-                                href="{{ route('user.tour.package.booking.details',$item->id) }}">
-                                <i class="la la-eye"></i>
-                            </a>
-
-                            @php
-                                $rowNotCancellableStatuses = [App\Constants\BookingStatus::REJECTED, App\Constants\BookingStatus::CANCELLED_BY_TRAVELER];
-                                $rowPastCancelWindow = !$item->start_date || now()->greaterThanOrEqualTo($item->start_date->copy()->subHours(24));
-                                $rowCanCancel = !in_array($item->status, $rowNotCancellableStatuses) && !$rowPastCancelWindow;
-                            @endphp
-                            @if ($rowCanCancel)
-                                <button type="button" class="btn btn-md btn--danger action--btn confirmationBtn" title="@lang('Cancel Booking')"
-                                    data-question="@lang('Are you sure you want to cancel this booking?')"
-                                    data-action="{{ route('user.tour.package.booking.cancel', $item->id) }}">
-                                    <i class="la la-times"></i>
-                                </button>
-                            @endif
+                                @php
+                                    $rowNotCancellableStatuses = [App\Constants\BookingStatus::REJECTED, App\Constants\BookingStatus::CANCELLED_BY_TRAVELER];
+                                    $rowPastCancelWindow = !$item->start_date || now()->greaterThanOrEqualTo($item->start_date->copy()->subHours(24));
+                                    $rowCanCancel = !in_array($item->status, $rowNotCancellableStatuses) && !$rowPastCancelWindow;
+                                @endphp
+                                @if ($rowCanCancel)
+                                    <button type="button" class="btn btn-md btn--danger action--btn confirmationBtn" title="@lang('Cancel Booking')"
+                                        data-question="@lang('Are you sure you want to cancel this booking?')"
+                                        data-action="{{ route('user.tour.package.booking.cancel', $item->id) }}">
+                                        <i class="la la-times"></i>
+                                    </button>
+                                @endif
+                            </div>
                         </td>
                     </tr>
                 @empty

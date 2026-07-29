@@ -13,18 +13,15 @@
             </a>
         </li>
 
-        <li class="sidebar-menu-list__item has-dropdown {{ isActiveRoute('user.tour.package.booking.my.list')||isActiveRoute('user.tour.package.booking.pending') ||   isActiveRoute('user.tour.package.booking.approved')|| isActiveRoute('user.tour.package.booking.cancel') || isActiveRoute('user.deposit.history') || isActiveRoute('user.tour.package.booking.details') ? 'active' : '' }}">
+        <li class="sidebar-menu-list__item has-dropdown {{ isActiveRoute('user.tour.package.booking.my.list')||   isActiveRoute('user.tour.package.booking.approved')|| isActiveRoute('user.tour.package.booking.canceled') || isActiveRoute('user.deposit.history') || isActiveRoute('user.tour.package.booking.details') ? 'active' : '' }}">
             <a href="javascript:void(0)" class="sidebar-menu-list__link">
                 <span class="icon"><i class="fa-solid fa-cart-shopping"></i></span>
                 <span class="text">@lang('Tour Bookings')</span>
             </a>
-            <div class="sidebar-submenu {{ isActiveRoute('user.tour.package.booking.my.list')||isActiveRoute('user.tour.package.booking.pending') || isActiveRoute('user.tour.package.booking.approved')|| isActiveRoute('user.tour.package.booking.cancel') || isActiveRoute('user.deposit.history') || isActiveRoute('user.tour.package.booking.details') ? 'd-block' : '' }}">
+            <div class="sidebar-submenu {{ isActiveRoute('user.tour.package.booking.my.list') || isActiveRoute('user.tour.package.booking.approved')|| isActiveRoute('user.tour.package.booking.canceled') || isActiveRoute('user.deposit.history') || isActiveRoute('user.tour.package.booking.details') ? 'd-block' : '' }}">
                 <ul class="sidebar-submenu-list">
                     <li class="sidebar-submenu-list__item">
                         <a href="{{route('user.tour.package.booking.my.list')}}" class="sidebar-submenu-list__link {{ Route::is('user.tour.package.booking.my.list') ? 'active' : '' }}">@lang('My Bookings')</a>
-                    </li>
-                    <li class="sidebar-submenu-list__item">
-                        <a href="{{route('user.tour.package.booking.pending')}}" class="sidebar-submenu-list__link {{ Route::is('user.tour.package.booking.pending') ? 'active' : '' }}">@lang('Processing')</a>
                     </li>
 
                     <li class="sidebar-submenu-list__item">

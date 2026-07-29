@@ -3,6 +3,9 @@
 namespace App\Http\Controllers\User;
 
 use App\Constants\BookingStatus;
+use App\Models\AdminNotification;
+use App\Models\SupportMessage;
+use App\Models\SupportTicket;
 use App\Models\Transaction;
 use App\Models\TourBooking;
 use Illuminate\Http\Request;
@@ -95,16 +98,55 @@ class BookingController extends Controller
             ]);
         }
 
+        $this->openCancellationTicket($booking);
+
         $notify[] = ['success', 'Your booking has been cancelled.'];
         return back()->withNotify($notify);
     }
 
-
-    public function pending()
+    /**
+     * Mirrors SupportTicketManager::storeSupportTicket()'s row shape, but
+     * set directly rather than through the trait since this ticket isn't
+     * coming from the manual create-ticket form. Sets both user_id and
+     * agency_id (when the package is agency-owned) so the ticket shows up
+     * in both the traveler's and the agency's own Support Tickets list -
+     * the table already supports both columns on one row (see
+     * SupportTicket::user()/agency() and the agency_id-based ticket
+     * widgets already used elsewhere), no new visibility mechanism needed.
+     */
+    protected function openCancellationTicket(TourBooking $booking)
     {
-        $pageTitle = 'User Pending Booking-List';
-        $tourBookingList = $this->tourPackageData('userPending');
-        return view($this->activeTemplate . 'user.tour_booking.my_booking', compact('pageTitle', 'tourBookingList'));
+        $user = auth()->user();
+        $tourTitle = $booking->tour_package->title ?? 'your tour';
+
+        $ticket = new SupportTicket();
+        $ticket->user_id = $user->id;
+        if ($booking->owner_type == 'agency') {
+            $ticket->agency_id = $booking->owner_id;
+        }
+        $ticket->ticket = rand(100000, 999999);
+        $ticket->name = $user->fullname;
+        $ticket->email = $user->email;
+        $ticket->subject = 'Booking Cancellation — Refund Request (#' . $booking->id . ')';
+        $ticket->last_reply = now();
+        $ticket->status = 0;
+        $ticket->priority = 3;
+        $ticket->save();
+
+        $message = new SupportMessage();
+        $message->support_ticket_id = $ticket->id;
+        $message->message = "This ticket was auto-generated from a traveler cancellation.\n\n"
+            . "Tour package: {$tourTitle}\n"
+            . "Booking ID: #{$booking->id}\n"
+            . 'Price: ' . showAmount($booking->price) . "\n\n"
+            . 'Please review this booking cancellation and process a refund if applicable.';
+        $message->save();
+
+        $adminNotification = new AdminNotification();
+        $adminNotification->user_id = $user->id;
+        $adminNotification->title = 'Booking cancellation - refund request opened';
+        $adminNotification->click_url = urlPath('admin.ticket.view', $ticket->id);
+        $adminNotification->save();
     }
 
     public function approved()

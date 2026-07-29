@@ -115,7 +115,6 @@ Route::middleware('auth')->name('user.')->group(function () {
             Route::controller('BookingController')->name('tour.package.booking.')->group(function () {
                 Route::post('/booking-now', 'bookingNow')->name('now');
                 Route::get('/booking-list', 'bookingList')->name('my.list');
-                Route::get('pending', 'pending')->name('pending');
                 Route::get('approved', 'approved')->name('approved');
                 Route::get('canceled', 'canceled')->name('canceled');
                 Route::get('booking-details/{id}', 'bookingDetails')->name('details');

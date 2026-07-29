@@ -134,8 +134,8 @@
                                     @lang('Cancel Booking')
                                 </button>
                                 <p class="fs--14 mt-2 mb-0">
-                                    @lang('Cancelling will void this booking. Since payments are processed manually, refunds are not automatic —')
-                                    <a href="{{ route('ticket.open') }}">@lang('please open a support ticket to request a refund')</a>.
+                                    @lang('Cancelling will void this booking and automatically open a support ticket for your refund request — track it under')
+                                    <a href="{{ route('ticket') }}">@lang('Support Tickets')</a>.
                                 </p>
                             </div>
                         @elseif (!in_array($bookingDetails->status, $notCancellableStatuses))

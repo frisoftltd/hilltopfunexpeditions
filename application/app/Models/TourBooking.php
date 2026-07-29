@@ -98,7 +98,7 @@ class TourBooking extends Model
 
     public function scopeAdminCanceled()
     {
-        return $this->where('status', 3)->where('owner_type','admin')->where('owner_id', auth('admin')->id());
+        return $this->whereIn('status', [BookingStatus::REJECTED, BookingStatus::CANCELLED_BY_TRAVELER])->where('owner_type','admin')->where('owner_id', auth('admin')->id());
     }
 
     public function scopeAgency()
@@ -118,12 +118,17 @@ class TourBooking extends Model
 
     public function scopeAgencyCanceled()
     {
-        return $this->where('status', 3)->where('owner_type','agency')->where('owner_id', auth('agency')->id());
+        return $this->whereIn('status', [BookingStatus::REJECTED, BookingStatus::CANCELLED_BY_TRAVELER])->where('owner_type','agency')->where('owner_id', auth('agency')->id());
     }
 
+    /**
+     * "Approved" means the agency approved the booking (agency_status),
+     * not that payment succeeded - those are independent concepts, see
+     * agency_status doc-comment on agencyStatusBadge() below.
+     */
     public function scopeUserApproved($query)
     {
-        return $query->where('status', 1)->where('user_id', auth()->id());
+        return $query->where('agency_status', BookingStatus::AGENCY_APPROVED)->where('user_id', auth()->id());
     }
 
     public function scopeUserPending()
@@ -134,7 +139,7 @@ class TourBooking extends Model
 
     public function scopeUserCanceled()
     {
-        return $this->where('status', 3)->where('user_id', auth()->id());
+        return $this->whereIn('status', [BookingStatus::REJECTED, BookingStatus::CANCELLED_BY_TRAVELER])->where('user_id', auth()->id());
     }
 
 
