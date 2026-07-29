@@ -110,6 +110,19 @@
                         </div>
                     </div>
                     <div class="col-lg-12">
+                        <div class="form-group">
+                            <label class="mb-2 form--label">@lang('Cover Image')</label>
+                            <input type="file" class="form-control form--control" name="cover_image" accept="image/*">
+                        </div>
+                    </div>
+                    <div class="col-lg-12">
+                        <div class="form-group">
+                            <label class="mb-2 form--label">@lang('Bio')</label>
+                            <textarea class="form-control form--control" name="bio" rows="5"
+                                placeholder="@lang('Tell travelers about your agency')">{{ $user->bio }}</textarea>
+                        </div>
+                    </div>
+                    <div class="col-lg-12">
                         <div class="text-end">
                             <button type="submit" class="btn btn--base btn--lg pills">@lang('Submit')</button>
                         </div>

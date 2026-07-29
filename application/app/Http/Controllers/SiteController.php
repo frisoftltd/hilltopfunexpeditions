@@ -10,6 +10,7 @@ use App\Models\Artwork;
 use App\Models\Category;
 use App\Models\Frontend;
 use App\Models\Language;
+use App\Models\Review;
 use App\Models\Collection;
 use App\Models\Subscriber;
 use App\Models\TourPackage;
@@ -127,7 +128,7 @@ class SiteController extends Controller
     public function tourPackageDetails($id, $slug)
     {
         $pageTitle = 'Tour Details';
-        $tourPackage = TourPackage::with(['reviews', 'reviews.user', 'wishlists', 'tour_package_images', 'packagePrices.priceCategory', 'tour_bookings'])->findOrFail($id);
+        $tourPackage = TourPackage::with(['reviews', 'reviews.user', 'wishlists', 'tour_package_images', 'packagePrices.priceCategory', 'tour_bookings', 'agency'])->findOrFail($id);
         $tourPackage->view += 1;
         $tourPackage->save();
 
@@ -137,6 +138,27 @@ class SiteController extends Controller
             ->limit(3)
             ->get();
         return view($this->activeTemplate . 'tour-package.tour_package_details', compact('pageTitle', 'tourPackage', 'tourPackages'));
+    }
+
+    public function operatorProfile($username)
+    {
+        $agency = Agency::where('username', $username)->firstOrFail();
+        $pageTitle = $agency->fullname;
+
+        $tourPackages = TourPackage::with(['reviews', 'reviews.user', 'wishlists', 'tour_package_images', 'TourPackagePrimaryImage', 'packagePrices'])
+            ->where('user_type', 'agency')
+            ->where('user_id', $agency->id)
+            ->active()
+            ->latest()
+            ->get();
+
+        $packageIds = TourPackage::where('user_type', 'agency')->where('user_id', $agency->id)->pluck('id');
+
+        $averageRating = Review::whereIn('tour_package_id', $packageIds)->avg('star');
+        $reviewCount = Review::whereIn('tour_package_id', $packageIds)->count();
+        $reviews = Review::with('user')->whereIn('tour_package_id', $packageIds)->latest()->limit(10)->get();
+
+        return view($this->activeTemplate . 'operator.profile', compact('pageTitle', 'agency', 'tourPackages', 'averageRating', 'reviewCount', 'reviews'));
     }
 
     public function tourPackageList()

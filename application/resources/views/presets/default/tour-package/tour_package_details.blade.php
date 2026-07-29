@@ -90,6 +90,14 @@
                     <div class="base--card section--bg__two radius--16 border--none">
                         <div class="product--info__item mb-3">
                             <h6 class="fs--32 fw--600 mb-2">{{ __($tourPackage->title) }}</h6>
+                            @if ($tourPackage->user_type == 'agency' && $tourPackage->agency)
+                                <p class="mb-2">
+                                    @lang('Sold by')
+                                    <a href="{{ route('operator.profile', $tourPackage->agency->username) }}" class="text--base fw--600">
+                                        {{ $tourPackage->agency->fullname }}
+                                    </a>
+                                </p>
+                            @endif
                             <ul class="d-flex gap--20">
                                 <li>
                                     <span class="text--black7"><i class="fa-solid fa-user-group"></i>

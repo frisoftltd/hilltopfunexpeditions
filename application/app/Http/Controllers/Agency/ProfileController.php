@@ -22,6 +22,7 @@ class ProfileController extends Controller
         $request->validate([
             'firstname' => 'required|string',
             'lastname' => 'required|string',
+            'bio' => 'nullable|string|max:2000',
             'image' => ['image',new FileTypeValidate(['jpg','jpeg','png'])],
             'cover_image' => ['image',new FileTypeValidate(['jpg','jpeg','png'])],
         ],[
@@ -33,6 +34,7 @@ class ProfileController extends Controller
 
         $user->firstname = $request->firstname;
         $user->lastname = $request->lastname;
+        $user->bio = $request->bio;
 
         $user->address = [
             'address' => $request->address,

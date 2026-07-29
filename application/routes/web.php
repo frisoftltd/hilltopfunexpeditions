@@ -36,6 +36,7 @@ Route::controller('SiteController')->group(function () {
 
     Route::get('tour-package/{slug}/{id}', 'tourPackageDetails')->name('tour.package.details');
     Route::get('browse', 'tourPackageList')->name('browse');
+    Route::get('operator/{username}', 'operatorProfile')->name('operator.profile');
 
     Route::post('subscribe','subscribe')->name('subscribe');
     Route::get('tour-side-filter','tourPackageSideFilter')->name('tour.package.side.filter');
