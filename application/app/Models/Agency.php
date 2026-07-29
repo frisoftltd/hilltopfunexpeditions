@@ -40,6 +40,16 @@ class Agency extends Authenticatable
         return $this->hasMany(Artwork::class);
     }
 
+    /**
+     * Inverse of TourPackage::agency(). user_id is shared with the admin
+     * table (not a dedicated FK), so this must also filter user_type -
+     * same scoping used everywhere else a package is matched to its agency.
+     */
+    public function tourPackages()
+    {
+        return $this->hasMany(TourPackage::class, 'user_id')->where('user_type', 'agency');
+    }
+
     public function transactions()
     {
         return $this->hasMany(Transaction::class)->orderBy('id','desc');

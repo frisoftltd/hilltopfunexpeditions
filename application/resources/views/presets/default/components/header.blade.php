@@ -58,6 +58,12 @@
                                     @lang('Tours')
                                 </a>
                             </li>
+                            <li>
+                                <a class="{{ Request::routeIs('operators') ? 'active' : '' }}"
+                                    href="{{ route('operators') }}">
+                                    @lang('Operators')
+                                </a>
+                            </li>
                             @foreach ($pages as $page)
                                 <li>
                                     <a class="{{ Request::url() == url($page->slug) ? 'active' : '' }}"
@@ -167,6 +173,12 @@
                 <a class="{{ Request::routeIs('browse') ? 'active' : '' }}"
                     href="{{ route('browse') }}" aria-current="page">
                     @lang('Tours')
+                </a>
+            </li>
+            <li>
+                <a class="{{ Request::routeIs('operators') ? 'active' : '' }}"
+                    href="{{ route('operators') }}" aria-current="page">
+                    @lang('Operators')
                 </a>
             </li>
             @foreach ($pages as $page)

@@ -140,6 +140,13 @@ class SiteController extends Controller
         return view($this->activeTemplate . 'tour-package.tour_package_details', compact('pageTitle', 'tourPackage', 'tourPackages'));
     }
 
+    public function operators()
+    {
+        $pageTitle = 'Tour Operators';
+        $agencies = Agency::where('status', 1)->withCount('tourPackages')->latest()->paginate(getPaginate());
+        return view($this->activeTemplate . 'operators.index', compact('pageTitle', 'agencies'));
+    }
+
     public function operatorProfile($username)
     {
         $agency = Agency::where('username', $username)->firstOrFail();
