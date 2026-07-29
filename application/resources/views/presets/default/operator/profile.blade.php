@@ -42,9 +42,10 @@
                         @endif
                         <p class="fs--14">@lang('Member since') {{ showDateTime($agency->created_at, 'M Y') }}</p>
 
-                        <a href="#packages" id="bookMeBtn" class="btn btn--base btn--lg w--100 pills mt-2">
+                        <button type="button" class="btn btn--base btn--lg w--100 pills mt-2"
+                            data-bs-toggle="modal" data-bs-target="#packagesModal">
                             @lang('Book Me')
-                        </a>
+                        </button>
                     </div>
                 </div>
 
@@ -143,6 +144,24 @@
             </div>
         </div>
     </section>
+
+    <div class="modal fade" id="packagesModal" tabindex="-1" role="dialog">
+        <div class="modal-dialog modal-lg modal-dialog-scrollable" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">@lang('Book one of my offers')</h5>
+                    <button type="button" class="close btn btn--danger" data-bs-dismiss="modal" aria-label="Close">
+                        <i class="las la-times"></i>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <div class="row gy-4">
+                        @include($activeTemplate . 'components.single_tour_package')
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
 @endsection
 
 @push('style')
@@ -187,19 +206,6 @@
                             copyBtn.querySelector('i').classList.add('fa-link');
                         }, 2000);
                     });
-                });
-            }
-
-            const bookMeBtn = document.getElementById('bookMeBtn');
-            if (bookMeBtn) {
-                bookMeBtn.addEventListener('click', function(e) {
-                    e.preventDefault();
-                    const target = document.getElementById('packages');
-                    if (target) {
-                        target.scrollIntoView({
-                            behavior: 'smooth'
-                        });
-                    }
                 });
             }
 

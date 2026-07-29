@@ -41,10 +41,6 @@
         @include($activeTemplate . 'components.banner')
     @endif
 
-    @if (request()->route()->uri != '/' && !request()->routeIs('seller.profile'))
-        @include($activeTemplate . 'components.breadcrumb')
-    @endif
-
     @yield('content')
     @include($activeTemplate . 'components.footer')
 
