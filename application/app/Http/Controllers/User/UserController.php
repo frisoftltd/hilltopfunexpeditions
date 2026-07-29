@@ -6,6 +6,7 @@ use App\Models\Form;
 use App\Models\Order;
 use App\Models\Coupon;
 use App\Models\Review;
+use App\Models\ReviewImage;
 use App\Models\Artwork;
 use App\Models\Deposit;
 use App\Models\Wishlist;
@@ -243,6 +244,8 @@ class UserController extends Controller
         $request->validate([
             'star' => 'required|integer|between:1,5',
             'review' => 'required|string|max:1000',
+            'images' => 'nullable|array|max:5',
+            'images.*' => 'nullable|image|max:4096',
         ]);
 
         $user = auth()->user();
@@ -274,6 +277,15 @@ class UserController extends Controller
         $review->star  = $request->star;
         $review->review  = $request->review;
         $review->save();
+
+        if ($request->hasFile('images')) {
+            foreach (array_slice($request->file('images'), 0, 5) as $img) {
+                $reviewImage = new ReviewImage();
+                $reviewImage->review_id = $review->id;
+                $reviewImage->image = fileUploader($img, getFilePath('reviewImage'), getFileSize('reviewImage'));
+                $reviewImage->save();
+            }
+        }
 
         if ($review->save()) {
             $reviews = $tourPackage->reviews()->get();

@@ -132,31 +132,7 @@
                         <div class="row gy-4">
                             @forelse ($reviews as $item)
                                 <div class="col-lg-6">
-                                    <div class="review-card">
-                                        <div class="user-info">
-                                            <div class="thumb-wrap">
-                                                <img class="fit--img"
-                                                    src="{{ getImage(getFilePath('userProfile') . '/' . $item->user->image, getFileSize('userProfile')) }}"
-                                                    alt="..">
-                                            </div>
-                                            <div class="user-name">
-                                                <div class="d-flex align-items-center gap--8">
-                                                    <h1 class="name fs--20 fw--600 mb-0">
-                                                        {{ $item->user->fullname }}
-                                                    </h1>
-                                                    <p class="fs--14">
-                                                        {{ showDateTime($item->created_at, 'd M') }}
-                                                    </p>
-                                                </div>
-                                                <ul class="rating-wrap">
-                                                    @php echo calculateIndividualRating($item->star) @endphp
-                                                </ul>
-                                            </div>
-                                        </div>
-                                        <div class="content">
-                                            <div class="discription">@php echo $item->review; @endphp</div>
-                                        </div>
-                                    </div>
+                                    <x-review-card :review="$item" />
                                 </div>
                             @empty
                                 <h5 class="text-center no-review">@lang('No Reviews')</h5>

@@ -117,6 +117,10 @@ trait FileInfo
             'path'   =>'assets/images/tour_package_image',
             'size'      =>'855x535',
         ];
+        $data['reviewImage'] = [
+            'path' => 'assets/images/review_image',
+            'size' => '600x400',
+        ];
         return $data;
 	}
 

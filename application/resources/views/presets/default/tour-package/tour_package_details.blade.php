@@ -390,41 +390,14 @@
                                     <div class="row gy-4">
                                         @forelse ($tourPackage->reviews ?? [] as $item)
                                             <div class="col-lg-6">
-                                                <div class="review-card">
-                                                    <div class="user-info">
-                                                        <div class="thumb-wrap">
-                                                            <img class="fit--img"
-                                                                src="{{ getImage(getFilePath('userProfile') . '/' . $item->user->image, getFileSize('userProfile')) }}"
-                                                                alt="..">
-                                                        </div>
-                                                        <div class="user-name">
-                                                            <div class="d-flex align-items-center gap--8">
-                                                                <h1 class="name fs--20 fw--600 mb-0">
-                                                                    {{ $item->user->fullname }}
-                                                                </h1>
-                                                                <p class="fs--14">
-                                                                    {{ showDateTime($item->created_at, 'd M') }}
-                                                                </p>
-                                                            </div>
-                                                            <ul class="rating-wrap">
-                                                                @php echo calculateIndividualRating($item->star) @endphp
-                                                            </ul>
-                                                        </div>
-                                                    </div>
-                                                    <div class="content">
-
-                                                        <div class="discription">@php
-                                                            echo $item->review;
-                                                        @endphp</div>
-                                                    </div>
-                                                </div>
+                                                <x-review-card :review="$item" />
                                             </div>
                                         @empty
                                             <h5 class="text-center no-review">@lang('No Reviews')</h5>
                                         @endforelse
 
                                         <div class="row mt-4">
-                                            <form action="{{ route('user.review.submit') }}" method="POST">
+                                            <form action="{{ route('user.review.submit') }}" method="POST" enctype="multipart/form-data">
                                                 @csrf
                                                 <div class="review-box mb-4">
                                                     <input type="hidden" name="tour_package_id"
@@ -439,6 +412,11 @@
                                                         <i class="far fa-star star--color" data-rating="5"></i>
                                                     </div>
                                                     <textarea class="form--control mb-3" name="review" placeholder="@lang('Write Your Review')"></textarea>
+
+                                                    <div class="form-group mb-3">
+                                                        <label class="mb-2 form--label">@lang('Photos (optional, up to 5)')</label>
+                                                        <input type="file" class="form--control" name="images[]" accept="image/*" multiple>
+                                                    </div>
 
                                                     <div class="text-end">
                                                         <button type="submit"
