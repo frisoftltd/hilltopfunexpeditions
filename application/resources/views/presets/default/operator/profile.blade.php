@@ -146,7 +146,7 @@
     </section>
 
     <div class="modal fade" id="packagesModal" tabindex="-1" role="dialog">
-        <div class="modal-dialog modal-lg modal-dialog-scrollable" role="document">
+        <div class="modal-dialog modal-xl modal-dialog-scrollable" role="document">
             <div class="modal-content">
                 <div class="modal-header">
                     <h5 class="modal-title">@lang('Book one of my offers')</h5>
@@ -185,6 +185,12 @@
         @media (max-width: 991px) {
             .operator-sidebar {
                 position: static;
+            }
+        }
+
+        @media (min-width: 1200px) {
+            #packagesModal .modal-dialog {
+                max-width: 90%;
             }
         }
     </style>
