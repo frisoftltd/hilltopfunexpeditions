@@ -288,6 +288,12 @@ Route::middleware('admin')->group(function () {
         Route::get('agency/tickets/view/{id}', 'ticketReply')->name('agency.ticket.view');
     });
 
+    // Quote Requests
+    Route::controller('QuoteRequestController')->prefix('quote-requests')->name('quote.requests.')->group(function () {
+        Route::get('/', 'index')->name('index');
+        Route::get('view/{id}', 'view')->name('view');
+    });
+
 
     // Language Manager
     Route::controller('LanguageController')->prefix('manage')->group(function () {

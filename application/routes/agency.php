@@ -124,6 +124,12 @@ Route::middleware('agency')->name('agency.')->group(function () {
                 Route::get('download/{ticket}', 'ticketDownload')->name('ticket.download');
             });
 
+            // Quote Requests
+            Route::controller('QuoteRequestController')->prefix('quote-requests')->name('quote.requests.')->group(function () {
+                Route::get('/', 'index')->name('index');
+                Route::get('view/{id}', 'view')->name('view');
+            });
+
             // Withdraw
             Route::controller('WithdrawController')->prefix('withdraw')->name('withdraw')->group(function () {
                 Route::get('/', 'withdrawMoney');

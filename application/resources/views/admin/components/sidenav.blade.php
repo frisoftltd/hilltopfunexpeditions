@@ -161,6 +161,13 @@
                     </a>
                 </li>
 
+                <li class="sidebar-menu-item {{ menuActive('admin.quote.requests.*') }}">
+                    <a href="{{ route('admin.quote.requests.index') }}" class="nav-link">
+                        <i class="menu-icon las la-comments-dollar"></i>
+                        <span class="menu-title">@lang('Quote Requests')</span>
+                    </a>
+                </li>
+
 
                 <li class="sidebar__menu-header">@lang('KYC Management')</li>
 

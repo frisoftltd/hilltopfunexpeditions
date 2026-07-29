@@ -21,6 +21,11 @@ Route::controller('Admin\AdController')->group(function () {
 
 Route::get('app/deposit/confirm/{hash}', 'Gateway\PaymentController@appDepositConfirm')->name('deposit.app.confirm');
 
+// Quote request - guest and logged-in tourists both submit here (no
+// account resolution needed, unlike the fixed booking widget), so no
+// auth middleware and no guest/logged-in route split is needed.
+Route::post('quote-request', 'QuoteRequestController@store')->name('quote.request.store');
+
 Route::controller('SiteController')->group(function () {
     Route::get('/contact', 'contact')->name('contact');
     Route::post('/contact', 'contactSubmit');

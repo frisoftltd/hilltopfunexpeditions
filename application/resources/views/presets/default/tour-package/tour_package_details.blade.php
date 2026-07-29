@@ -557,6 +557,80 @@
         </div>
     </section>
 
+    <section class="section--bg py-100">
+        <div class="container">
+            <div class="row justify-content-center">
+                <div class="col-lg-8">
+                    <div class="base--card radius--20">
+                        <h5 class="mb-2">@lang('Customize Your Tour')</h5>
+                        <p class="text--black7 mb-20">@lang("Don't see a date or package that fits? Tell us what you're looking for and we'll get back to you with a quote.")</p>
+
+                        <form method="POST" action="{{ route('quote.request.store') }}">
+                            @csrf
+                            <input type="hidden" name="tour_package_id" value="{{ $tourPackage->id }}">
+
+                            <div class="row gy-3">
+                                @unless (Auth::check())
+                                    <div class="col-lg-4">
+                                        <div class="form-group">
+                                            <label class="mb-2 form--label">@lang('Full Name')</label>
+                                            <input class="form--control" type="text" name="name" value="{{ old('name') }}" required>
+                                        </div>
+                                    </div>
+                                    <div class="col-lg-4">
+                                        <div class="form-group">
+                                            <label class="mb-2 form--label">@lang('Email')</label>
+                                            <input class="form--control" type="email" name="email" value="{{ old('email') }}" required>
+                                        </div>
+                                    </div>
+                                    <div class="col-lg-4">
+                                        <div class="form-group">
+                                            <label class="mb-2 form--label">@lang('Phone')</label>
+                                            <input class="form--control" type="text" name="phone" value="{{ old('phone') }}" required>
+                                        </div>
+                                    </div>
+                                @endunless
+
+                                <div class="col-lg-4">
+                                    <div class="form-group">
+                                        <label class="mb-2 form--label">@lang('Start Date')</label>
+                                        <input class="form--control" type="date" name="start_date"
+                                            min="{{ now()->toDateString() }}" required>
+                                    </div>
+                                </div>
+                                <div class="col-lg-4">
+                                    <div class="form-group">
+                                        <label class="mb-2 form--label">@lang('End Date')</label>
+                                        <input class="form--control" type="date" name="end_date"
+                                            min="{{ now()->toDateString() }}" required>
+                                    </div>
+                                </div>
+                                <div class="col-lg-4">
+                                    <div class="form-group">
+                                        <label class="mb-2 form--label">@lang('Travelers')</label>
+                                        <input class="form--control" type="number" min="1" step="1" name="party_size" value="1" required>
+                                    </div>
+                                </div>
+
+                                <div class="col-lg-12">
+                                    <div class="form-group">
+                                        <label class="mb-2 form--label">@lang('Tell us more about what you\'re looking for')</label>
+                                        <textarea class="form--control" name="message" rows="4"></textarea>
+                                    </div>
+                                </div>
+
+                                <div class="col-lg-12">
+                                    <button class="btn btn--base btn--lg pills" type="submit">@lang('Request a Quote')
+                                        <i class="fa-solid fa-arrow-right-long"></i></button>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
     <section class="recent--section section--bg position-relative py-100">
         <div class="container">
 
