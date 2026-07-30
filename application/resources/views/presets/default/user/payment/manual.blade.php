@@ -21,7 +21,7 @@
                     </div>
 
                     <div class="col-md-12 text-end">
-                        <button type="submit" class="btn btn--base btn--lg mt-3 pills">@lang('Pay Now')</button>
+                        <button type="submit" class="btn btn--base btn--lg mt-3 pills">@lang($gateway->is_pay_on_arrival ? 'Confirm Reservation' : 'Submit Payment Proof')</button>
                     </div>
                 </div>
             </form>
