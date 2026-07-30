@@ -17,6 +17,7 @@ class BookingController extends Controller
         $tourBookings = TourBooking::with('user', 'tour_package', 'priceCategory')
             ->where('owner_id', auth('agency')->id())
             ->where('owner_type', 'agency')
+            ->where('status', '!=', BookingStatus::UNPAID)
             ->when($request->search, function ($query) use ($request) {
                 $search = $request->search;
                 $query->whereHas('user', function ($query) use ($search) {
@@ -136,7 +137,14 @@ class BookingController extends Controller
             $bookingTourPackages  = $bookingTourPackages->with('tour_bookings.deposit')
                 ->where('title', 'like', "%$search%");
         }
-        return $bookingTourPackages->with('tour_bookings.deposit', 'tour_bookings.user', 'tour_bookings.owner', 'TourPackagePrimaryImage', 'packagePrices')->orderBy('id', 'desc')->paginate(getPaginate());
+        return $bookingTourPackages->with([
+            'tour_bookings' => fn ($query) => $query->where('status', '!=', BookingStatus::UNPAID),
+            'tour_bookings.deposit',
+            'tour_bookings.user',
+            'tour_bookings.owner',
+            'TourPackagePrimaryImage',
+            'packagePrices',
+        ])->orderBy('id', 'desc')->paginate(getPaginate());
     }
 
 

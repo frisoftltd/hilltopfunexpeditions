@@ -18,6 +18,7 @@ use Illuminate\Http\Request;
 use App\Models\SupportTicket;
 use App\Lib\GoogleAuthenticator;
 use App\Models\ArtworkCommission;
+use App\Constants\BookingStatus;
 use App\Http\Controllers\Controller;
 
 class AgencyController extends Controller
@@ -26,14 +27,21 @@ class AgencyController extends Controller
     {
         $pageTitle = 'Dashboard';
         $agency =  agency();
-        $myBooked =  TourPackage::with('tour_bookings.deposit', 'tour_bookings.user', 'tour_bookings.owner', 'TourPackagePrimaryImage', 'packagePrices')->where('user_id',auth('agency')->id())->where('user_type','agency')->paginate(getPaginate());
+        $myBooked =  TourPackage::with([
+            'tour_bookings' => fn ($query) => $query->where('status', '!=', BookingStatus::UNPAID),
+            'tour_bookings.deposit',
+            'tour_bookings.user',
+            'tour_bookings.owner',
+            'TourPackagePrimaryImage',
+            'packagePrices',
+        ])->where('user_id',auth('agency')->id())->where('user_type','agency')->paginate(getPaginate());
      
         $widget['total_tour_package'] =  TourPackage::where('user_type','agency')->where('user_id', auth('agency')->id())->count();
         $widget['total_approved_tour_package'] =  TourPackage::agencyApproved()->count();
         $widget['total_pending_tour_package'] =  TourPackage::agencyPending()->count();
         $widget['total_support_ticker'] =  SupportTicket::where('agency_id',auth('agency')->id())
         ->count();
-        $widget['total_bookings'] =  TourBooking::where('owner_id',auth('agency')->id())->where('owner_type','agency')->count();
+        $widget['total_bookings'] =  TourBooking::where('owner_id',auth('agency')->id())->where('owner_type','agency')->where('status', '!=', BookingStatus::UNPAID)->count();
         $widget['total_open_support_ticker'] =  SupportTicket::where('agency_id',auth('agency')->id())
         ->where('status',0)->count();
 
