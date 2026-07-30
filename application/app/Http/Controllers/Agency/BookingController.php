@@ -63,9 +63,14 @@ class BookingController extends Controller
 
     /**
      * Agency's own review layer (tour_bookings.agency_status) - independent
-     * of the payment status. Reachable regardless of current payment state,
-     * since an already-paid booking can still be declined (refund handled
-     * manually outside the system).
+     * of the payment status column, but approve() specifically requires
+     * status == 1 (paid - the only value userDataUpdate() ever sets it to,
+     * whether via automatic gateway success or Admin\DepositController::approve()
+     * confirming a manual payment) before letting the agency commit to a
+     * booking that hasn't actually cleared payment yet. decline() has no
+     * such gate - an already-paid booking can still be declined (refund
+     * handled manually outside the system), and a never-paid one can be
+     * declined just as freely.
      */
     public function approve($id)
     {
@@ -74,6 +79,11 @@ class BookingController extends Controller
             ->where('owner_id', auth('agency')->id())
             ->where('owner_type', 'agency')
             ->firstOrFail();
+
+        if ($bookingDetails->status != 1) {
+            $notify[] = ['error', 'Approval available once the payment is confirmed.'];
+            return back()->withNotify($notify);
+        }
 
         $bookingDetails->agency_status = 1;
         $bookingDetails->save();

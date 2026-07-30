@@ -188,10 +188,17 @@
                 </ul>
 
                 @if (is_null($bookingDetails->agency_status))
-                    <form action="{{ route('agency.tour.package.booking.approve', $bookingDetails->id) }}" method="POST" class="mb-3">
-                        @csrf
-                        <button type="submit" class="btn btn--success w--100 pills" style="color: #ffffff !important;">@lang('Approve')</button>
-                    </form>
+                    @if ($bookingDetails->status == 1)
+                        <form action="{{ route('agency.tour.package.booking.approve', $bookingDetails->id) }}" method="POST" class="mb-3">
+                            @csrf
+                            <button type="submit" class="btn btn--success w--100 pills" style="color: #ffffff !important;">@lang('Approve')</button>
+                        </form>
+                    @else
+                        <div class="mb-3">
+                            <button type="button" class="btn btn--success w--100 pills" disabled>@lang('Approve')</button>
+                            <p class="fs--14 mt-1 mb-0">@lang('Approval available once payment is confirmed.')</p>
+                        </div>
+                    @endif
                     <form action="{{ route('agency.tour.package.booking.decline', $bookingDetails->id) }}" method="POST">
                         @csrf
                         <div class="form-group mb-2">

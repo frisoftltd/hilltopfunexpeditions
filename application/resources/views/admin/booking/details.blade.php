@@ -140,6 +140,14 @@
                         @endphp</span>
                     </li>
                 </ul>
+
+                @if ($bookingDetails->status == 2 && $bookingDetails->deposit)
+                    <button type="button" class="btn btn--success confirmationBtn"
+                        data-question="@lang('Confirm this payment as received?')"
+                        data-action="{{ route('admin.deposit.approve', $bookingDetails->deposit->id) }}">
+                        @lang('Confirm Payment')
+                    </button>
+                @endif
             </div>
         </div>
     </div>

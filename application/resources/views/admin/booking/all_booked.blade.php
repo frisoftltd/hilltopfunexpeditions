@@ -68,6 +68,13 @@
                                                 href="{{route('admin.tour.package.booking.details',$item->id)}}">
                                                 <i class="la la-eye"></i>
                                             </a>
+                                            @if ($item->status == 2 && $item->deposit)
+                                                <button type="button" class="btn btn--sm btn--success confirmationBtn" title="@lang('Confirm Payment')"
+                                                    data-question="@lang('Confirm this payment as received?')"
+                                                    data-action="{{ route('admin.deposit.approve', $item->deposit->id) }}">
+                                                    <i class="la la-check-circle"></i>
+                                                </button>
+                                            @endif
                                         </td>
                                     </tr>
                                 @empty
@@ -88,6 +95,7 @@
             </div><!-- card end -->
         </div>
     </div>
+    <x-confirmation-modal />
 @endsection
 
 @push('breadcrumb-plugins')
