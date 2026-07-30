@@ -14,7 +14,7 @@ class FormGenerator{
         this.fieldType = fieldType;
         var addNew = '';
         if (this.fieldType == 'file') {
-            var field = `<select class="select2-multi-select" name="extensions" multiple>
+            var field = `<select class="select2-multi-select" name="extensions" multiple required>
                 <option value="jpg">JPG</option>
                 <option value="jpeg">JPEG</option>
                 <option value="png">PNG</option>
@@ -144,7 +144,7 @@ class FormGenerator{
                 </div>
                 <div class="mt-2">
                     <div class="form-group">
-                        <select class="select2-multi-select" name="extensions" multiple>
+                        <select class="select2-multi-select" name="extensions" multiple required>
                             <option value="jpg">JPG</option>
                             <option value="jpeg">JPEG</option>
                             <option value="png">PNG</option>

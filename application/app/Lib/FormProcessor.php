@@ -32,6 +32,9 @@ class FormProcessor
         if ($forms) {
             for ($i=0; $i < count($forms['form_label']); $i++) {
                 $extensions = $forms['extensions'][$i];
+                if ($forms['form_type'][$i] == 'file' && ($extensions == 'null' || $extensions == null || $extensions === '')) {
+                    throw new \Exception("Please select at least one allowed file extension for the file field");
+                }
                 if ($extensions != 'null' && $extensions != null) {
                     $extensionsArr = explode(',',$extensions);
                     $notMatchedExt = count(array_diff($extensionsArr,$this->supportedExt()));
@@ -82,7 +85,7 @@ class FormProcessor
                 $rule = array_merge($rule,['in:'. implode(',',$data->options)]);
             }
             if ($data->type == 'file') {
-                $rule = array_merge($rule,['mimes:'.$data->extensions]);
+                $rule = array_merge($rule,['mimes:' . ($data->extensions ?: 'jpg,jpeg,png,pdf')]);
             }
             if ($data->type == 'checkbox') {
                 $validationRule[$data->label.'.*'] = $rule;
