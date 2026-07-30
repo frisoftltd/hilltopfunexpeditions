@@ -31,7 +31,7 @@ return new class extends Migration
         $now = now();
 
         $row = [
-            'name' => 'Booking Reserved - Pay on Arrival Confirmed',
+            'name' => 'Booking Reserved - Pay on Arrival',
             'act' => 'BOOKING_RESERVED_CONFIRMED',
             'subj' => 'Your reservation for {{tour_title}} is confirmed',
             'email_body' => '<p>Your reservation for <strong>{{tour_title}}</strong> has been confirmed.</p>'
