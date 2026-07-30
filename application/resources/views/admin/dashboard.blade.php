@@ -207,7 +207,7 @@
                             <div class="card-body">
                                 <div class="row align-items-center m-b-0">
                                     <div class="col">
-                                        <h6 class="m-b-5 text-white">@lang('Total Payments')</h6>
+                                        <h6 class="m-b-5 text-white">@lang('Total Payments') <small>(@lang('all sources'))</small></h6>
                                         <h3 class="m-b-0 text-white">
                                             {{ $general->cur_sym }}{{ showAmount($deposit['total_deposit_amount']) }}</h3>
                                     </div>
@@ -284,17 +284,17 @@
         <div class="col-xl-12">
             <div class="row gy-4">
                 <div class="col-sm-6">
-                    <a href="{{ route('admin.commission.index') }}">
-                        <div class="card prod-p-card background-pattern-white bg--primary">
+                    <a href="{{ route('admin.tour.package.booking.index') }}">
+                        <div class="card prod-p-card background-pattern">
                             <div class="card-body">
                                 <div class="row align-items-center m-b-0">
                                     <div class="col">
-                                        <h6 class="m-b-5 text-white">@lang('Commission Earned')</h6>
-                                        <h3 class="m-b-0 text-white">
-                                            {{ $general->cur_sym }}{{ showAmount($commission['total_collected']) }}</h3>
+                                        <h6 class="m-b-5">@lang('Gross Tour Revenue')</h6>
+                                        <h3 class="m-b-0">
+                                            {{ $general->cur_sym }}{{ showAmount($widget['gross_tour_revenue']) }}</h3>
                                     </div>
                                     <div class="col-auto">
-                                        <i class="dashboard-widget__icon las la-percentage text-white"></i>
+                                        <i class="dashboard-widget__icon las la-chart-line"></i>
                                     </div>
                                 </div>
                             </div>
@@ -303,16 +303,17 @@
                 </div>
                 <div class="col-sm-6">
                     <a href="{{ route('admin.commission.index') }}">
-                        <div class="card prod-p-card background-pattern">
+                        <div class="card prod-p-card background-pattern-white bg--primary">
                             <div class="card-body">
                                 <div class="row align-items-center m-b-0">
                                     <div class="col">
-                                        <h6 class="m-b-5">@lang('Commission Outstanding')</h6>
-                                        <h3 class="m-b-0">
-                                            {{ $general->cur_sym }}{{ showAmount($commission['total_owed']) }}</h3>
+                                        <h6 class="m-b-5 text-white">@lang('Commission')</h6>
+                                        <h3 class="m-b-0 text-white">
+                                            {{ $general->cur_sym }}{{ showAmount($commission['total_collected']) }} @lang('earned')</h3>
+                                        <span class="text-white">{{ $general->cur_sym }}{{ showAmount($commission['total_owed']) }} @lang('outstanding')</span>
                                     </div>
                                     <div class="col-auto">
-                                        <i class="dashboard-widget__icon las la-hourglass-half"></i>
+                                        <i class="dashboard-widget__icon las la-percentage text-white"></i>
                                     </div>
                                 </div>
                             </div>

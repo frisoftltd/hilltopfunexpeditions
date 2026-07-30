@@ -7,6 +7,7 @@ use App\Models\User;
 use App\Models\Agency;
 use App\Models\Deposit;
 use App\Models\Commission;
+use App\Constants\BookingStatus;
 use App\Lib\CurlRequest;
 use App\Models\UserLogin;
 use App\Models\Withdrawal;
@@ -58,6 +59,13 @@ class AdminController extends Controller
 
         $commission['total_collected'] = Commission::where('status', Commission::COLLECTED)->sum('commission_amount');
         $commission['total_owed']      = Commission::where('status', Commission::OWED)->sum('commission_amount');
+
+        // Tour bookings only - excludes the wallet-topup deposits the
+        // generic Api\PaymentController::depositInsert() can create (no
+        // tour_booking_id at all) and isn't inflated/deflated by gateway
+        // fees the way Deposit::successful()->sum('amount') is, so this is
+        // the number "Commission Earned" is actually a percentage slice of.
+        $widget['gross_tour_revenue'] = TourBooking::whereIn('status', [BookingStatus::PAID, BookingStatus::RESERVED])->sum('price');
 
         // Monthly Deposit & Withdraw Report Graph
         $deposits = Deposit::selectRaw("SUM(amount) as amount, MONTHNAME(created_at) as month_name, MONTH(created_at) as month_num")
@@ -196,11 +204,18 @@ class AdminController extends Controller
     public function downloadAttachment($fileHash)
     {
         $filePath = decrypt($fileHash);
-        $extension = pathinfo($filePath, PATHINFO_EXTENSION);
+        $extension = strtolower(pathinfo($filePath, PATHINFO_EXTENSION));
         $general = gs();
         $title = slug($general->site_name).'- attachments.'.$extension;
         $mimetype = mime_content_type($filePath);
-        header('Content-Disposition: attachment; filename="' . $title);
+
+        // ?inline=1 is only honored for types a browser can actually
+        // render in an <img>/<iframe> - generic enough to reuse for KYC
+        // document previews later, not just deposit receipts.
+        $previewableExtensions = ['jpg', 'jpeg', 'png', 'pdf'];
+        $inline = request()->boolean('inline') && in_array($extension, $previewableExtensions);
+
+        header('Content-Disposition: ' . ($inline ? 'inline' : 'attachment; filename="' . $title));
         header("Content-Type: " . $mimetype);
         return readfile($filePath);
     }
