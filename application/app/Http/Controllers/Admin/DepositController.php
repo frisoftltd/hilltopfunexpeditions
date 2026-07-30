@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Admin;
 
+use App\Constants\BookingStatus;
 use App\Models\Deposit;
 use App\Models\Gateway;
 use App\Http\Controllers\Controller;
@@ -142,7 +143,32 @@ class DepositController extends Controller
 
     public function approve($id)
     {
-        $deposit = Deposit::where('id',$id)->where('status',2)->firstOrFail();
+        $deposit = Deposit::with('gateway', 'tour_booking.tour_package', 'user')->where('id',$id)->where('status',2)->firstOrFail();
+
+        // Pay-on-arrival: the reservation is being confirmed, not a
+        // payment - no money has actually moved through the platform, so
+        // this must never touch userDataUpdate() (that's what credits
+        // agencies.balance and logs a Transaction). Deposit.status still
+        // moves to 1 ("Approved" - this deposit workflow is resolved),
+        // but the booking gets BookingStatus::RESERVED instead of PAID so
+        // every status==1-gated check elsewhere in the app (agency
+        // approval, "Paid" badges, etc.) isn't fooled into thinking money
+        // was collected.
+        if ($deposit->gateway && $deposit->gateway->is_pay_on_arrival) {
+            $deposit->status = 1;
+            $deposit->save();
+
+            $tourBooking = $deposit->tour_booking;
+            $tourBooking->status = BookingStatus::RESERVED;
+            $tourBooking->save();
+
+            notify($deposit->user, 'BOOKING_RESERVED_CONFIRMED', [
+                'tour_title' => $tourBooking->tour_package->title,
+            ]);
+
+            $notify[] = ['success', 'Reservation confirmed - payment due on arrival.'];
+            return to_route('admin.deposit.pending')->withNotify($notify);
+        }
 
         PaymentController::userDataUpdate($deposit,true);
 

@@ -142,10 +142,13 @@
                 </ul>
 
                 @if ($bookingDetails->status == 2 && $bookingDetails->deposit)
+                    @php
+                        $isPayOnArrival = $bookingDetails->deposit->gateway?->is_pay_on_arrival;
+                    @endphp
                     <button type="button" class="btn btn--success confirmationBtn"
-                        data-question="@lang('Confirm this payment as received?')"
+                        data-question="@lang($isPayOnArrival ? 'Confirm this reservation?' : 'Confirm this payment as received?')"
                         data-action="{{ route('admin.deposit.approve', $bookingDetails->deposit->id) }}">
-                        @lang('Confirm Payment')
+                        @lang($isPayOnArrival ? 'Confirm Reservation' : 'Confirm Payment')
                     </button>
                 @endif
             </div>

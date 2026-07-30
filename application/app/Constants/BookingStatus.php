@@ -10,6 +10,7 @@ class BookingStatus
     const PENDING_MANUAL = 2;
     const REJECTED = 3;
     const CANCELLED_BY_TRAVELER = 4;
+    const RESERVED = 5; // pay-on-arrival: confirmed, no money collected through the platform
 
     // tour_bookings.agency_status - agency's own review layer, independent
     // of the payment status above. Pending review is stored as NULL, not 0.

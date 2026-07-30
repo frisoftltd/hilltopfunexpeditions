@@ -47,6 +47,7 @@ class ManualGatewayController extends Controller
         $method->supported_currencies = [];
         $method->crypto = 0;
         $method->description = $request->instruction;
+        $method->is_pay_on_arrival = $request->is_pay_on_arrival ? 1 : 0;
         $method->save();
 
         $gatewayCurrency = new GatewayCurrency();
@@ -89,6 +90,7 @@ class ManualGatewayController extends Controller
         $method->supported_currencies = [];
         $method->crypto = 0;
         $method->description = $request->instruction;
+        $method->is_pay_on_arrival = $request->is_pay_on_arrival ? 1 : 0;
         $method->form_id = $generate->id ?? 0;
         $method->save();
 

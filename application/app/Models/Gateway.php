@@ -11,7 +11,8 @@ class Gateway extends Model
         'code' => 'string',
         'extra' => 'object',
         'input_form'=> 'object',
-        'supported_currencies'=>'object'
+        'supported_currencies'=>'object',
+        'is_pay_on_arrival' => 'boolean',
     ];
 
     public function currencies()

@@ -12,7 +12,7 @@ class BookingController extends Controller
     public function bookingTourPackageList(Request $request)
     {
         $pageTitle = 'Tour Bookings';
-        $tourBookings = TourBooking::with('user', 'tour_package', 'deposit')
+        $tourBookings = TourBooking::with('user', 'tour_package', 'deposit.gateway')
             ->when($request->search, function ($query) use ($request) {
                 $search = $request->search;
                 $query->whereHas('user', function ($query) use ($search) {
@@ -77,7 +77,7 @@ class BookingController extends Controller
     public function bookingDetails($id)
     {
         $pageTitle = 'Tour & Booking Details';
-        $bookingDetails = TourBooking::with(['user','owner','admin', 'tour_package','tour_package.category','deposit'])
+        $bookingDetails = TourBooking::with(['user','owner','admin', 'tour_package','tour_package.category','deposit.gateway'])
             ->where('id', $id)
             ->first();
         return view('admin.booking.details', compact('pageTitle', 'bookingDetails'));

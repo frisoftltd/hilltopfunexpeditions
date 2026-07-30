@@ -188,7 +188,7 @@
                 </ul>
 
                 @if (is_null($bookingDetails->agency_status))
-                    @if ($bookingDetails->status == 1)
+                    @if (in_array($bookingDetails->status, [App\Constants\BookingStatus::PAID, App\Constants\BookingStatus::RESERVED]))
                         <form action="{{ route('agency.tour.package.booking.approve', $bookingDetails->id) }}" method="POST" class="mb-3">
                             @csrf
                             <button type="submit" class="btn btn--success w--100 pills" style="color: #ffffff !important;">@lang('Approve')</button>

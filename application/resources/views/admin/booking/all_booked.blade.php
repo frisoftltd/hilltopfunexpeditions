@@ -69,8 +69,12 @@
                                                 <i class="la la-eye"></i>
                                             </a>
                                             @if ($item->status == 2 && $item->deposit)
-                                                <button type="button" class="btn btn--sm btn--success confirmationBtn" title="@lang('Confirm Payment')"
-                                                    data-question="@lang('Confirm this payment as received?')"
+                                                @php
+                                                    $isPayOnArrival = $item->deposit->gateway?->is_pay_on_arrival;
+                                                @endphp
+                                                <button type="button" class="btn btn--sm btn--success confirmationBtn"
+                                                    title="@lang($isPayOnArrival ? 'Confirm Reservation' : 'Confirm Payment')"
+                                                    data-question="@lang($isPayOnArrival ? 'Confirm this reservation?' : 'Confirm this payment as received?')"
                                                     data-action="{{ route('admin.deposit.approve', $item->deposit->id) }}">
                                                     <i class="la la-check-circle"></i>
                                                 </button>

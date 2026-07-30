@@ -159,7 +159,9 @@ class TourBooking extends Model
         } elseif ($status == BookingStatus::REJECTED) {
             return '<span class="badge badge--danger">' . trans('Rejected') . '</span>';
         } elseif ($status == BookingStatus::CANCELLED_BY_TRAVELER) {
-            return '<span class="badge badge--secondary">' . trans('Cancelled') . '</span>';
+            return '<span class="badge badge--danger">' . trans('Cancelled') . '</span>';
+        } elseif ($status == BookingStatus::RESERVED) {
+            return '<span class="badge badge--primary">' . trans('Reserved') . '</span>';
         }
         return '<span class="badge badge--warning">' . trans('Awaiting Payment') . '</span>';
     }
@@ -173,7 +175,9 @@ class TourBooking extends Model
         } elseif ($this->status == BookingStatus::REJECTED) {
             return '<span class="badge badge--danger">' . trans('Rejected') . '</span>';
         } elseif ($this->status == BookingStatus::CANCELLED_BY_TRAVELER) {
-            return '<span class="badge badge--secondary">' . trans('Cancelled') . '</span>';
+            return '<span class="badge badge--danger">' . trans('Cancelled') . '</span>';
+        } elseif ($this->status == BookingStatus::RESERVED) {
+            return '<span class="badge badge--primary">' . trans('Reserved') . '</span>';
         }
         return '<span class="badge badge--warning">' . trans('Awaiting Payment') . '</span>';
     }

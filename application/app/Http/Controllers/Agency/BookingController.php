@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Agency;
 
+use App\Constants\BookingStatus;
 use App\Models\User;
 use App\Models\TourBooking;
 use App\Models\TourPackage;
@@ -64,13 +65,13 @@ class BookingController extends Controller
     /**
      * Agency's own review layer (tour_bookings.agency_status) - independent
      * of the payment status column, but approve() specifically requires
-     * status == 1 (paid - the only value userDataUpdate() ever sets it to,
-     * whether via automatic gateway success or Admin\DepositController::approve()
-     * confirming a manual payment) before letting the agency commit to a
-     * booking that hasn't actually cleared payment yet. decline() has no
-     * such gate - an already-paid booking can still be declined (refund
-     * handled manually outside the system), and a never-paid one can be
-     * declined just as freely.
+     * status to be PAID or RESERVED before letting the agency commit to a
+     * booking that hasn't actually been settled yet (PAID = userDataUpdate()
+     * confirmed real money moved; RESERVED = Admin\DepositController::approve()
+     * confirmed a pay-on-arrival reservation, no money collected). decline()
+     * has no such gate - an already-paid booking can still be declined
+     * (refund handled manually outside the system), and a never-settled
+     * one can be declined just as freely.
      */
     public function approve($id)
     {
@@ -80,7 +81,7 @@ class BookingController extends Controller
             ->where('owner_type', 'agency')
             ->firstOrFail();
 
-        if ($bookingDetails->status != 1) {
+        if (!in_array($bookingDetails->status, [BookingStatus::PAID, BookingStatus::RESERVED])) {
             $notify[] = ['error', 'Approval available once the payment is confirmed.'];
             return back()->withNotify($notify);
         }

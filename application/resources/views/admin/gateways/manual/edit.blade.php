@@ -109,6 +109,16 @@
                                         </div>
                                     </div>
                                 </div>
+                                <div class="card border my-2">
+                                    <div class="card-body">
+                                        <div class="form-check form-switch">
+                                            <input class="form-check-input" type="checkbox" role="switch"
+                                                name="is_pay_on_arrival" id="isPayOnArrival" value="1"
+                                                {{ $method->is_pay_on_arrival ? 'checked' : '' }}>
+                                            <label class="form-check-label" for="isPayOnArrival">@lang('This is a Pay on Arrival method')</label>
+                                        </div>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                         <div class="payment-method-body">
