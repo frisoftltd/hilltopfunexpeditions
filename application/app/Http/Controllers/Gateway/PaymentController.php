@@ -54,29 +54,38 @@ class PaymentController extends Controller
             return to_route('home')->withNotify($notify);
         }
 
+        // Fetched here (rather than only once needed below) so every
+        // failure branch below can redirect back to this exact tour
+        // package's own detail page - back() would redirect via the
+        // request's Referer header, which is the booking-widget's own
+        // POST-only URL (bookingNow() renders the deposit page directly,
+        // no redirect, so the browser never leaves that URL), producing
+        // a 405 when the browser re-requests it via GET to follow the
+        // redirect.
+        $tourPackage = TourPackage::with('packagePrices')->findOrFail($tourPackageSession['tour_package_id']);
+
         $gate = GatewayCurrency::whereHas('method', function ($gate) {
             $gate->where('status', 1);
         })->where('method_code', $request->method_code)->where('currency', $request->currency)->first();
         if (!$gate) {
             $notify[] = ['error', 'Invalid gateway'];
-            return back()->withNotify($notify);
+            return redirect()->route('tour.package.details', [$tourPackage->id, slug($tourPackage->title)])->withNotify($notify);
         }
 
         if ($gate->min_amount > $request->amount || $gate->max_amount < $request->amount) {
             $notify[] = ['error', 'Please follow deposit limit'];
-            return back()->withNotify($notify);
+            return redirect()->route('tour.package.details', [$tourPackage->id, slug($tourPackage->title)])->withNotify($notify);
         }
 
         $charge = $gate->fixed_charge + ($request->amount * $gate->percent_charge / 100);
         $payable = $request->amount + $charge;
         $final_amo = $payable * $gate->rate;
 
-        $tourPackage = TourPackage::with('packagePrices')->findOrFail($tourPackageSession['tour_package_id']);
         $packagePrice = $tourPackage->packagePrices->firstWhere('price_category_id', $tourPackageSession['price_category_id']);
 
         if (!$packagePrice) {
             $notify[] = ['error', 'Invalid price category for this tour.'];
-            return back()->withNotify($notify);
+            return redirect()->route('tour.package.details', [$tourPackage->id, slug($tourPackage->title)])->withNotify($notify);
         }
 
         $tourBooking = new TourBooking();
