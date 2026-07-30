@@ -7,6 +7,7 @@ use App\Models\Admin;
 use App\Models\Order;
 use App\Models\Agency;
 use App\Models\Deposit;
+use App\Models\Commission;
 use App\Lib\FormProcessor;
 use App\Models\TourBooking;
 use App\Models\TourPackage;
@@ -192,8 +193,22 @@ class PaymentController extends Controller
             // if tour-package is owner agency then give money
             if ($tourBooking->owner_type == "agency") {
                 $agency = Agency::find($tourBooking->owner_id);
-                $agency->balance += $tourBooking->price;
+
+                $commissionRate = gs()->commission_rate;
+                $commissionAmount = round($tourBooking->price * $commissionRate / 100, 2);
+
+                $agency->balance += ($tourBooking->price - $commissionAmount);
                 $agency->save();
+
+                Commission::create([
+                    'agency_id' => $agency->id,
+                    'tour_booking_id' => $tourBooking->id,
+                    'booking_amount' => $tourBooking->price,
+                    'commission_rate' => $commissionRate,
+                    'commission_amount' => $commissionAmount,
+                    'status' => Commission::COLLECTED,
+                    'paid_at' => now(),
+                ]);
             }
 
             $user = User::find($deposit->user_id);

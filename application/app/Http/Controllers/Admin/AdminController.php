@@ -6,6 +6,7 @@ use Carbon\Carbon;
 use App\Models\User;
 use App\Models\Agency;
 use App\Models\Deposit;
+use App\Models\Commission;
 use App\Lib\CurlRequest;
 use App\Models\UserLogin;
 use App\Models\Withdrawal;
@@ -55,6 +56,9 @@ class AdminController extends Controller
         $withdrawals['total_withdraw_rejected'] = Withdrawal::rejected()->count();
         $withdrawals['total_withdraw_charge']   = Withdrawal::approved()->sum('charge');
 
+        $commission['total_collected'] = Commission::where('status', Commission::COLLECTED)->sum('commission_amount');
+        $commission['total_owed']      = Commission::where('status', Commission::OWED)->sum('commission_amount');
+
         // Monthly Deposit & Withdraw Report Graph
         $deposits = Deposit::selectRaw("SUM(amount) as amount, MONTHNAME(created_at) as month_name, MONTH(created_at) as month_num")
             ->whereYear('created_at', date('Y'))
@@ -99,7 +103,7 @@ class AdminController extends Controller
             // AgencyLogin Report Graph
 
         $newTickets = SupportTicket::with('user')->orderBy('created_at', 'desc')->whereStatus(0)->limit(8)->get();
-        return view('admin.dashboard', compact('pageTitle', 'widget', 'withdrawalsChart', 'depositsChart', 'deposit', 'withdrawals', 'userLogins','agencyLogins', 'newTickets'));
+        return view('admin.dashboard', compact('pageTitle', 'widget', 'withdrawalsChart', 'depositsChart', 'deposit', 'withdrawals', 'commission', 'userLogins','agencyLogins', 'newTickets'));
     }
 
 

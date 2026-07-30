@@ -47,6 +47,11 @@ class TourBooking extends Model
         return $this->hasOne(Deposit::class);
     }
 
+    public function commission()
+    {
+        return $this->hasOne(Commission::class);
+    }
+
     public function tour_package()
     {
         return $this->belongsTo(TourPackage::class);

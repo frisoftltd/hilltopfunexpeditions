@@ -115,6 +115,23 @@
             </a>
         </div>
 
+        <div class="col-xxl-3 col-xl-4 col-lg-6 col-sm-6" draggable="true" id="wizard8">
+            <a class="d-block" href="{{ route('agency.commission.index') }}">
+                <div class="wizard-card d-flex flex-column">
+                    <div class="content-wrap d-flex align-items-center justify-content-between gap--12">
+                        <h6 class="title fw--400 fs--16 mb-0 ">@lang('Commission Owed')</h6>
+                        <div
+                            class="icon-wrap d-flex justify-content-center align-items-center position-relative overflow-hidden z--1">
+                            <i class="fa-solid fa-percent"></i>
+                        </div>
+                    </div>
+                    <div class="amount-wrap">
+                        <h6 class="amount mb-2 fs--24">{{ showAmount($widget['commission_owed']) }}</h6>
+                    </div>
+                </div>
+            </a>
+        </div>
+
 
 
         <div class="col-xxl-3 col-xl-4 col-lg-6 col-sm-6" draggable="true" id="wizard7">

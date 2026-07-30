@@ -28,6 +28,7 @@ class GeneralSettingController extends Controller
             'base_color' => 'nullable', 'regex:/^[a-f0-9]{6}$/i',
             'secondary_color' => 'nullable', 'regex:/^[a-f0-9]{6}$/i',
             'timezone' => 'required|integer',
+            'commission_rate' => 'required|numeric|min:0|max:100',
         ]);
 
         $general = GeneralSetting::first();
@@ -47,6 +48,7 @@ class GeneralSettingController extends Controller
         $general->registration = $request->registration ? 1 : 0;
         $general->agree = $request->agree ? 1 : 0;
         $general->map_api_key = $request->map_api_key;
+        $general->commission_rate = $request->commission_rate;
         $general->save();
 
         $timezones = timezone_identifiers_list();

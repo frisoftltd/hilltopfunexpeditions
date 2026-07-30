@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Constants\BookingStatus;
+use App\Models\Commission;
 use App\Models\Deposit;
 use App\Models\Gateway;
 use App\Http\Controllers\Controller;
@@ -161,6 +162,25 @@ class DepositController extends Controller
             $tourBooking = $deposit->tour_booking;
             $tourBooking->status = BookingStatus::RESERVED;
             $tourBooking->save();
+
+            // No balance change - the agency collects cash directly from
+            // the traveler on arrival, the platform never touches it - but
+            // commission is still owed, just not yet collected, so record
+            // it as a debt (status = OWED) for admin to mark paid later.
+            if ($tourBooking->owner_type == 'agency') {
+                $commissionRate = gs()->commission_rate;
+                $commissionAmount = round($tourBooking->price * $commissionRate / 100, 2);
+
+                Commission::create([
+                    'agency_id' => $tourBooking->owner_id,
+                    'tour_booking_id' => $tourBooking->id,
+                    'booking_amount' => $tourBooking->price,
+                    'commission_rate' => $commissionRate,
+                    'commission_amount' => $commissionAmount,
+                    'status' => Commission::OWED,
+                    'paid_at' => null,
+                ]);
+            }
 
             notify($deposit->user, 'BOOKING_RESERVED_CONFIRMED', [
                 'tour_title' => $tourBooking->tour_package->title,

@@ -280,6 +280,49 @@
         </div>
 
     </div>
+    <div class="row">
+        <div class="col-xl-12">
+            <div class="row gy-4">
+                <div class="col-sm-6">
+                    <a href="{{ route('admin.commission.index') }}">
+                        <div class="card prod-p-card background-pattern-white bg--primary">
+                            <div class="card-body">
+                                <div class="row align-items-center m-b-0">
+                                    <div class="col">
+                                        <h6 class="m-b-5 text-white">@lang('Commission Earned')</h6>
+                                        <h3 class="m-b-0 text-white">
+                                            {{ $general->cur_sym }}{{ showAmount($commission['total_collected']) }}</h3>
+                                    </div>
+                                    <div class="col-auto">
+                                        <i class="dashboard-widget__icon las la-percentage text-white"></i>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </a>
+                </div>
+                <div class="col-sm-6">
+                    <a href="{{ route('admin.commission.index') }}">
+                        <div class="card prod-p-card background-pattern">
+                            <div class="card-body">
+                                <div class="row align-items-center m-b-0">
+                                    <div class="col">
+                                        <h6 class="m-b-5">@lang('Commission Outstanding')</h6>
+                                        <h3 class="m-b-0">
+                                            {{ $general->cur_sym }}{{ showAmount($commission['total_owed']) }}</h3>
+                                    </div>
+                                    <div class="col-auto">
+                                        <i class="dashboard-widget__icon las la-hourglass-half"></i>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </a>
+                </div>
+            </div>
+        </div>
+
+    </div>
     <div class="row mt-4">
         <div class="col-xl-12">
             <div class="row gy-4 mb-4">

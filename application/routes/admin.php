@@ -225,6 +225,13 @@ Route::middleware('admin')->group(function () {
     });
 
 
+    // COMMISSION SYSTEM
+    Route::name('commission.')->controller('CommissionController')->prefix('manage/commissions')->group(function () {
+        Route::get('/', 'index')->name('index');
+        Route::post('mark-paid/{id}', 'markPaid')->name('mark.paid');
+    });
+
+
     // WITHDRAW SYSTEM
     Route::name('withdraw.')->prefix('manage/withdrawals')->group(function () {
 

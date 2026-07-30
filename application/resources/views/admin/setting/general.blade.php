@@ -35,7 +35,16 @@
                                         value="{{$general->cur_sym}}">
                                 </div>
                             </div>
-                    
+                            <div class="row mb-2">
+                                <div class="col-md-3 col-xs-4 d-flex align-items-center">
+                                    <label class="required">@lang('Commission Rate (%)')</label>
+                                </div>
+                                <div class="col-md-9 col-xs-12">
+                                    <input class="form-control" type="number" step="0.01" min="0" max="100"
+                                        name="commission_rate" required value="{{ $general->commission_rate }}">
+                                </div>
+                            </div>
+
 
                             <div class="row mb-3 mt-4">
                                 <h4>@lang('Google Map')</h4>

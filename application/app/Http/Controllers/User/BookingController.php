@@ -4,6 +4,7 @@ namespace App\Http\Controllers\User;
 
 use App\Constants\BookingStatus;
 use App\Models\AdminNotification;
+use App\Models\Commission;
 use App\Models\SupportMessage;
 use App\Models\SupportTicket;
 use App\Models\Transaction;
@@ -51,10 +52,18 @@ class BookingController extends Controller
      * had actually been credited to the agency (status was PAID at the
      * time of cancellation) - unpaid/pending-manual bookings never
      * touched agencies.balance, so there's nothing to reverse there.
+     *
+     * The reversal must match what was actually credited, not the raw
+     * booking price - userDataUpdate() credits price minus commission, so
+     * reversing the full price would over-debit the agency by the
+     * commission amount. Falls back to the full price only if no
+     * Commission row exists (bookings paid before this feature existed).
+     * The Commission row itself is deleted so a cancelled booking's
+     * commission stops counting toward "collected" totals.
      */
     public function cancel($id)
     {
-        $booking = TourBooking::with(['tour_package', 'agency'])
+        $booking = TourBooking::with(['tour_package', 'agency', 'commission'])
             ->where('id', $id)
             ->where('user_id', auth()->id())
             ->firstOrFail();
@@ -70,19 +79,21 @@ class BookingController extends Controller
         }
 
         $wasPaid = $booking->status == BookingStatus::PAID;
+        $commission = $booking->commission;
 
         $booking->status = BookingStatus::CANCELLED_BY_TRAVELER;
         $booking->save();
 
         if ($wasPaid && $booking->owner_type == 'agency' && $booking->agency) {
             $agency = $booking->agency;
-            $agency->balance -= $booking->price;
+            $reversalAmount = $booking->price - ($commission->commission_amount ?? 0);
+            $agency->balance -= $reversalAmount;
             $agency->save();
 
             $transaction = new Transaction();
             $transaction->user_id = $booking->user_id;
             $transaction->agency_id = $agency->id;
-            $transaction->amount = $booking->price;
+            $transaction->amount = $reversalAmount;
             $transaction->post_balance = $agency->balance;
             $transaction->charge = 0;
             $transaction->trx_type = '-';
@@ -90,6 +101,10 @@ class BookingController extends Controller
             $transaction->details = 'Balance reversed - booking #' . $booking->id . ' cancelled by traveler';
             $transaction->trx = getTrx();
             $transaction->save();
+
+            if ($commission) {
+                $commission->delete();
+            }
         }
 
         if ($booking->owner_type == 'agency' && $booking->agency) {

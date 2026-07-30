@@ -56,6 +56,11 @@ class Agency extends Authenticatable
         return $this->hasMany(Transaction::class)->orderBy('id','desc');
     }
 
+    public function commissions()
+    {
+        return $this->hasMany(Commission::class)->orderBy('id','desc');
+    }
+
     public function withdrawals()
     {
         return $this->hasMany(Withdrawal::class)->where('status','!=',0);

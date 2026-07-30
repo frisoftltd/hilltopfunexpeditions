@@ -18,6 +18,7 @@ use Illuminate\Http\Request;
 use App\Models\SupportTicket;
 use App\Lib\GoogleAuthenticator;
 use App\Models\ArtworkCommission;
+use App\Models\Commission;
 use App\Constants\BookingStatus;
 use App\Http\Controllers\Controller;
 
@@ -42,6 +43,7 @@ class AgencyController extends Controller
         $widget['total_support_ticker'] =  SupportTicket::where('agency_id',auth('agency')->id())
         ->count();
         $widget['total_bookings'] =  TourBooking::where('owner_id',auth('agency')->id())->where('owner_type','agency')->where('status', '!=', BookingStatus::UNPAID)->count();
+        $widget['commission_owed'] = Commission::where('agency_id', auth('agency')->id())->where('status', Commission::OWED)->sum('commission_amount');
         $widget['total_open_support_ticker'] =  SupportTicket::where('agency_id',auth('agency')->id())
         ->where('status',0)->count();
 

@@ -116,6 +116,12 @@
                         <span class="menu-title">@lang('Withdrawal Methods')</span>
                     </a>
                 </li> -->
+                <li class="sidebar-menu-item {{ menuActive('admin.commission.*') }}">
+                    <a href="{{ route('admin.commission.index') }}" class="nav-link ">
+                        <i class="menu-icon las la-percentage"></i>
+                        <span class="menu-title">@lang('Commissions')</span>
+                    </a>
+                </li>
 
                 <li class="sidebar__menu-header">@lang('Report')</li>
                 <li

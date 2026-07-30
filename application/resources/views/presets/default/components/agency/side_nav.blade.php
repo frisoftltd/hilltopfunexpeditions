@@ -99,6 +99,13 @@
             </a>
         </li>
 
+        <li class="sidebar-menu-list__item">
+            <a href="{{route('agency.commission.index')}}" class="sidebar-menu-list__link {{ isActiveRoute('agency.commission.') ? 'active' : '' }}">
+                <span class="icon"><i class="fa-solid fa-percent"></i></span>
+                <span class="text">@lang('Commission')</span>
+            </a>
+        </li>
+
         <li class="sidebar-menu-list__item has-dropdown {{ isActiveRoute('agency.ticket')||isActiveRoute('agency.ticket.open') ? 'active' : '' }}">
             <a href="javascript:void(0)" class="sidebar-menu-list__link">
                 <span class="icon"><i class="fa-solid fa-headset"></i></span>

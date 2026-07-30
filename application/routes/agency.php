@@ -64,6 +64,10 @@ Route::middleware('agency')->name('agency.')->group(function () {
                 Route::get('notifications/read-all', 'readAllNotifications')->name('notifications.readAll');
             });
 
+            Route::controller('CommissionController')->prefix('commission')->name('commission.')->group(function () {
+                Route::get('/', 'index')->name('index');
+            });
+
               //KYC
               Route::controller('AgencyController')->group(function () {
                 Route::get('kyc-form', 'kycForm')->name('kyc.form');
