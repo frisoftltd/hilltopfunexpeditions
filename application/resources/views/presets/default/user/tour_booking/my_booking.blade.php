@@ -69,7 +69,7 @@
                                 </a>
 
                                 @php
-                                    $rowNotCancellableStatuses = [App\Constants\BookingStatus::REJECTED, App\Constants\BookingStatus::CANCELLED_BY_TRAVELER];
+                                    $rowNotCancellableStatuses = [App\Constants\BookingStatus::REJECTED, App\Constants\BookingStatus::CANCELLED_BY_TRAVELER, App\Constants\BookingStatus::EXPIRED];
                                     $rowPastCancelWindow = !$item->start_date || now()->greaterThanOrEqualTo($item->start_date->copy()->subHours(24));
                                     $rowCanCancel = !in_array($item->status, $rowNotCancellableStatuses) && !$rowPastCancelWindow;
                                 @endphp

@@ -1,5 +1,5 @@
 @php
-    $notCancellableStatuses = [App\Constants\BookingStatus::REJECTED, App\Constants\BookingStatus::CANCELLED_BY_TRAVELER];
+    $notCancellableStatuses = [App\Constants\BookingStatus::REJECTED, App\Constants\BookingStatus::CANCELLED_BY_TRAVELER, App\Constants\BookingStatus::EXPIRED];
     $pastCancelWindow = !$bookingDetails?->start_date || now()->greaterThanOrEqualTo($bookingDetails->start_date->copy()->subHours(24));
     $canCancel = $bookingDetails && !in_array($bookingDetails->status, $notCancellableStatuses) && !$pastCancelWindow;
 @endphp

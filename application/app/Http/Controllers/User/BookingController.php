@@ -59,7 +59,7 @@ class BookingController extends Controller
             ->where('user_id', auth()->id())
             ->firstOrFail();
 
-        if (in_array($booking->status, [BookingStatus::REJECTED, BookingStatus::CANCELLED_BY_TRAVELER])) {
+        if (in_array($booking->status, [BookingStatus::REJECTED, BookingStatus::CANCELLED_BY_TRAVELER, BookingStatus::EXPIRED])) {
             $notify[] = ['error', 'This booking cannot be cancelled.'];
             return back()->withNotify($notify);
         }

@@ -15,7 +15,7 @@ class TourBooking extends Model
         'user_id', 'owner_id', 'owner_type', 'price', 'discount',
         'tour_package_id', 'price_category_id',
         'start_date', 'party_size', 'status', 'phone', 'guest_signup',
-        'agency_status', 'decline_reason',
+        'agency_status', 'decline_reason', 'reminder_stage',
     ];
 
     protected $casts = [
@@ -162,6 +162,8 @@ class TourBooking extends Model
             return '<span class="badge badge--danger">' . trans('Cancelled') . '</span>';
         } elseif ($status == BookingStatus::RESERVED) {
             return '<span class="badge badge--primary">' . trans('Reserved') . '</span>';
+        } elseif ($status == BookingStatus::EXPIRED) {
+            return '<span class="badge badge--danger">' . trans('Expired') . '</span>';
         }
         return '<span class="badge badge--warning">' . trans('Awaiting Payment') . '</span>';
     }
@@ -178,6 +180,8 @@ class TourBooking extends Model
             return '<span class="badge badge--danger">' . trans('Cancelled') . '</span>';
         } elseif ($this->status == BookingStatus::RESERVED) {
             return '<span class="badge badge--primary">' . trans('Reserved') . '</span>';
+        } elseif ($this->status == BookingStatus::EXPIRED) {
+            return '<span class="badge badge--danger">' . trans('Expired') . '</span>';
         }
         return '<span class="badge badge--warning">' . trans('Awaiting Payment') . '</span>';
     }

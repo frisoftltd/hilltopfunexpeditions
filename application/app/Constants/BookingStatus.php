@@ -11,6 +11,7 @@ class BookingStatus
     const REJECTED = 3;
     const CANCELLED_BY_TRAVELER = 4;
     const RESERVED = 5; // pay-on-arrival: confirmed, no money collected through the platform
+    const EXPIRED = 6; // system auto-cancelled after prolonged inactivity - distinct from CANCELLED_BY_TRAVELER, which is the traveler's own action
 
     // tour_bookings.agency_status - agency's own review layer, independent
     // of the payment status above. Pending review is stored as NULL, not 0.
