@@ -21,6 +21,7 @@
                             </div>
                         </div>
                        
+                        @isset($packagePrice)
                         <div class="col-lg-12">
                             <div class="form-group">
                                 <label class="form--label">@lang('Amount')</label>
@@ -31,6 +32,7 @@
                                 </div>
                             </div>
                         </div>
+                        @endisset
                         <div class="col-lg-12 text-end">
                             <button type="submit" class="btn btn--base btn--lg pills">@lang('Submit')</button>
                         </div>
