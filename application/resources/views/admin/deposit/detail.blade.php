@@ -68,6 +68,9 @@
         <div class="card b-radius--10 overflow-hidden box--shadow1">
             <div class="card-body">
                 <h5 class="card-title mb-50 border-bottom pb-2">@lang('Payment Info')</h5>
+                @php
+                    $previewableAttachments = [];
+                @endphp
                 @if($details != null)
                 @foreach(json_decode($details) as $val)
                 @if($deposit->method_code >= 1000)
@@ -84,35 +87,17 @@
                             $isPreviewable = in_array($attachmentExtension, ['jpg', 'jpeg', 'png', 'pdf']);
                         @endphp
                         @if($isPreviewable)
+                        @php
+                            $previewableAttachments[] = [
+                                'index' => $loop->index,
+                                'extension' => $attachmentExtension,
+                                'path' => $attachmentPath,
+                            ];
+                        @endphp
                         <button type="button" class="btn btn-sm btn--primary me-3" data-bs-toggle="modal"
                             data-bs-target="#attachmentModal{{ $loop->index }}">
                             <i class="fa fa-file"></i> @lang('Attachment')
                         </button>
-                        <div class="modal fade" id="attachmentModal{{ $loop->index }}" tabindex="-1" role="dialog">
-                            <div class="modal-dialog modal-fullscreen" role="document">
-                                <div class="modal-content">
-                                    <div class="modal-header">
-                                        <h5 class="modal-title">@lang('Attachment')</h5>
-                                        <button type="button" class="btn btn--danger btn-sm" data-bs-dismiss="modal"
-                                            aria-label="Close"><i class="las la-times"></i></button>
-                                    </div>
-                                    <div class="modal-body text-center" style="display: flex; flex-direction: column; align-items: center; justify-content: center;">
-                                        @if($attachmentExtension == 'pdf')
-                                        <iframe src="{{ route('admin.download.attachment', ['file_hash' => $attachmentPath, 'inline' => 1]) }}"
-                                            style="width: 100%; height: 100%; flex: 1; border: 0;"></iframe>
-                                        @else
-                                        <img src="{{ route('admin.download.attachment', ['file_hash' => $attachmentPath, 'inline' => 1]) }}"
-                                            class="img-fluid" alt="@lang('Attachment')">
-                                        @endif
-                                    </div>
-                                    <div class="modal-footer">
-                                        <a href="{{ route('admin.download.attachment', $attachmentPath) }}"
-                                            class="btn btn--primary"><i class="fa fa-download"></i> @lang('Download')</a>
-                                        <button type="button" class="btn btn--dark" data-bs-dismiss="modal">@lang('Close')</button>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
                         @else
                         <a href="{{ route('admin.download.attachment', $attachmentPath) }}"
                             class="me-3"><i class="fa fa-file"></i> @lang('Attachment') </a>
@@ -155,6 +140,38 @@
     </div>
     @endif
 </div>
+
+{{-- ATTACHMENT PREVIEW MODALS - kept top-level (not nested in a .card) so the
+     backdrop doesn't get trapped under the card's stacking context --}}
+@if(!empty($previewableAttachments))
+@foreach($previewableAttachments as $attachment)
+<div class="modal fade" id="attachmentModal{{ $attachment['index'] }}" tabindex="-1" role="dialog">
+    <div class="modal-dialog modal-fullscreen" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">@lang('Attachment')</h5>
+                <button type="button" class="btn btn--danger btn-sm" data-bs-dismiss="modal"
+                    aria-label="Close"><i class="las la-times"></i></button>
+            </div>
+            <div class="modal-body text-center" style="display: flex; flex-direction: column; align-items: center; justify-content: center;">
+                @if($attachment['extension'] == 'pdf')
+                <iframe src="{{ route('admin.download.attachment', ['file_hash' => $attachment['path'], 'inline' => 1]) }}"
+                    style="width: 100%; height: 100%; flex: 1; border: 0;"></iframe>
+                @else
+                <img src="{{ route('admin.download.attachment', ['file_hash' => $attachment['path'], 'inline' => 1]) }}"
+                    class="img-fluid" alt="@lang('Attachment')">
+                @endif
+            </div>
+            <div class="modal-footer">
+                <a href="{{ route('admin.download.attachment', $attachment['path']) }}"
+                    class="btn btn--primary"><i class="fa fa-download"></i> @lang('Download')</a>
+                <button type="button" class="btn btn--dark" data-bs-dismiss="modal">@lang('Close')</button>
+            </div>
+        </div>
+    </div>
+</div>
+@endforeach
+@endif
 
 {{-- REJECT MODAL --}}
 <div id="rejectModal" class="modal fade" tabindex="-1" role="dialog">
