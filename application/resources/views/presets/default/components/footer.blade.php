@@ -141,3 +141,38 @@
         </path>
     </svg>
 </div>
+
+@php
+    $whatsappNumber = preg_replace('/[^0-9]/', '', $contact->data_values->whatsapp_number ?? '');
+    $whatsappMessage = $contact->data_values->whatsapp_message ?? "Hi, I'd like to enquire about a custom Rwanda tour.";
+@endphp
+@if ($whatsappNumber)
+    <a href="https://wa.me/{{ $whatsappNumber }}?text={{ urlencode($whatsappMessage) }}" target="_blank"
+        rel="noopener" class="whatsapp-float" aria-label="@lang('Chat on WhatsApp')" title="@lang('Chat on WhatsApp')">
+        <i class="fab fa-whatsapp"></i>
+    </a>
+    <style>
+        .whatsapp-float {
+            position: fixed;
+            right: 30px;
+            bottom: 104px;
+            height: 50px;
+            width: 50px;
+            border-radius: 50px;
+            z-index: 10000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: #25D366;
+            color: #fff;
+            font-size: 28px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+            transition: all 300ms linear;
+        }
+
+        .whatsapp-float:hover {
+            color: #fff;
+            transform: scale(1.05);
+        }
+    </style>
+@endif

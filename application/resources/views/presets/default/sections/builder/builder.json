@@ -257,7 +257,9 @@
             "contact_number": "text",
             "latitude": "text",
             "longitude": "text",
-            "website_footer": "textarea-rich"
+            "website_footer": "textarea-rich",
+            "whatsapp_number": "text",
+            "whatsapp_message": "text"
         }
     },
     "footer_important_links": {
