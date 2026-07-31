@@ -50,12 +50,10 @@ class AdminController extends Controller
         $deposit['total_deposit_amount']        = Deposit::successful()->sum('amount');
         $deposit['total_deposit_pending']       = Deposit::pending()->count();
         $deposit['total_deposit_rejected']      = Deposit::rejected()->count();
-        $deposit['total_deposit_charge']        = Deposit::successful()->sum('charge');
 
         $withdrawals['total_withdraw_amount']   = Withdrawal::approved()->sum('amount');
         $withdrawals['total_withdraw_pending']  = Withdrawal::pending()->count();
         $withdrawals['total_withdraw_rejected'] = Withdrawal::rejected()->count();
-        $withdrawals['total_withdraw_charge']   = Withdrawal::approved()->sum('charge');
 
         $commission['total_collected'] = Commission::where('status', Commission::COLLECTED)->sum('commission_amount');
         $commission['total_owed']      = Commission::where('status', Commission::OWED)->sum('commission_amount');
