@@ -48,104 +48,115 @@ Route::middleware('agency')->name('agency.')->group(function () {
 
         Route::middleware('agency.registration.complete')->namespace('Agency')->group(function () {
 
+            //KYC - deliberately OUTSIDE the agency.kyc-gated group below, or a
+            // kv != 1 agency would have no way to reach the form or check
+            // their status. See AgencyKycMiddleware for the kv==0/kv==2
+            // redirect targets, both of which point at these two routes.
+            // attachment.download is here too - it's the "Download
+            // Attachment" link on the KYC status page (kyc/info.blade.php),
+            // the only place it's used, so it has to stay reachable
+            // alongside kyc.data itself.
             Route::controller('AgencyController')->group(function () {
-                Route::get('dashboard', 'home')->name('home');
-                //2FA
-                Route::get('twofactor', 'show2faForm')->name('twofactor');
-                Route::post('twofactor/enable', 'create2fa')->name('twofactor.enable');
-                Route::post('twofactor/disable', 'disable2fa')->name('twofactor.disable');
-                //Report
-                Route::any('deposit/history', 'depositHistory')->name('deposit.history');
-                Route::get('transactions', 'transactions')->name('transactions');
-                Route::get('attachment-download/{fil_hash}', 'attachmentDownload')->name('attachment.download');
-                //Notifications
-                Route::get('notifications', 'notifications')->name('notifications');
-                Route::get('notification/read/{id}', 'notificationRead')->name('notification.read');
-                Route::get('notifications/read-all', 'readAllNotifications')->name('notifications.readAll');
-            });
-
-            Route::controller('CommissionController')->prefix('commission')->name('commission.')->group(function () {
-                Route::get('/', 'index')->name('index');
-            });
-
-              //KYC
-              Route::controller('AgencyController')->group(function () {
                 Route::get('kyc-form', 'kycForm')->name('kyc.form');
                 Route::get('kyc-data', 'kycData')->name('kyc.data');
                 Route::post('kyc-submit', 'kycSubmit')->name('kyc.submit');
+                Route::get('attachment-download/{fil_hash}', 'attachmentDownload')->name('attachment.download');
             });
 
-            //Profile setting
-            Route::controller('ProfileController')->group(function () {
-                Route::get('profile/setting', 'profile')->name('profile.setting');
-                Route::post('profile/setting', 'submitProfile');
-                Route::get('change-password', 'changePassword')->name('change.password');
-                Route::post('change-password', 'submitPassword');
-            });
+            // Everything else requires KYC approval (kv == 1).
+            Route::middleware('agency.kyc')->group(function () {
 
-            //Tour Package
-           
-            Route::controller('TourPackageController')->name('tour.package.')->prefix('tour-package')->group(function () {
-                Route::get('/', 'index')->name('index');
-                Route::get('create', 'create')->name('create')->middleware('agency.kyc');
-                Route::post('store', 'store')->name('store')->middleware('agency.kyc');
-                Route::get('edit/{id}', 'edit')->name('edit')->middleware('agency.kyc');
-                Route::put('update/{id}', 'update')->name('update')->middleware('agency.kyc');
-                Route::post('status-change/{id}', 'statusChange')->name('status.change')->middleware('agency.kyc');
-                Route::post('delete/{id}', 'delete')->name('delete')->middleware('agency.kyc');
-                Route::get('my-tour', 'myList')->name('my.list');
-                Route::get('agency-tour', 'allAgency')->name('all.agency');
-                Route::get('search', 'search')->name('search');
-                Route::post('image', 'tourPackageImageDelete')->name('image.delete');
-                Route::get('active', 'active')->name('active');
-                Route::get('pending', 'pending')->name('pending');
-            });
+                Route::controller('AgencyController')->group(function () {
+                    Route::get('dashboard', 'home')->name('home');
+                    //2FA
+                    Route::get('twofactor', 'show2faForm')->name('twofactor');
+                    Route::post('twofactor/enable', 'create2fa')->name('twofactor.enable');
+                    Route::post('twofactor/disable', 'disable2fa')->name('twofactor.disable');
+                    //Report
+                    Route::any('deposit/history', 'depositHistory')->name('deposit.history');
+                    Route::get('transactions', 'transactions')->name('transactions');
+                    //Notifications
+                    Route::get('notifications', 'notifications')->name('notifications');
+                    Route::get('notification/read/{id}', 'notificationRead')->name('notification.read');
+                    Route::get('notifications/read-all', 'readAllNotifications')->name('notifications.readAll');
+                });
+
+                Route::controller('CommissionController')->prefix('commission')->name('commission.')->group(function () {
+                    Route::get('/', 'index')->name('index');
+                });
+
+                //Profile setting
+                Route::controller('ProfileController')->group(function () {
+                    Route::get('profile/setting', 'profile')->name('profile.setting');
+                    Route::post('profile/setting', 'submitProfile');
+                    Route::get('change-password', 'changePassword')->name('change.password');
+                    Route::post('change-password', 'submitPassword');
+                });
+
+                //Tour Package
+
+                Route::controller('TourPackageController')->name('tour.package.')->prefix('tour-package')->group(function () {
+                    Route::get('/', 'index')->name('index');
+                    Route::get('create', 'create')->name('create');
+                    Route::post('store', 'store')->name('store');
+                    Route::get('edit/{id}', 'edit')->name('edit');
+                    Route::put('update/{id}', 'update')->name('update');
+                    Route::post('status-change/{id}', 'statusChange')->name('status.change');
+                    Route::post('delete/{id}', 'delete')->name('delete');
+                    Route::get('my-tour', 'myList')->name('my.list');
+                    Route::get('agency-tour', 'allAgency')->name('all.agency');
+                    Route::get('search', 'search')->name('search');
+                    Route::post('image', 'tourPackageImageDelete')->name('image.delete');
+                    Route::get('active', 'active')->name('active');
+                    Route::get('pending', 'pending')->name('pending');
+                });
 
 
-              //Booking Controller
-              Route::controller('BookingController')->name('tour.package.booking.')->group(function () {
-                Route::post('/booking-now', 'bookingNow')->name('now')->middleware('kyc');
-                Route::get('/booking-list', 'bookingTourPackageList')->name('my.list');
-                Route::get('pending', 'pending')->name('pending');
-                Route::get('approved', 'approved')->name('approved');
-                Route::get('canceled', 'canceled')->name('canceled');
-                Route::get('/booking-user-list/{id}', 'userList')->name('user.list');
-                Route::get('/booking-user-list/{id}/pending', 'userListPending')->name('user.list.pending');
-                Route::get('/booking-user-list/{id}/approved', 'userListApproved')->name('user.list.approved');
-                Route::get('/booking-user-list/{id}/declined', 'userListDeclined')->name('user.list.declined');
-                Route::get('/booking-details/{id}', 'bookingDetails')->name('details');
-                Route::post('/booking-approve/{id}', 'approve')->name('approve');
-                Route::post('/booking-decline/{id}', 'decline')->name('decline');
+                //Booking Controller
+                Route::controller('BookingController')->name('tour.package.booking.')->group(function () {
+                    Route::post('/booking-now', 'bookingNow')->name('now')->middleware('kyc');
+                    Route::get('/booking-list', 'bookingTourPackageList')->name('my.list');
+                    Route::get('pending', 'pending')->name('pending');
+                    Route::get('approved', 'approved')->name('approved');
+                    Route::get('canceled', 'canceled')->name('canceled');
+                    Route::get('/booking-user-list/{id}', 'userList')->name('user.list');
+                    Route::get('/booking-user-list/{id}/pending', 'userListPending')->name('user.list.pending');
+                    Route::get('/booking-user-list/{id}/approved', 'userListApproved')->name('user.list.approved');
+                    Route::get('/booking-user-list/{id}/declined', 'userListDeclined')->name('user.list.declined');
+                    Route::get('/booking-details/{id}', 'bookingDetails')->name('details');
+                    Route::post('/booking-approve/{id}', 'approve')->name('approve');
+                    Route::post('/booking-decline/{id}', 'decline')->name('decline');
 
-            });
+                });
 
 
-            // ticket
-            Route::controller('TicketController')->prefix('ticket')->group(function () {
-                Route::get('all', 'supportTicket')->name('ticket');
-                Route::get('open-list', 'openTicketList')->name('ticket.open.list');
-                Route::get('new', 'openSupportTicket')->name('ticket.open');
-                Route::post('create', 'storeSupportTicket')->name('ticket.store');
-                Route::get('view/{ticket}', 'viewTicket')->name('ticket.view');
-                Route::post('reply/{ticket}', 'replyTicket')->name('ticket.reply');
-                Route::post('close/{ticket}', 'closeTicket')->name('ticket.close');
-                Route::get('download/{ticket}', 'ticketDownload')->name('ticket.download');
-            });
+                // ticket
+                Route::controller('TicketController')->prefix('ticket')->group(function () {
+                    Route::get('all', 'supportTicket')->name('ticket');
+                    Route::get('open-list', 'openTicketList')->name('ticket.open.list');
+                    Route::get('new', 'openSupportTicket')->name('ticket.open');
+                    Route::post('create', 'storeSupportTicket')->name('ticket.store');
+                    Route::get('view/{ticket}', 'viewTicket')->name('ticket.view');
+                    Route::post('reply/{ticket}', 'replyTicket')->name('ticket.reply');
+                    Route::post('close/{ticket}', 'closeTicket')->name('ticket.close');
+                    Route::get('download/{ticket}', 'ticketDownload')->name('ticket.download');
+                });
 
-            // Quote Requests
-            Route::controller('QuoteRequestController')->prefix('quote-requests')->name('quote.requests.')->group(function () {
-                Route::get('/', 'index')->name('index');
-                Route::get('view/{id}', 'view')->name('view');
-                Route::post('reply/{id}', 'reply')->name('reply');
-            });
+                // Quote Requests
+                Route::controller('QuoteRequestController')->prefix('quote-requests')->name('quote.requests.')->group(function () {
+                    Route::get('/', 'index')->name('index');
+                    Route::get('view/{id}', 'view')->name('view');
+                    Route::post('reply/{id}', 'reply')->name('reply');
+                });
 
-            // Withdraw
-            Route::controller('WithdrawController')->prefix('withdraw')->name('withdraw')->group(function () {
-                Route::get('/', 'withdrawMoney');
-                Route::post('/', 'withdrawStore')->name('.money');
-                Route::get('preview', 'withdrawPreview')->name('.preview');
-                Route::post('preview', 'withdrawSubmit')->name('.submit');
-                Route::get('history', 'withdrawLog')->name('.history');
+                // Withdraw
+                Route::controller('WithdrawController')->prefix('withdraw')->name('withdraw')->group(function () {
+                    Route::get('/', 'withdrawMoney');
+                    Route::post('/', 'withdrawStore')->name('.money');
+                    Route::get('preview', 'withdrawPreview')->name('.preview');
+                    Route::post('preview', 'withdrawSubmit')->name('.submit');
+                    Route::get('history', 'withdrawLog')->name('.history');
+                });
             });
         });
     });

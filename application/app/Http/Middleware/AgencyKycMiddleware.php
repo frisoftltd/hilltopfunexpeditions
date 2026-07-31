@@ -31,7 +31,7 @@ class AgencyKycMiddleware
         }
         if ($agency->kv == 2) {
             $notify[] = ['warning','Your documents for KYC verification is under review. Please wait for admin approval'];
-            return to_route('agency.home')->withNotify($notify);
+            return to_route('agency.kyc.data')->withNotify($notify);
         }
         return $next($request);
     }

@@ -146,14 +146,14 @@ class AgencyController extends Controller
     {
         if (agency()->kv == 2) {
             $notify[] = ['error','Your KYC is under review'];
-            return to_route('agency.home')->withNotify($notify);
+            return to_route('agency.kyc.data')->withNotify($notify);
         }
         if (agency()->kv == 1) {
             $notify[] = ['error','You are already KYC verified'];
             return to_route('agency.home')->withNotify($notify);
         }
         $pageTitle = 'KYC Form';
-        $form = Form::where('act','kyc')->first();
+        $form = Form::where('act','agency_kyc')->first();
         return view($this->activeTemplate.'agency.kyc.form', compact('pageTitle','form'));
     }
 
@@ -166,7 +166,11 @@ class AgencyController extends Controller
 
     public function kycSubmit(Request $request)
     {
-        $form = Form::where('act','kyc')->first();
+        $form = Form::where('act','agency_kyc')->first();
+        if (!$form) {
+            $notify[] = ['error', 'KYC verification is not yet configured. Please contact support.'];
+            return back()->withNotify($notify);
+        }
         $formData = $form->form_data;
         $formProcessor = new FormProcessor();
         $validationRule = $formProcessor->valueValidation($formData);
@@ -178,7 +182,7 @@ class AgencyController extends Controller
         $user->save();
 
         $notify[] = ['success','KYC data submitted successfully'];
-        return to_route('agency.home')->withNotify($notify);
+        return to_route('agency.kyc.data')->withNotify($notify);
 
     }
     public function attachmentDownload($fileHash)
