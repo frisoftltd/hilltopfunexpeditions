@@ -29,7 +29,7 @@
                     <tr>
                         <td data-label="@lang('SI')"><span class="">{{ $loop->iteration }}</span></td>
                         <td class="text-center" data-label="@lang('Tour Package Title')">
-                            {{ __($item->tour_package->title) }}
+                            {{ __($item->tour_package?->title ?? 'Package deleted') }}
                         </td>
                         <td class="text-center" data-label="@lang('Tour Date')">
                             <i class="fa-regular fa-clock"></i>
@@ -43,7 +43,7 @@
                             @endif
                         </td>
                         <td class="text-center" data-label="@lang('Stay Day & Nights')">
-                            {{ __($item->tour_package->day_nights) }}
+                            {{ __($item->tour_package?->day_nights) }}
                         </td>
                         <td class="text-center" data-label="@lang('Price')">
                             {{ $general->cur_sym }}{{ showAmount($item->price) }}
@@ -58,10 +58,12 @@
                         </td>
                         <td class="text-center" data-label="@lang('Action')">
                             <div class="d-flex align-items-center justify-content-center gap-2">
-                                <a class="btn btn-md btn--base detailBtn action--btn" title="@lang('Details')"
-                                    href="{{ route('tour.package.details', [$item->tour_package->id, slug($item->tour_package->title)]) }}">
-                                    <i class="la la-link"></i>
-                                </a>
+                                @if ($item->tour_package)
+                                    <a class="btn btn-md btn--base detailBtn action--btn" title="@lang('Details')"
+                                        href="{{ route('tour.package.details', [$item->tour_package->id, slug($item->tour_package->title)]) }}">
+                                        <i class="la la-link"></i>
+                                    </a>
+                                @endif
 
                                 <a class="btn btn-md btn--base detailBtn action--btn" title="@lang('Tour Details')"
                                     href="{{ route('user.tour.package.booking.details',$item->id) }}">

@@ -10,25 +10,26 @@
         <div class="col-lg-8">
             <div class="row">
                 <div class="col-xxl-6 col-xl-6 col-lg-6 col-md-6 col-sm-6">
+                    @if ($bookingDetails?->tour_package)
                     <div class="tour-card radius--20 position-relative bg--white">
                         <div class="tour-card__thumb">
-                            <a href="{{ route('tour.package.details', [$bookingDetails?->tour_package->id, slug($bookingDetails?->tour_package->title)]) }}">
+                            <a href="{{ route('tour.package.details', [$bookingDetails->tour_package->id, slug($bookingDetails->tour_package->title)]) }}">
                                 <img class="fit--img"
-                                    src="{{ getImage(getFilePath('tourPackageImage') . '/thumb_' . $bookingDetails?->tour_package->TourPackagePrimaryImage->image) }}"
+                                    src="{{ getImage(getFilePath('tourPackageImage') . '/thumb_' . $bookingDetails->tour_package->TourPackagePrimaryImage?->image) }}"
                                     alt="Tour Image">
                             </a>
                         </div>
-                        @if ($bookingDetails?->tour_package->discount)
+                        @if ($bookingDetails->tour_package->discount)
                             <span class="tour-card__tag position-absolute text--white fw--500">
-                                -{{ discountShowAmount($bookingDetails?->tour_package->discount) }}% </span>
+                                -{{ discountShowAmount($bookingDetails->tour_package->discount) }}% </span>
                         @endif
 
 
                         <button
                             class="tour-card__favbtn position-absolute d-flex justify-content-center align-items-center wishlist-btn"
-                            data-tour_package_id="{{ $bookingDetails?->tour_package->id }}" data-url="{{ route('user.wishlist.added') }}"
+                            data-tour_package_id="{{ $bookingDetails->tour_package->id }}" data-url="{{ route('user.wishlist.added') }}"
                             onclick="addToWishlist(this)">
-                            @php echo isWishlist($bookingDetails?->tour_package) @endphp
+                            @php echo isWishlist($bookingDetails->tour_package) @endphp
 
                         </button>
 
@@ -37,12 +38,12 @@
                                 <ul class="d-flex justify-content-between align-items-start gap--20">
                                     <li>
                                         <p class="fs--14"><i class="fa-regular fa-compass"></i>
-                                            {{ strLimit(($bookingDetails?->tour_package->city ? $bookingDetails?->tour_package->city . ', ' : '') . ($bookingDetails?->tour_package->country ? $bookingDetails?->tour_package->country . ', ' : '') . ($bookingDetails?->tour_package->state ? $bookingDetails?->tour_package->state . ', ' : ''), 35) }}
+                                            {{ strLimit(($bookingDetails->tour_package->city ? $bookingDetails->tour_package->city . ', ' : '') . ($bookingDetails->tour_package->country ? $bookingDetails->tour_package->country . ', ' : '') . ($bookingDetails->tour_package->state ? $bookingDetails->tour_package->state . ', ' : ''), 35) }}
                                         </p>
                                     </li>
                                     <li class="flex-shrink-0">
                                         <p class="fs--14"><i class="fa-regular fa-clock"></i>
-                                            {{ $bookingDetails?->tour_package?->day_nights }}
+                                            {{ $bookingDetails->tour_package->day_nights }}
                                         </p>
                                     </li>
                                 </ul>
@@ -50,31 +51,38 @@
 
                             <div class="tour-card__star d-flex align-items-center">
                                 <ul class="d-flex">
-                                    @php echo calculateIndividualRating($bookingDetails?->tour_package->average_rating) @endphp
+                                    @php echo calculateIndividualRating($bookingDetails->tour_package->average_rating) @endphp
                                 </ul>
-                                <p class="fs--14">({{ $bookingDetails?->tour_package->average_rating }})</p>
+                                <p class="fs--14">({{ $bookingDetails->tour_package->average_rating }})</p>
                             </div>
 
-                            <a href="{{ route('tour.package.details', [$bookingDetails?->tour_package->id, slug($bookingDetails?->tour_package->title)]) }}">
+                            <a href="{{ route('tour.package.details', [$bookingDetails->tour_package->id, slug($bookingDetails->tour_package->title)]) }}">
                                 <h6 class="tour-card__title fs--20 fw--600">
-                                    {{ __(strLimit($bookingDetails?->tour_package->title, 25)) }}
+                                    {{ __(strLimit($bookingDetails->tour_package->title, 25)) }}
                                 </h6>
                             </a>
 
                             <div class="tour-card__price-wrap d-flex justify-content-between align-items-center gap--16 flex-wrap">
                                 <div class="tour-card__price">
-                                    <h6 class="fs--20 fw--600 mb-0 body--font">{{ $general->cur_sym }}{{ $bookingDetails?->tour_package->price }}<span
+                                    <h6 class="fs--20 fw--600 mb-0 body--font">{{ $general->cur_sym }}{{ $bookingDetails->tour_package->price }}<span
                                             class="text--black7 fs--16">/@lang('package')</span></h6>
                                 </div>
 
                                 <div class="tour-card__btn-wrap">
-                                    <a href="{{ route('tour.package.details', [$bookingDetails?->tour_package->id, slug($bookingDetails?->tour_package->title)]) }}" class="text--base"><i class="fa-solid fa-arrow-right-long"></i> @lang('View Details')</a>
+                                    <a href="{{ route('tour.package.details', [$bookingDetails->tour_package->id, slug($bookingDetails->tour_package->title)]) }}" class="text--base"><i class="fa-solid fa-arrow-right-long"></i> @lang('View Details')</a>
                                 </div>
 
                             </div>
                         </div>
 
                     </div>
+                    @else
+                    <div class="tour-card radius--20 position-relative bg--white">
+                        <div class="tour-card__content">
+                            <h6 class="tour-card__title fs--20 fw--600 mb-0">@lang('Package deleted')</h6>
+                        </div>
+                    </div>
+                    @endif
                 </div>
 
                 <div class="col-lg-6">

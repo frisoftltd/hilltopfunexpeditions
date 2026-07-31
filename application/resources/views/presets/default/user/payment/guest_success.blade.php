@@ -8,7 +8,7 @@
 
                     @if ($deposit && $deposit->tour_booking)
                         <p class="mb-2">
-                            @lang('Your booking for') <strong>{{ __($deposit->tour_booking->tour_package->title) }}</strong>
+                            @lang('Your booking for') <strong>{{ __($deposit->tour_booking->tour_package?->title ?? 'Package deleted') }}</strong>
                         </p>
                         <p class="mb-4">@php echo $deposit->tour_booking->statusBadge($deposit->tour_booking->status) @endphp</p>
                     @else

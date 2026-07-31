@@ -19,7 +19,7 @@
             <div class="tour-card__thumb">
                 <a href="">
                     <img class="fit--img"
-                        src="{{ getImage(getFilePath('tourPackageImage') . '/' . $bookingDetails->tour_package->TourPackagePrimaryImage->image) }}"
+                        src="{{ getImage(getFilePath('tourPackageImage') . '/' . $bookingDetails->tour_package?->TourPackagePrimaryImage?->image) }}"
                         alt="Tour Image">
                 </a>
             </div>
@@ -28,7 +28,7 @@
                 <ul class="list-group border-0 gap--12">
                     <li class="list-group-item p-0 border-0 d-flex justify-content-between align-items-center">
                         @lang('Tour Package Title'):
-                        <span class="fw--500">{{ __($bookingDetails?->tour_package->title) }}</span>
+                        <span class="fw--500">{{ __($bookingDetails?->tour_package?->title ?? 'Package deleted') }}</span>
                     </li>
                     <li class="list-group-item p-0 border-0 d-flex justify-content-between align-items-center">
                         @lang('Tour Category'):
@@ -83,35 +83,35 @@
                     </li>
                     <li class="list-group-item p-0 border-0 d-flex justify-content-between align-items-center">
                         @lang('Stay Day/Nights'):
-                        <span class="fw--500">{{ $bookingDetails?->tour_package->day_nights }}</span>
+                        <span class="fw--500">{{ $bookingDetails?->tour_package?->day_nights }}</span>
                     </li>
                     <li class="list-group-item p-0 border-0 d-flex justify-content-between align-items-center">
                         @lang('City'):
-                        <span class="fw--500">{{ $bookingDetails?->tour_package->city }}</span>
+                        <span class="fw--500">{{ $bookingDetails?->tour_package?->city }}</span>
                     </li>
                     <li class="list-group-item p-0 border-0 d-flex justify-content-between align-items-center">
                         @lang('State'):
-                        <span class="fw--500">{{ $bookingDetails?->tour_package->state }}</span>
+                        <span class="fw--500">{{ $bookingDetails?->tour_package?->state }}</span>
                     </li>
                     <li class="list-group-item p-0 border-0 d-flex justify-content-between align-items-center">
                         @lang('Zip Code'):
-                        <span class="fw--500">{{ $bookingDetails?->tour_package->zip_code }}</span>
+                        <span class="fw--500">{{ $bookingDetails?->tour_package?->zip_code }}</span>
                     </li>
                     <li class="list-group-item p-0 border-0 d-flex justify-content-between align-items-center">
                         @lang('Country'):
-                        <span class="fw--500">{{ $bookingDetails?->tour_package->country }}</span>
+                        <span class="fw--500">{{ $bookingDetails?->tour_package?->country }}</span>
                     </li>
                     <li class="list-group-item p-0 border-0 d-flex justify-content-between align-items-center">
                         @lang('Address'):
-                        <span class="fw--500">{{ $bookingDetails?->tour_package->address }}</span>
+                        <span class="fw--500">{{ $bookingDetails?->tour_package?->address }}</span>
                     </li>
 
                     <li class="list-group-item p-0 border-0 d-flex justify-content-between align-items-center">
                         @lang('Tour Status'):
 
                         @php
-                            echo $bookingDetails?->tour_package->statusBadge(
-                                $bookingDetails?->tour_package->status,
+                            echo $bookingDetails?->tour_package?->statusBadge(
+                                $bookingDetails?->tour_package?->status,
                             );
                         @endphp
                     </li>

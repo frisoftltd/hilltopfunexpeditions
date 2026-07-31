@@ -7,7 +7,7 @@
                 <ul class="list-group">
                     <li class="list-group-item d-flex justify-content-between align-items-center">
                         @lang('Tour Package Title'):
-                        <span class="fw-bold">{{ __($bookingDetails?->tour_package->title) }}</span>
+                        <span class="fw-bold">{{ __($bookingDetails?->tour_package?->title ?? 'Package deleted') }}</span>
                     </li>
                     <li class="list-group-item d-flex justify-content-between align-items-center">
                         @lang('Category'):
@@ -55,34 +55,34 @@
                     </li>
                     <li class="list-group-item d-flex justify-content-between align-items-center">
                         @lang('Stay Day/Nights'):
-                        <span class="fw-bold">{{ $bookingDetails?->tour_package->day_nights }}</span>
+                        <span class="fw-bold">{{ $bookingDetails?->tour_package?->day_nights }}</span>
                     </li>
                     <li class="list-group-item d-flex justify-content-between align-items-center">
                         @lang('City'):
-                        <span class="fw-bold">{{ $bookingDetails?->tour_package->city }}</span>
+                        <span class="fw-bold">{{ $bookingDetails?->tour_package?->city }}</span>
                     </li>
                     <li class="list-group-item d-flex justify-content-between align-items-center">
                         @lang('State'):
-                        <span class="fw-bold">{{ $bookingDetails?->tour_package->state }}</span>
+                        <span class="fw-bold">{{ $bookingDetails?->tour_package?->state }}</span>
                     </li>
                     <li class="list-group-item d-flex justify-content-between align-items-center">
                         @lang('Zip Code'):
-                        <span class="fw-bold">{{ $bookingDetails?->tour_package->zip_code }}</span>
+                        <span class="fw-bold">{{ $bookingDetails?->tour_package?->zip_code }}</span>
                     </li>
                     <li class="list-group-item d-flex justify-content-between align-items-center">
                         @lang('Country'):
-                        <span class="fw-bold">{{ $bookingDetails?->tour_package->country }}</span>
+                        <span class="fw-bold">{{ $bookingDetails?->tour_package?->country }}</span>
                     </li>
                     <li class="list-group-item d-flex justify-content-between align-items-center">
                         @lang('Address'):
-                        <span class="fw-bold">{{ $bookingDetails?->tour_package->address }}</span>
+                        <span class="fw-bold">{{ $bookingDetails?->tour_package?->address }}</span>
                     </li>
 
                     <li class="list-group-item d-flex justify-content-between align-items-center">
                         @lang('Tour Status'):
                         @php
-                                echo $bookingDetails?->tour_package->statusBadge(
-                                    $bookingDetails?->tour_package->status,
+                                echo $bookingDetails?->tour_package?->statusBadge(
+                                    $bookingDetails?->tour_package?->status,
                                 );
                             @endphp
                     </li>

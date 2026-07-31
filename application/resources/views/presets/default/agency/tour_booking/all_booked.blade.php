@@ -33,8 +33,8 @@
                                 <td data-label="@lang('SI')"><span>{{ $loop->iteration }}</span></td>
 
                                 <td class="text-center col-truncate" data-label="@lang('Tour Package')"
-                                    title="{{ $item->tour_package->title }}">
-                                    {{ __($item->tour_package->title) }}
+                                    title="{{ $item->tour_package?->title ?? 'Package deleted' }}">
+                                    {{ __($item->tour_package?->title ?? 'Package deleted') }}
                                 </td>
 
                                 <td class="text-center col-truncate" data-label="@lang('Full Name')"

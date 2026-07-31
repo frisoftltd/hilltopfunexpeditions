@@ -28,7 +28,7 @@
                                             <span class="fw-bold">{{ $loop->iteration }}</span>
                                         </td>
                                         <td data-label="@lang('Tour Package')">
-                                            <span class="fw-bold">{{ __($item->tour_package->title) }}</span>
+                                            <span class="fw-bold">{{ __($item->tour_package?->title ?? 'Package deleted') }}</span>
                                         </td>
                                         <td data-label="@lang('Username')">
                                             <span class="fw-bold">
