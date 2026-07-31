@@ -196,8 +196,9 @@ class PaymentController extends Controller
 
                 $commissionRate = gs()->commission_rate;
                 $commissionAmount = round($tourBooking->price * $commissionRate / 100, 2);
+                $agencyNetAmount = $tourBooking->price - $commissionAmount;
 
-                $agency->balance += ($tourBooking->price - $commissionAmount);
+                $agency->balance += $agencyNetAmount;
                 $agency->save();
 
                 Commission::create([
@@ -209,12 +210,32 @@ class PaymentController extends Controller
                     'status' => Commission::COLLECTED,
                     'paid_at' => now(),
                 ]);
+
+                // Dedicated agency-credit row, separate from the traveler's
+                // own payment row below - one combined row can't honestly
+                // report both "traveler paid gross" and "agency received
+                // net" at once. Mirrors the cancel() reversal's shape
+                // (User\BookingController.php:93-103) so the ledger reads
+                // symmetrically: credit net on booking, debit net on cancel.
+                $agencyTransaction = new Transaction();
+                $agencyTransaction->user_id = $deposit->user_id;
+                $agencyTransaction->agency_id = $agency->id;
+                $agencyTransaction->amount = $agencyNetAmount;
+                $agencyTransaction->post_balance = $agency->balance;
+                $agencyTransaction->charge = 0;
+                $agencyTransaction->trx_type = '+';
+                $agencyTransaction->remark = 'booking_payment';
+                $agencyTransaction->details = 'Booking payment (net of commission)';
+                $agencyTransaction->trx = getTrx();
+                $agencyTransaction->save();
             }
 
+            // Traveler's own payment event - always gross (what they
+            // actually paid via this deposit), never the agency's net.
             $user = User::find($deposit->user_id);
             $transaction = new Transaction();
             $transaction->user_id = $deposit->user_id;
-            $transaction->agency_id = ($tourBooking->owner_type == "agency") ? $tourBooking->owner_id : 0;
+            $transaction->agency_id = 0;
             $transaction->amount = $deposit->amount;
             $transaction->post_balance = $user->balance;
             $transaction->charge = $deposit->charge;
