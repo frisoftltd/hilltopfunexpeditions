@@ -56,6 +56,11 @@
                                                 class="btn btn-sm btn--primary">
                                                 <i class="las la-eye text--shadow"></i>
                                             </a>
+                                            <button type="button" class="btn btn-sm btn--danger confirmationBtn" title="@lang('Delete User')"
+                                                data-question="@lang('Are you sure you want to delete this user? This cannot be undone.')"
+                                                data-action="{{ route('admin.users.delete', $user->id) }}">
+                                                <i class="la la-trash"></i>
+                                            </button>
                                         </td>
 
                                     </tr>
@@ -79,6 +84,7 @@
 
 
     </div>
+    <x-confirmation-modal />
 @endsection
 
 

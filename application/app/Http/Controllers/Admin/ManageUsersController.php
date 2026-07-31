@@ -10,9 +10,20 @@ use App\Models\Withdrawal;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Validator;
+use App\Constants\BookingStatus;
+use App\Models\AdminNotification;
+use App\Models\QuoteRequest;
+use App\Models\Review;
+use App\Models\TourBooking;
+use App\Models\UserLogin;
+use App\Models\Wishlist;
+use App\Traits\AccountDeletionService;
+use Illuminate\Support\Facades\DB;
 
 class ManageUsersController extends Controller
 {
+    use AccountDeletionService;
+
 
     public function allUsers()
     {
@@ -371,6 +382,58 @@ class ManageUsersController extends Controller
         $pageTitle = 'Notifications Sent to '.$user->username;
         $logs = NotificationLog::where('user_id',$id)->with('user')->orderBy('id','desc')->paginate(getPaginate());
         return view('admin.reports.notification_history', compact('pageTitle','logs','user'));
+    }
+
+    /**
+     * Blocks on any pending payment or active booking - see
+     * Admin\ManageAgenciesController::delete() for the same reasoning
+     * (no DB-level FK cascade protects these columns, so it's checked
+     * explicitly). transactions and any terminal-state deposits/bookings
+     * are left untouched - only the account and its non-financial
+     * dependents are removed.
+     */
+    public function delete($id)
+    {
+        $user = User::findOrFail($id);
+        $blockers = [];
+
+        if (Deposit::where('user_id', $user->id)->whereIn('status', [0, 2])->exists()) {
+            $blockers[] = 'a pending/attempted payment';
+        }
+        if (TourBooking::where('user_id', $user->id)->whereIn('status', [BookingStatus::PAID, BookingStatus::RESERVED, BookingStatus::PENDING_MANUAL])->exists()) {
+            $blockers[] = 'active bookings';
+        }
+
+        if ($blockers) {
+            $notify[] = ['error', 'Cannot delete: this user has ' . implode(', ', $blockers) . '. Resolve these first.'];
+            return back()->withNotify($notify);
+        }
+
+        DB::transaction(function () use ($user) {
+            $this->deleteSupportTickets('user_id', $user->id);
+
+            $reviews = Review::where('user_id', $user->id)->with('images')->get();
+            foreach ($reviews as $review) {
+                foreach ($review->images as $image) {
+                    fileManager()->removeFile(getFilePath('reviewImage') . '/' . $image->image);
+                }
+                // review_images rows cascade automatically (DB-level FK, see
+                // create_review_images_table migration) once the review is
+                // deleted - only the files themselves need manual cleanup.
+                $review->delete();
+            }
+
+            Wishlist::where('user_id', $user->id)->delete();
+            AdminNotification::where('user_id', $user->id)->delete();
+            UserLogin::where('user_id', $user->id)->delete();
+            NotificationLog::where('user_id', $user->id)->delete();
+            QuoteRequest::where('user_id', $user->id)->update(['user_id' => null]);
+
+            $user->delete();
+        });
+
+        $notify[] = ['success', 'User deleted successfully'];
+        return to_route('admin.users.all')->withNotify($notify);
     }
 
 }

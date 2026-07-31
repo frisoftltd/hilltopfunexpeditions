@@ -10,9 +10,19 @@ use App\Models\NotificationLog;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Validator;
+use App\Constants\BookingStatus;
+use App\Models\AdminNotification;
+use App\Models\Commission;
+use App\Models\QuoteRequest;
+use App\Models\TourBooking;
+use App\Models\UserLogin;
+use App\Traits\AccountDeletionService;
+use Illuminate\Support\Facades\DB;
 
 class ManageAgenciesController extends Controller
 {
+    use AccountDeletionService;
+
     public function allUsers()
     {
         $pageTitle = 'All Agencies';
@@ -366,5 +376,53 @@ class ManageAgenciesController extends Controller
         $pageTitle = 'Notifications Sent to '.$user->username;
         $logs = NotificationLog::where('agency_id',$id)->with('agency')->orderBy('id','desc')->paginate(getPaginate());
         return view('admin.agencies.reports.notification_history', compact('pageTitle','logs','user'));
+    }
+
+    /**
+     * Blocks on any outstanding money/service commitment - none of these FK
+     * columns have a real DB-level constraint back to agencies (confirmed
+     * in the delete-user/agency investigation), so a hard delete can't rely
+     * on the database to protect financial integrity; it has to check
+     * explicitly. transactions (the audit ledger) and any terminal-state
+     * bookings/commissions/withdrawals are deliberately left untouched -
+     * only the account and its non-financial dependents are removed.
+     */
+    public function delete($id)
+    {
+        $agency = Agency::findOrFail($id);
+        $blockers = [];
+
+        if ($agency->balance > 0) {
+            $blockers[] = 'an outstanding balance';
+        }
+        if (Commission::where('agency_id', $agency->id)->where('status', Commission::OWED)->exists()) {
+            $blockers[] = 'owed commission';
+        }
+        if (Withdrawal::where('user_id', $agency->id)->where('status', 2)->exists()) {
+            $blockers[] = 'a pending withdrawal';
+        }
+        if (TourBooking::where('owner_id', $agency->id)->where('owner_type', 'agency')->whereIn('status', [BookingStatus::PAID, BookingStatus::RESERVED, BookingStatus::PENDING_MANUAL])->exists()) {
+            $blockers[] = 'active bookings';
+        }
+
+        if ($blockers) {
+            $notify[] = ['error', 'Cannot delete: this operator has ' . implode(', ', $blockers) . '. Resolve these first.'];
+            return back()->withNotify($notify);
+        }
+
+        DB::transaction(function () use ($agency) {
+            $this->deleteSupportTickets('agency_id', $agency->id);
+            $this->deleteTourPackagesForAgency($agency->id);
+
+            AdminNotification::where('agency_id', $agency->id)->delete();
+            UserLogin::where('agency_id', $agency->id)->delete();
+            NotificationLog::where('agency_id', $agency->id)->delete();
+            QuoteRequest::where('agency_id', $agency->id)->update(['agency_id' => null]);
+
+            $agency->delete();
+        });
+
+        $notify[] = ['success', 'Operator deleted successfully'];
+        return to_route('admin.agencies.all')->withNotify($notify);
     }
 }

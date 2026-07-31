@@ -48,6 +48,11 @@
                                         class="btn btn-sm btn--primary">
                                         <i class="las la-eye text--shadow"></i>
                                     </a>
+                                    <button type="button" class="btn btn-sm btn--danger confirmationBtn" title="@lang('Delete Operator')"
+                                        data-question="@lang('Are you sure you want to delete this operator? This cannot be undone.')"
+                                        data-action="{{ route('admin.agencies.delete', $user->id) }}">
+                                        <i class="la la-trash"></i>
+                                    </button>
                                 </td>
                             </tr>
                             @empty
@@ -70,6 +75,7 @@
 
 
 </div>
+<x-confirmation-modal />
 @endsection
 
 
