@@ -341,7 +341,7 @@ class UserController extends Controller
     public function getWishlist(Request $request)
     {
         $pageTitle = 'Wishlists';
-        $wishlists = Wishlist::with(['tour_package'])->where('user_id', auth()->id())->getSearch(['tour_package:title'])->latest()->paginate(getPaginate());
+        $wishlists = Wishlist::with(['tour_package'])->whereHas('tour_package')->where('user_id', auth()->id())->getSearch(['tour_package:title'])->latest()->paginate(getPaginate());
         return view($this->activeTemplate . 'user.wishlists', compact('pageTitle',    'wishlists'));
     }
     public function removeWishlist(Request $request)
