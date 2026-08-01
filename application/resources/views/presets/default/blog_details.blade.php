@@ -1,4 +1,14 @@
 @extends($activeTemplate . 'layouts.frontend')
+
+@section('og_url', route('blog.details', ['slug' => slug($blog->data_values->title), 'id' => $blog->id]))
+@section('og_title', $blog->data_values->title)
+@if (!empty($blog->data_values->blog_image))
+    @section('og_image', getImage(getFilePath('frontend') . '/blog/' . $blog->data_values->blog_image))
+@endif
+@if (!empty($blog->data_values->description))
+    @section('og_description', strLimit(strip_tags($blog->data_values->description), 160))
+@endif
+
 @section('content')
     <section class="blog-details--section section--bg py-100">
         <div class="container">
@@ -34,24 +44,7 @@
                                 @endphp
                           
 
-                            <div class="blog-details--share mt-4 d-flex align-items-center flex-wrap mb-5">
-                                <h5 class="social-share--title mb-0 me-sm-3 me-1 d-inline-block">@lang('Share This'):</h5>
-                                <ul class="social-list blog-details d-flex gap--12">
-                                    <li class="social-list--item">
-                                        <a href="https://www.facebook.com/share.php?u={{ Request::url() }}&title={{ slug($blog->data_values->title) }}"
-                                            class="social-list__link d-flex justify-content-center align-items-center"><i
-                                                class="fab fa-facebook-f"></i></a>
-                                    </li>
-                                    <li class="social-list--item"><a
-                                            href="https://www.linkedin.com/shareArticle?mini=true&url={{ Request::url() }}&title={{ slug($blog->data_values->title) }}&source=behands"
-                                            class="social-list__link d-flex justify-content-center align-items-center"><i
-                                                class="fab fa-linkedin-in"></i></a></li>
-                                    <li class="social-list--item"><a
-                                            href="https://twitter.com/intent/tweet?status={{ slug($blog->data_values->title) }}+{{ Request::url() }}"
-                                            class="social-list__link d-flex justify-content-center align-items-center"><i
-                                                class="fab fa-twitter"></i></a></li>
-                                </ul>
-                            </div>
+                            <x-share-buttons :share-title="$blog->data_values->title" />
                         </div>
                     </div>
                 </div>

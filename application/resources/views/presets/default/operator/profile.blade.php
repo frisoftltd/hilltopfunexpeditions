@@ -3,6 +3,16 @@
     $location = implode(', ', $locationParts);
 @endphp
 @extends($activeTemplate . 'layouts.frontend')
+
+@section('og_url', route('operator.profile', $agency->username))
+@section('og_title', $agency->fullname)
+@if ($agency->cover_image)
+    @section('og_image', getImage(getFilePath('coverImage') . '/' . $agency->cover_image, getFileSize('coverImage')))
+@endif
+@if ($agency->bio)
+    @section('og_description', strLimit(strip_tags($agency->bio), 160))
+@endif
+
 @section('content')
     <section class="profile--section py-100">
         <div class="container">
@@ -89,36 +99,7 @@
                         @endif
                     </div>
 
-                    <div class="base--card radius--20 mb-4">
-                        <div class="auth--badge d-flex align-items-center gap--8 flex-wrap">
-                            <h5 class="social-share--title mb-0 me-sm-3 me-1 d-inline-block">@lang('Share This'):</h5>
-                            <ul class="social-list d-flex gap--12 mb-0">
-                                <li class="social-list--item">
-                                    <a href="https://www.facebook.com/share.php?u={{ Request::url() }}&title={{ slug($agency->fullname) }}"
-                                        class="social-list__link d-flex justify-content-center align-items-center" target="_blank">
-                                        <i class="fab fa-facebook-f"></i>
-                                    </a>
-                                </li>
-                                <li class="social-list--item">
-                                    <a href="https://www.linkedin.com/shareArticle?mini=true&url={{ Request::url() }}&title={{ slug($agency->fullname) }}&source=behands"
-                                        class="social-list__link d-flex justify-content-center align-items-center" target="_blank">
-                                        <i class="fab fa-linkedin-in"></i>
-                                    </a>
-                                </li>
-                                <li class="social-list--item">
-                                    <a href="https://twitter.com/intent/tweet?status={{ slug($agency->fullname) }}+{{ Request::url() }}"
-                                        class="social-list__link d-flex justify-content-center align-items-center" target="_blank">
-                                        <i class="fab fa-twitter"></i>
-                                    </a>
-                                </li>
-                                <li class="social-list--item">
-                                    <button type="button" id="copyProfileLink" class="social-list__link d-flex justify-content-center align-items-center border-0" title="@lang('Copy Link')">
-                                        <i class="fa-solid fa-link"></i>
-                                    </button>
-                                </li>
-                            </ul>
-                        </div>
-                    </div>
+                    <x-share-buttons :share-title="$agency->fullname" />
 
                     <div id="packages" class="mb-4">
                         <h5 class="mb-3">@lang('Book one of my offers')</h5>
@@ -209,20 +190,6 @@
     <script>
         (function() {
             "use strict";
-
-            const copyBtn = document.getElementById('copyProfileLink');
-            if (copyBtn) {
-                copyBtn.addEventListener('click', function() {
-                    navigator.clipboard.writeText(window.location.href).then(function() {
-                        copyBtn.querySelector('i').classList.remove('fa-link');
-                        copyBtn.querySelector('i').classList.add('fa-check');
-                        setTimeout(function() {
-                            copyBtn.querySelector('i').classList.remove('fa-check');
-                            copyBtn.querySelector('i').classList.add('fa-link');
-                        }, 2000);
-                    });
-                });
-            }
 
             const bioText = document.getElementById('bioText');
             const bioToggle = document.getElementById('bioToggle');

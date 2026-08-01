@@ -14,15 +14,26 @@
     <meta itemprop="description" content="{{ $general->seo_description }}">
     <meta itemprop="image" content="{{ getImage(getFilePath('seo') .'/'. $seo->image) }}">
     {{--<!-- Facebook Meta Tags -->--}}
+    @php
+        // Falls back to the site-wide defaults for any page that doesn't
+        // @section() one of these - individual pages (operator profile,
+        // tour package details, blog details) override them so link
+        // previews on Facebook/LinkedIn/Twitter show that page's own
+        // title/image/description instead of the homepage's.
+        $ogImage = $__env->yieldContent('og_image', getImage(getFilePath('seo') . '/' . $seo->image));
+    @endphp
     <meta property="og:type" content="website">
-    <meta property="og:title" content="{{ $seo->social_title }}">
-    <meta property="og:description" content="{{ $seo->social_description }}">
-    <meta property="og:image" content="{{ getImage(getFilePath('seo') .'/'. $seo->image) }}">
-    <meta property="og:image:type" content="image/{{ pathinfo(getImage(getFilePath('seo')) .'/'. $seo->image)['extension'] }}">
+    <meta property="og:title" content="@yield('og_title', $seo->social_title)">
+    <meta property="og:description" content="@yield('og_description', $seo->social_description)">
+    <meta property="og:image" content="{{ $ogImage }}">
+    <meta property="og:image:type" content="image/{{ pathinfo($ogImage, PATHINFO_EXTENSION) }}">
     @php $socialImageSize = explode('x', getFileSize('seo')) @endphp
     <meta property="og:image:width" content="{{ $socialImageSize[0] }}">
     <meta property="og:image:height" content="{{ $socialImageSize[1] }}">
-    <meta property="og:url" content="{{ url()->current() }}">
+    <meta property="og:url" content="@yield('og_url', url()->current())">
     {{--<!-- Twitter Meta Tags -->--}}
     <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="@yield('og_title', $seo->social_title)">
+    <meta name="twitter:description" content="@yield('og_description', $seo->social_description)">
+    <meta name="twitter:image" content="{{ $ogImage }}">
 @endif

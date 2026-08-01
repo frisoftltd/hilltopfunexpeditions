@@ -6,6 +6,16 @@
 
 
 @extends($activeTemplate . 'layouts.frontend')
+
+@section('og_url', route('tour.package.details', [$tourPackage->id, slug($tourPackage->title)]))
+@section('og_title', $tourPackage->title)
+@if ($tourPackage->tour_package_images->first())
+    @section('og_image', getImage(getFilePath('tourPackageImage') . '/' . $tourPackage->tour_package_images->first()->image))
+@endif
+@if (!empty($tourPackage->description))
+    @section('og_description', strLimit(strip_tags($tourPackage->description), 160))
+@endif
+
 @section('content')
 
     <!-- < product details  -->
@@ -118,6 +128,9 @@
 
                             </ul>
                         </div>
+
+                        <x-share-buttons :share-title="$tourPackage->title" />
+
                         <ul class="custom--tabs buy-sell d-flex flex-wrap gap--4 z--1 mb-4" role="tablist">
                             <li class="nav-item" role="presentation">
                                 <button class="btn nav-link pills active" id="Profile-tab" data-bs-toggle="tab"
